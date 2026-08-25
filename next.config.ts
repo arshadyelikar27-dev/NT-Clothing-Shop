@@ -1,5 +1,12 @@
 import type { NextConfig } from "next";
 
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = "file:./dev.db";
+}
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = "noble-textile-jwt-secret-key-2024";
+}
+
 const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
