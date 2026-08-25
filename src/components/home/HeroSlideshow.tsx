@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface SlideData {
   id: string;
@@ -349,61 +349,6 @@ export function HeroSlideshow() {
           </div>
         </div>
       </div>
-
-      {/* ─── Left / Right Chevron Controls ─── */}
-      <button
-        onClick={prevSlide}
-        aria-label="Previous Slide"
-        style={{
-          position: "absolute",
-          left: "20px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: "44px",
-          height: "44px",
-          borderRadius: "50%",
-          backgroundColor: "rgba(10, 9, 8, 0.5)",
-          backdropFilter: "blur(6px)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          color: "white",
-          zIndex: 5,
-          transition: "background-color 0.15s, transform 0.15s",
-        }}
-        className="hover:scale-110 hover:bg-black/80"
-      >
-        <ChevronLeft size={22} />
-      </button>
-
-      <button
-        onClick={nextSlide}
-        aria-label="Next Slide"
-        style={{
-          position: "absolute",
-          right: "20px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: "44px",
-          height: "44px",
-          borderRadius: "50%",
-          backgroundColor: "rgba(10, 9, 8, 0.5)",
-          backdropFilter: "blur(6px)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          color: "white",
-          zIndex: 5,
-          transition: "background-color 0.15s, transform 0.15s",
-        }}
-        className="hover:scale-110 hover:bg-black/80"
-      >
-        <ChevronRight size={22} />
-      </button>
     </div>
   );
 }
