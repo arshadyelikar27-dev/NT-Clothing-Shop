@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#F0EBE3"/>
+  <rect x="0" y="0" width="600" height="800" fill="url(#texture)" opacity="0.08"/>
+  <defs>
+    <pattern id="texture" width="20" height="20" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="20" y2="20" stroke="#1A1918" stroke-width="0.5" opacity="0.3"/>
+      <line x1="20" y1="0" x2="0" y2="20" stroke="#1A1918" stroke-width="0.5" opacity="0.15"/>
+    </pattern>
+  </defs>
+  <text x="300" y="380" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#1A1918" opacity="0.7">Plain Fabric</text>
+  <text x="300" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#1A1918" opacity="0.4">NOBLE TEXTILE</text>
+</svg>

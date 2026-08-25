@@ -1,26 +1,437 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* ─── Brand Colors ─── */
+  --color-ivory: #FAF7F2;
+  --color-linen: #F3EFEA;
+  --color-sand: #E4DDD3;
+  --color-warm-gray: #B8AFA4;
+  --color-stone: #8A8279;
+  --color-charcoal: #1A1918;
+  --color-charcoal-light: #2D2B29;
+  --color-terracotta: #9E3B2B;
+  --color-terracotta-light: #B85442;
+  --color-terracotta-dark: #7A2D20;
+  --color-forest: #2C3E2D;
+  --color-forest-light: #3D5440;
+  --color-sage: #6B7F5E;
+
+  /* ─── Functional Colors ─── */
+  --color-success: #2C6E3F;
+  --color-warning: #B8860B;
+  --color-error: #B91C1C;
+  --color-info: #1E5F8A;
+
+  /* ─── Typography ─── */
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Base ─── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  font-family: var(--font-sans);
+  color: var(--color-charcoal);
+  background-color: var(--color-ivory);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100dvh;
+  line-height: 1.6;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background-color: var(--color-terracotta);
+  color: white;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-linen);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-sand);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-warm-gray);
+}
+
+/* ─── Typography ─── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Focus Styles ─── */
+:focus-visible {
+  outline: 2px solid var(--color-terracotta);
+  outline-offset: 2px;
+}
+
+/* ─── Buttons ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--color-charcoal);
+  color: white;
+  border-color: var(--color-charcoal);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-charcoal-light);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-charcoal);
+  border-color: var(--color-charcoal);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-charcoal);
+  color: white;
+}
+
+.btn-accent {
+  background-color: var(--color-terracotta);
+  color: white;
+  border-color: var(--color-terracotta);
+}
+
+.btn-accent:hover:not(:disabled) {
+  background-color: var(--color-terracotta-dark);
+  border-color: var(--color-terracotta-dark);
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
+.btn-lg {
+  padding: 16px 36px;
+  font-size: 15px;
+}
+
+/* ─── Input ─── */
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-charcoal);
+  background-color: white;
+  border: 1px solid var(--color-sand);
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-charcoal);
+}
+
+.input::placeholder {
+  color: var(--color-warm-gray);
+}
+
+.input-error {
+  border-color: var(--color-error);
+}
+
+/* ─── Container ─── */
+.container-main {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media (min-width: 768px) {
+  .container-main {
+    padding: 0 40px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-main {
+    padding: 0 60px;
+  }
+}
+
+/* ─── Product Grid ─── */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .product-grid {
+    gap: 20px;
+  }
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+}
+
+/* ─── Section Spacing ─── */
+.section-spacing {
+  padding: 48px 0;
+}
+
+@media (min-width: 768px) {
+  .section-spacing {
+    padding: 72px 0;
+  }
+}
+
+@media (min-width: 1280px) {
+  .section-spacing {
+    padding: 96px 0;
+  }
+}
+
+/* ─── Skeleton Loading ─── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-linen) 25%,
+    var(--color-sand) 50%,
+    var(--color-linen) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+/* ─── Badge ─── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badge-sale {
+  background-color: var(--color-terracotta);
+  color: white;
+}
+
+.badge-new {
+  background-color: var(--color-forest);
+  color: white;
+}
+
+.badge-out {
+  background-color: var(--color-warm-gray);
+  color: white;
+}
+
+/* ─── Image Aspect Ratios ─── */
+.aspect-product {
+  aspect-ratio: 3 / 4;
+}
+
+.aspect-category {
+  aspect-ratio: 4 / 5;
+}
+
+.aspect-hero {
+  aspect-ratio: 16 / 9;
+}
+
+@media (max-width: 767px) {
+  .aspect-hero {
+    aspect-ratio: 3 / 4;
+  }
+}
+
+/* ─── Modern Animations ─── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(158, 59, 43, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(158, 59, 43, 0);
+  }
+}
+
+/* ─── Mobile App Polish (Flipkart / Amazon Grade) ─── */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (max-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  
+  .container-main {
+    padding: 0 14px !important;
+  }
+}
+
+/* ─── Mobile Bottom Navigation (Strictly Hidden on Desktop) ─── */
+.mobile-bottom-nav-bar {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  body {
+    padding-bottom: 64px !important;
+  }
+
+  .mobile-bottom-nav-bar {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 49;
+    background-color: rgba(255, 255, 255, 0.94);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    border-top: 1px solid #E4DDD3;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    padding: 6px 12px 10px;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .mobile-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: #8A8279;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 500;
+    min-width: 48px;
+    padding: 4px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mobile-tab.active {
+    color: #9E3B2B;
+    font-weight: 700;
+  }
+
+  .mobile-tab-badge {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    background-color: #9E3B2B;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ─── Fixed Floating Nav Layout Clearance ─── */
+main#main-content > div:not(.hero-full-bleed) {
+  padding-top: 84px;
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
