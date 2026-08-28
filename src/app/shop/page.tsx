@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { ProductCard } from "@/components/product/ProductCard";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -61,7 +62,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   }
 
   const limit = 20;
-  let products: Awaited<ReturnType<typeof prisma.product.findMany>> = [];
+  let products: Prisma.ProductGetPayload<{
+    include: { images: { orderBy: { sortOrder: "asc" } }; category: true };
+  }>[] = [];
   let total = 0;
   let categories: Awaited<ReturnType<typeof prisma.category.findMany>> = [];
 
