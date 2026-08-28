@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -484,3 +486,4 @@ export default async function HomePage() {
     </>
   );
 }
+

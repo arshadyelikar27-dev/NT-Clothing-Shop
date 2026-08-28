@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/db";
 import { BackButton } from "@/components/ui/BackButton";
 import { AdminProductForm } from "./AdminProductForm";
@@ -28,3 +30,4 @@ export default async function AdminNewProductPage() {
     </div>
   );
 }
+

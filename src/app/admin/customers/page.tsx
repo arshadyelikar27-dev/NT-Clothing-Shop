@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 import { Users, Mail, Phone, ShoppingBag } from "lucide-react";
@@ -69,3 +71,4 @@ export default async function AdminCustomersPage() {
     </div>
   );
 }
+

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/db";
 import { ProductCard } from "@/components/product/ProductCard";
 import Link from "next/link";
@@ -419,3 +421,4 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     </div>
   );
 }
+

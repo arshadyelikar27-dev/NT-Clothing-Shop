@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/db";
 import { AdminContentForm } from "./AdminContentForm";
 
@@ -23,3 +25,4 @@ export default async function AdminContentPage() {
     </div>
   );
 }
+

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 import { Sliders, AlertTriangle } from "lucide-react";
@@ -92,3 +94,4 @@ export default async function AdminInventoryPage() {
     </div>
   );
 }
+

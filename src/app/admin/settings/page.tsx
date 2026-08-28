@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/db";
 import { AdminSettingsForm } from "./AdminSettingsForm";
 
@@ -23,3 +25,4 @@ export default async function AdminSettingsPage() {
     </div>
   );
 }
+

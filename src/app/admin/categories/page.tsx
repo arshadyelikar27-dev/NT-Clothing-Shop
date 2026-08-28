@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { Plus, Layers } from "lucide-react";
@@ -68,3 +70,4 @@ export default async function AdminCategoriesPage() {
     </div>
   );
 }
+
