@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 import {
   ShieldCheck,
   MapPin,
@@ -409,8 +410,10 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div style={{ backgroundColor: "#FAF7F2", minHeight: "100vh", paddingTop: "110px", paddingBottom: "80px" }}>
-      <div className="container-main">
+    <>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      <div style={{ backgroundColor: "#FAF7F2", minHeight: "100vh", paddingTop: "110px", paddingBottom: "80px" }}>
+        <div className="container-main">
         {/* Checkout Header */}
         <div style={{ marginBottom: "24px" }}>
           <Link
@@ -1243,5 +1246,6 @@ export default function CheckoutPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
