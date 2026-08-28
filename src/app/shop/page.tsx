@@ -61,25 +61,34 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   }
 
   const limit = 20;
-  const [products, total, categories] = await Promise.all([
-    prisma.product.findMany({
-      where: where as never,
-      include: {
-        images: { orderBy: { sortOrder: "asc" } },
-        category: true,
-      },
-      orderBy: orderBy as never,
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.product.count({ where: where as never }),
-    prisma.category.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: "asc" },
-    }),
-  ]);
+  let products: Awaited<ReturnType<typeof prisma.product.findMany>> = [];
+  let total = 0;
+  let categories: Awaited<ReturnType<typeof prisma.category.findMany>> = [];
+
+  try {
+    [products, total, categories] = await Promise.all([
+      prisma.product.findMany({
+        where: where as never,
+        include: {
+          images: { orderBy: { sortOrder: "asc" } },
+          category: true,
+        },
+        orderBy: orderBy as never,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.product.count({ where: where as never }),
+      prisma.category.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: "asc" },
+      }),
+    ]);
+  } catch {
+    // DB unreachable during build — render shell, data loads at runtime
+  }
 
   const totalPages = Math.ceil(total / limit);
+
 
   const sortOptions = [
     { value: "newest", label: "Newest" },

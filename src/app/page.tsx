@@ -44,10 +44,17 @@ async function getDiscoverCollection() {
 }
 
 export default async function HomePage() {
-  const [categoriesWithProducts, discoverProducts] = await Promise.all([
-    getCategoriesWithProducts(),
-    getDiscoverCollection(),
-  ]);
+  let categoriesWithProducts: Awaited<ReturnType<typeof getCategoriesWithProducts>> = [];
+  let discoverProducts: Awaited<ReturnType<typeof getDiscoverCollection>> = [];
+
+  try {
+    [categoriesWithProducts, discoverProducts] = await Promise.all([
+      getCategoriesWithProducts(),
+      getDiscoverCollection(),
+    ]);
+  } catch {
+    // DB unreachable during build — render shell, data loads at runtime
+  }
 
   return (
     <>
