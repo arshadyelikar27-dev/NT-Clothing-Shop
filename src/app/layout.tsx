@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-import { ClientOverlays } from "@/components/layout/ClientOverlays";
+import { StoreLayoutWrapper } from "@/components/layout/StoreLayoutWrapper";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -53,11 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${plusJakarta.variable}`}>
       <body>
-        <Header />
-        <main id="main-content">{children}</main>
-        <Footer />
-        <ClientOverlays />
-        <MobileBottomNav />
+        <StoreLayoutWrapper>{children}</StoreLayoutWrapper>
       </body>
     </html>
   );

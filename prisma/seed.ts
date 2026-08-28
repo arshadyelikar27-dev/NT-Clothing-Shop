@@ -471,7 +471,7 @@ async function main() {
   // Clean existing product records for clean fresh seed
   await prisma.productImage.deleteMany();
   await prisma.orderItem.deleteMany();
-  await prisma.wishlistItem.deleteMany();
+
   await prisma.cartItem.deleteMany();
   await prisma.review.deleteMany();
   await prisma.product.deleteMany();
@@ -521,25 +521,7 @@ async function main() {
   }
   console.log(`✓ ${settings.length} store settings saved`);
 
-  // ─── Welcome Coupon ───
-  await prisma.coupon.upsert({
-    where: { code: "WELCOME10" },
-    update: {
-      type: "PERCENTAGE",
-      value: 10,
-      isActive: true,
-    },
-    create: {
-      code: "WELCOME10",
-      type: "PERCENTAGE",
-      value: 10,
-      minCartValue: 500,
-      maxDiscount: 500,
-      usageLimit: 1000,
-      isActive: true,
-    },
-  });
-  console.log("✓ Coupon WELCOME10 saved");
+
 
   console.log("✨ Seed completed successfully with diverse products and category visuals!");
 }

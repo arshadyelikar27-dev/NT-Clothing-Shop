@@ -20,7 +20,7 @@ const SLIDES: SlideData[] = [
   {
     id: "sarees",
     tag: "AUTHENTIC LATUR TEXTILES",
-    headline: "Handwoven Silk & Festive Drapery.",
+    headline: "Handwoven Silk & Premium Drapery.",
     subtext:
       "Pure Banarasi zari, lustrous Paithani borders, and heritage sarees handpicked directly from master artisan clusters.",
     primaryCta: { text: "Shop Sarees", href: "/category/sarees" },
@@ -43,12 +43,12 @@ const SLIDES: SlideData[] = [
   },
   {
     id: "kurtis",
-    tag: "NEW SEASON ARRIVALS",
+    tag: "DESIGNER COLLECTION",
     headline: "Designer Kurtis & Unstitched Sets.",
     subtext:
       "Handcrafted block-print kurtis, chikankari embroidery, and daily ethnic luxury designed for effortless comfort.",
     primaryCta: { text: "Explore Kurtis", href: "/category/kurtis" },
-    secondaryCta: { text: "New In Store", href: "/shop?sort=newest" },
+    secondaryCta: { text: "Shop Latest", href: "/shop" },
     image: "/images/products/womens-kurti-olive.jpg",
     badge: "Readymade & Dress Materials",
     category: "Kurtis & Suits",

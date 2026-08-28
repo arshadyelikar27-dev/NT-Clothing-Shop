@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { BackButton } from "@/components/ui/BackButton";
 
 export default async function AccountPage() {
   const session = await getSession();
@@ -40,6 +41,13 @@ export default async function AccountPage() {
   return (
     <div style={{ backgroundColor: "#FAF7F2", minHeight: "100vh", paddingTop: "110px", paddingBottom: "80px" }}>
       <div className="container-main" style={{ maxWidth: "1000px" }}>
+        <div style={{ marginBottom: "20px" }}>
+          <BackButton 
+            label="Back to Shop" 
+            fallbackUrl="/shop"
+            className="text-[#8A8279]"
+          />
+        </div>
         {/* Header */}
         <div
           style={{
@@ -57,7 +65,7 @@ export default async function AccountPage() {
             <span style={{ fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9E3B2B" }}>
               Customer Dashboard
             </span>
-            <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "28px", fontWeight: 500, color: "#1A1918" }}>
+            <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "28px", fontWeight: 500, color: "#1A1918", marginTop: "8px" }}>
               Hello, {user.name}
             </h1>
             <p style={{ fontSize: "13px", color: "#8A8279" }}>{user.email} • {user.phone || "No phone added"}</p>
@@ -78,11 +86,11 @@ export default async function AccountPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(2, 1fr)",
             gap: "16px",
             marginBottom: "40px",
           }}
-          className="sm:grid-cols-3"
+          className="sm:grid-cols-2"
         >
           <Link
             href="/account/orders"
@@ -104,25 +112,7 @@ export default async function AccountPage() {
             </div>
           </Link>
 
-          <Link
-            href="/account/wishlist"
-            style={{
-              backgroundColor: "white",
-              border: "1px solid #E4DDD3",
-              padding: "20px",
-              textDecoration: "none",
-              color: "inherit",
-              display: "flex",
-              alignItems: "center",
-              gap: "14px",
-            }}
-          >
-            <Heart size={24} color="#9E3B2B" />
-            <div>
-              <p style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918" }}>My Wishlist</p>
-              <p style={{ fontSize: "12px", color: "#8A8279" }}>Saved fabrics & garments</p>
-            </div>
-          </Link>
+
 
           <Link
             href="/account/addresses"

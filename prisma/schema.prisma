@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─── USER & AUTH ───
@@ -22,10 +23,8 @@ model User {
 
   addresses     Address[]
   cart          Cart?
-  wishlistItems WishlistItem[]
   orders        Order[]
   reviews       Review[]
-  couponUsages  CouponUsage[]
 
   @@index([email])
   @@index([role])
@@ -108,13 +107,13 @@ model Product {
   tags            String?  // comma-separated
   seoTitle        String?
   seoDescription  String?
+  videoUrl        String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   images          ProductImage[]
   variants        ProductVariant[]
   cartItems       CartItem[]
-  wishlistItems   WishlistItem[]
   orderItems      OrderItem[]
   reviews         Review[]
 
@@ -182,19 +181,7 @@ model CartItem {
   @@index([cartId])
 }
 
-// ─── WISHLIST ───
 
-model WishlistItem {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-
-  @@unique([userId, productId])
-  @@index([userId])
-}
 
 // ─── ORDERS ───
 
@@ -211,8 +198,6 @@ model Order {
   shippingCharge  Float    @default(0)
   tax             Float    @default(0)
   total           Float
-  couponId        String?
-  coupon          Coupon?  @relation(fields: [couponId], references: [id])
   paymentMethod   String   // RAZORPAY, COD
   deliveryMethod  String   @default("STANDARD") // STANDARD, EXPRESS
   notes           String?
@@ -285,43 +270,7 @@ model Payment {
   @@index([orderId])
 }
 
-// ─── COUPONS ───
 
-model Coupon {
-  id              String    @id @default(cuid())
-  code            String    @unique
-  type            String    // PERCENTAGE, FIXED
-  value           Float
-  minCartValue    Float     @default(0)
-  maxDiscount     Float?
-  categoryId      String?
-  productId       String?
-  usageLimit      Int?
-  perUserLimit    Int       @default(1)
-  usedCount       Int       @default(0)
-  isActive        Boolean   @default(true)
-  startsAt        DateTime?
-  expiresAt       DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  orders          Order[]
-  usages          CouponUsage[]
-
-  @@index([code])
-}
-
-model CouponUsage {
-  id       String   @id @default(cuid())
-  couponId String
-  coupon   Coupon   @relation(fields: [couponId], references: [id])
-  userId   String
-  user     User     @relation(fields: [userId], references: [id])
-  orderId  String
-  usedAt   DateTime @default(now())
-
-  @@index([couponId, userId])
-}
 
 // ─── REVIEWS ───
 

@@ -37,7 +37,7 @@ declare global {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, clearCart, appliedCoupon } = useCartStore();
+  const { items, clearCart } = useCartStore();
   const { showNotification } = useUIStore();
 
   const [authUser, setAuthUser] = useState<AuthenticatedUser | null>(null);
@@ -226,14 +226,12 @@ export default function CheckoutPage() {
   };
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const freeShippingThreshold = 999;
-  let shippingCharge = subtotal >= freeShippingThreshold || subtotal === 0 ? 0 : 79;
+  let shippingCharge = subtotal === 0 ? 0 : 79;
   if (deliveryMethod === "EXPRESS") {
     shippingCharge += 70;
   }
   const codCharge = paymentMethod === "COD" ? 50 : 0;
-  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-  const finalTotal = Math.max(0, subtotal - discountAmount + shippingCharge + codCharge);
+  const finalTotal = subtotal + shippingCharge + codCharge;
 
   // Validation
   const validateStep1 = () => {
@@ -293,7 +291,6 @@ export default function CheckoutPage() {
           items,
           paymentMethod,
           deliveryMethod,
-          couponCode: appliedCoupon?.code,
           notes,
         }),
       });
@@ -1012,7 +1009,7 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         <span style={{ fontSize: "14px", fontWeight: 600 }}>
-                          {subtotal >= freeShippingThreshold ? "FREE" : "₹79"}
+                          ₹79
                         </span>
                       </label>
 
@@ -1044,7 +1041,7 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         <span style={{ fontSize: "14px", fontWeight: 600 }}>
-                          {subtotal >= freeShippingThreshold ? "₹70" : "₹149"}
+                          ₹149
                         </span>
                       </label>
 
@@ -1215,15 +1212,9 @@ export default function CheckoutPage() {
                       <span style={{ color: "#8A8279" }}>Items Subtotal</span>
                       <span>{formatPrice(subtotal)}</span>
                     </div>
-                    {appliedCoupon && (
-                      <div style={{ display: "flex", justifyContent: "space-between", color: "#2C6E3F" }}>
-                        <span>Coupon ({appliedCoupon.code})</span>
-                        <span style={{ fontWeight: 600 }}>- {formatPrice(appliedCoupon.discountAmount)}</span>
-                      </div>
-                    )}
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                       <span style={{ color: "#8A8279" }}>Shipping</span>
-                      <span>{shippingCharge === 0 ? <span style={{ color: "#2C6E3F" }}>FREE</span> : formatPrice(shippingCharge)}</span>
+                      <span>{formatPrice(shippingCharge)}</span>
                     </div>
                     {paymentMethod === "COD" && (
                       <div style={{ display: "flex", justifyContent: "space-between" }}>

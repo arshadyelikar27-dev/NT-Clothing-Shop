@@ -27,11 +27,10 @@ export default function ShippingPage() {
           </p>
 
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "20px", marginBottom: "12px", color: "#1A1918" }}>
-            2. Shipping Rates & Free Delivery
+            2. Shipping Rates
           </h2>
           <ul style={{ paddingLeft: "20px", marginBottom: "20px" }}>
-            <li><strong>Free Standard Delivery:</strong> Applicable on all prepaid and COD orders with a cart subtotal of ₹999 or higher across India.</li>
-            <li><strong>Standard Surface Shipping:</strong> A flat charge of ₹79 applies on orders below ₹999.</li>
+            <li><strong>Standard Surface Shipping:</strong> A flat charge of ₹79 applies on all orders.</li>
             <li><strong>Priority Express Dispatch:</strong> Available for an additional charge of ₹70 for urgent requirements.</li>
             <li><strong>Cash on Delivery (COD):</strong> A flat handling fee of ₹50 is charged for COD orders.</li>
           </ul>

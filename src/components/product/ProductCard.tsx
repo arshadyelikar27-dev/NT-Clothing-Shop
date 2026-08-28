@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, ShoppingBag } from "lucide-react";
-import { useCartStore, useWishlistStore, useUIStore } from "@/lib/store";
-import { formatPrice, getDiscountPercentage } from "@/lib/utils";
+import { ShoppingBag } from "lucide-react";
+import { useCartStore, useUIStore } from "@/lib/store";
+import { formatPrice } from "@/lib/utils";
 
 interface ProductCardProps {
   id: string;
   name: string;
   slug: string;
   price: number;
-  compareAtPrice?: number | null;
   image: string;
   hoverImage?: string | null;
   fabric?: string | null;
@@ -24,7 +23,6 @@ export function ProductCard({
   name,
   slug,
   price,
-  compareAtPrice,
   image,
   hoverImage,
   fabric,
@@ -33,15 +31,8 @@ export function ProductCard({
   isNew,
 }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
-  const { addItem: addWishlist, removeItem: removeWishlist, isInWishlist } =
-    useWishlistStore();
-  const { showNotification } = useUIStore();
-
-  const wishlisted = isInWishlist(id);
-  const discount = compareAtPrice
-    ? getDiscountPercentage(price, compareAtPrice)
-    : 0;
   const outOfStock = stock <= 0;
+  const { showNotification } = useUIStore();
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -53,7 +44,6 @@ export function ProductCard({
       name,
       image,
       price,
-      compareAtPrice: compareAtPrice || undefined,
       quantity: 1,
       unitType,
       sku: slug,
@@ -62,17 +52,7 @@ export function ProductCard({
     showNotification(`${name} added to bag`, "success");
   };
 
-  const handleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (wishlisted) {
-      removeWishlist(id);
-      showNotification("Removed from wishlist", "info");
-    } else {
-      addWishlist({ productId: id, name, image, price, compareAtPrice: compareAtPrice || undefined, slug });
-      showNotification("Added to wishlist", "success");
-    }
-  };
+
 
   return (
     <div style={{ position: "relative" }}>
@@ -110,59 +90,6 @@ export function ProductCard({
             }}
           />
 
-          {/* Badges */}
-          <div
-            style={{
-              position: "absolute",
-              top: "12px",
-              left: "12px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "6px",
-            }}
-          >
-            {discount > 0 && (
-              <span className="badge badge-sale">{discount}% off</span>
-            )}
-            {isNew && <span className="badge badge-new">New</span>}
-            {outOfStock && (
-              <span className="badge badge-out">Sold out</span>
-            )}
-          </div>
-
-          {/* Actions */}
-          <div
-            style={{
-              position: "absolute",
-              top: "12px",
-              right: "12px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
-            }}
-          >
-            <button
-              onClick={handleWishlist}
-              aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-              style={{
-                width: "36px",
-                height: "36px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "rgba(250, 247, 242, 0.9)",
-                border: "none",
-                cursor: "pointer",
-                transition: "transform 0.2s",
-              }}
-            >
-              <Heart
-                size={16}
-                fill={wishlisted ? "#9E3B2B" : "none"}
-                color={wishlisted ? "#9E3B2B" : "#1A1918"}
-              />
-            </button>
-          </div>
 
           {/* Quick Add */}
           {!outOfStock && (
@@ -235,27 +162,10 @@ export function ProductCard({
               fontFamily: "var(--font-sans)",
             }}
           >
-            <span
-              style={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "#1A1918",
-              }}
-            >
+            <span style={{ fontSize: "14px", fontWeight: 700, color: "#1A1918", fontFamily: "var(--font-sans)" }}>
               {formatPrice(price)}
               {unitType === "PER_METER" ? "/m" : ""}
             </span>
-            {compareAtPrice && compareAtPrice > price && (
-              <span
-                style={{
-                  fontSize: "13px",
-                  color: "#B8AFA4",
-                  textDecoration: "line-through",
-                }}
-              >
-                {formatPrice(compareAtPrice)}
-              </span>
-            )}
           </div>
         </div>
       </Link>

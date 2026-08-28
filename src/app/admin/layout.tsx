@@ -35,8 +35,6 @@ export default async function AdminLayout({
     { href: "/admin/categories", label: "Categories", icon: <Layers size={18} /> },
     { href: "/admin/inventory", label: "Inventory", icon: <Sliders size={18} /> },
     { href: "/admin/customers", label: "Customers", icon: <Users size={18} /> },
-    { href: "/admin/coupons", label: "Coupons", icon: <Tag size={18} /> },
-    { href: "/admin/content", label: "Homepage CMS", icon: <FileText size={18} /> },
     { href: "/admin/settings", label: "Store Settings", icon: <Settings size={18} /> },
   ];
 

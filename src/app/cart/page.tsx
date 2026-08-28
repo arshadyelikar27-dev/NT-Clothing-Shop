@@ -10,62 +10,18 @@ import {
   Plus,
   ArrowRight,
   ShieldCheck,
-  Tag,
-  CheckCircle,
-  Truck,
 } from "lucide-react";
 import { useCartStore, useUIStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, removeItem, updateQuantity, clearCart, appliedCoupon, setAppliedCoupon } = useCartStore();
+  const { items, removeItem, updateQuantity, clearCart } = useCartStore();
   const { showNotification } = useUIStore();
 
-  const [couponCode, setCouponCode] = useState("");
-  const [couponError, setCouponError] = useState("");
-  const [isApplying, setIsApplying] = useState(false);
-
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const freeShippingThreshold = 999;
-  const shippingCharge = subtotal >= freeShippingThreshold || subtotal === 0 ? 0 : 79;
-  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-  const finalTotal = Math.max(0, subtotal - discountAmount + shippingCharge);
-  const amountToFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
-
-  const handleApplyCoupon = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!couponCode.trim()) return;
-
-    setIsApplying(true);
-    setCouponError("");
-
-    try {
-      const res = await fetch("/api/coupons/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: couponCode.trim(), cartTotal: subtotal }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setAppliedCoupon(data.coupon);
-        showNotification(`Coupon ${data.coupon.code} applied: Saved ₹${data.coupon.discountAmount}`, "success");
-      } else {
-        setCouponError(data.error || "Invalid coupon code");
-      }
-    } catch {
-      setCouponError("Could not apply coupon");
-    } finally {
-      setIsApplying(false);
-    }
-  };
-
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCode("");
-    showNotification("Coupon removed", "info");
-  };
+  const shippingCharge = subtotal === 0 ? 0 : 79;
+  const finalTotal = subtotal + shippingCharge;
 
   if (items.length === 0) {
     return (
@@ -112,34 +68,7 @@ export default function CartPage() {
           Review your fabrics and clothing before checkout ({items.length} {items.length === 1 ? "item" : "items"})
         </p>
 
-        {/* Free Shipping Progress Indicator */}
-        <div
-          style={{
-            backgroundColor: "#F3EFEA",
-            border: "1px solid #E4DDD3",
-            padding: "16px 20px",
-            marginBottom: "32px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-            <Truck size={18} color={subtotal >= freeShippingThreshold ? "#2C6E3F" : "#9E3B2B"} />
-            <span style={{ fontSize: "13px", fontWeight: 600 }}>
-              {subtotal >= freeShippingThreshold
-                ? "You have unlocked FREE Standard Shipping across India!"
-                : `Add ${formatPrice(amountToFreeShipping)} more to qualify for FREE Shipping`}
-            </span>
-          </div>
-          <div style={{ width: "100%", height: "6px", backgroundColor: "#E4DDD3", overflow: "hidden" }}>
-            <div
-              style={{
-                width: `${Math.min(100, (subtotal / freeShippingThreshold) * 100)}%`,
-                height: "100%",
-                backgroundColor: subtotal >= freeShippingThreshold ? "#2C6E3F" : "#9E3B2B",
-                transition: "width 0.3s ease",
-              }}
-            />
-          </div>
-        </div>
+
 
         <div
           style={{
@@ -308,66 +237,7 @@ export default function CartPage() {
                 Order Summary
               </h2>
 
-              {/* Coupon Form */}
-              <div style={{ marginBottom: "24px", borderBottom: "1px solid #E4DDD3", paddingBottom: "20px" }}>
-                {appliedCoupon ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      backgroundColor: "white",
-                      padding: "10px 14px",
-                      border: "1px solid #2C6E3F",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <CheckCircle size={16} color="#2C6E3F" />
-                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#2C6E3F" }}>
-                        {appliedCoupon.code} (-₹{appliedCoupon.discountAmount})
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleRemoveCoupon}
-                      style={{ background: "none", border: "none", fontSize: "12px", color: "#B91C1C", cursor: "pointer" }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleApplyCoupon}>
-                    <div style={{ display: "flex", gap: "0" }}>
-                      <input
-                        type="text"
-                        placeholder="Coupon code (e.g. WELCOME10)"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        style={{
-                          flex: 1,
-                          padding: "10px 14px",
-                          fontSize: "13px",
-                          border: "1px solid #E4DDD3",
-                          backgroundColor: "white",
-                          fontFamily: "var(--font-sans)",
-                        }}
-                      />
-                      <button
-                        type="submit"
-                        disabled={isApplying}
-                        className="btn btn-primary btn-sm"
-                        style={{ whiteSpace: "nowrap" }}
-                      >
-                        {isApplying ? "..." : "Apply"}
-                      </button>
-                    </div>
-                    {couponError && (
-                      <p style={{ fontSize: "12px", color: "#B91C1C", marginTop: "6px" }}>
-                        {couponError}
-                      </p>
-                    )}
-                  </form>
-                )}
-              </div>
+
 
               {/* Price Breakdown */}
               <div style={{ display: "flex", flexDirection: "column", gap: "12px", fontSize: "14px", marginBottom: "24px" }}>
@@ -376,17 +246,10 @@ export default function CartPage() {
                   <span style={{ fontWeight: 500 }}>{formatPrice(subtotal)}</span>
                 </div>
 
-                {appliedCoupon && (
-                  <div style={{ display: "flex", justifyContent: "space-between", color: "#2C6E3F" }}>
-                    <span>Coupon Discount ({appliedCoupon.code})</span>
-                    <span style={{ fontWeight: 600 }}>- {formatPrice(appliedCoupon.discountAmount)}</span>
-                  </div>
-                )}
-
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ color: "#8A8279" }}>Estimated Shipping</span>
                   <span style={{ fontWeight: 500 }}>
-                    {shippingCharge === 0 ? <span style={{ color: "#2C6E3F" }}>FREE</span> : formatPrice(shippingCharge)}
+                    {formatPrice(shippingCharge)}
                   </span>
                 </div>
 

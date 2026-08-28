@@ -11,7 +11,7 @@ import {
   X,
   ChevronDown,
 } from "lucide-react";
-import { useCartStore, useWishlistStore, useUIStore } from "@/lib/store";
+import { useCartStore, useUIStore } from "@/lib/store";
 
 const NAV_LINKS = [
   { href: "/shop", label: "Shop" },
@@ -19,14 +19,13 @@ const NAV_LINKS = [
     href: "/shop",
     label: "Categories",
     children: [
-      { href: "/category/sarees", label: "Sarees (Banarasi & Paithani)" },
-      { href: "/category/dress-materials", label: "Dress Materials & Suits" },
-      { href: "/category/fabrics", label: "Fabrics by the Meter" },
-      { href: "/category/kurtis", label: "Kurtis & Tunics" },
-      { href: "/category/mens-wear", label: "Men's Shirting & Suiting" },
-      { href: "/category/dupattas", label: "Dupattas & Stoles" },
-      { href: "/category/kids-wear", label: "Kids Wear" },
-      { href: "/category/seasonal", label: "Monsoon & Festive Collection" },
+      { href: "/category/mens-wear", label: "Men's Wear" },
+      { href: "/category/womens-wear", label: "Women's Wear" },
+      { href: "/category/dress-materials", label: "Dress Materials" },
+      { href: "/category/kurtis", label: "Kurtis" },
+      { href: "/category/sarees", label: "Sarees" },
+      { href: "/category/suits", label: "Suits" },
+      { href: "/category/fabrics", label: "Fabrics" },
     ],
   },
   { href: "/shop?sort=newest", label: "New Arrivals" },
@@ -41,7 +40,6 @@ export function Header() {
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const { isMobileMenuOpen, setMobileMenu, setSearchOpen } = useUIStore();
   const cartItemCount = useCartStore((s) => s.items.length);
-  const wishlistCount = useWishlistStore((s) => s.items.length);
   const toggleCart = useCartStore((s) => s.toggleCart);
 
   useEffect(() => {
@@ -346,43 +344,6 @@ export function Header() {
               )}
             </Link>
 
-            {/* Wishlist Icon (Desktop Only - Mobile has Bottom Nav) */}
-            <Link
-              href="/account/wishlist"
-              aria-label="Wishlist"
-              className="hidden md:flex items-center justify-center transition-all relative hover:bg-black/10 hover:scale-105 active:scale-95 no-underline"
-              style={{
-                width: "38px",
-                height: "38px",
-                borderRadius: "50%",
-                backgroundColor: "rgba(0,0,0,0.04)",
-                color: "#1A1918",
-              }}
-            >
-              <Heart size={18} />
-              {wishlistCount > 0 && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-2px",
-                    right: "-2px",
-                    backgroundColor: "#9E3B2B",
-                    color: "white",
-                    fontSize: "9px",
-                    fontWeight: 700,
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: "0 2px 6px rgba(158, 59, 43, 0.4)",
-                  }}
-                >
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
 
             {/* Shopping Bag Icon Button (Mobile & Desktop) */}
             <button
@@ -526,14 +487,14 @@ export function Header() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                 {[
-                  { name: "✨ All Fabrics & Wear", href: "/shop" },
-                  { name: "👑 Sarees (Banarasi & Paithani)", href: "/category/sarees" },
-                  { name: "👗 Dress Materials & Suits", href: "/category/dress-materials" },
-                  { name: "✂️ Fabrics by the Meter", href: "/category/fabrics" },
-                  { name: "🌸 Designer Kurtis", href: "/category/kurtis" },
-                  { name: "👔 Men's Shirting & Suiting", href: "/category/mens-wear" },
-                  { name: "🧣 Silk & Cotton Dupattas", href: "/category/dupattas" },
-                  { name: "🧒 Kids Ethnic Wear", href: "/category/kids-wear" },
+                  { name: "✨ All Collection", href: "/shop" },
+                  { name: "👔 Men's Wear", href: "/category/mens-wear" },
+                  { name: "👗 Women's Wear", href: "/category/womens-wear" },
+                  { name: "✨ Dress Materials", href: "/category/dress-materials" },
+                  { name: "🌸 Kurtis", href: "/category/kurtis" },
+                  { name: "👑 Sarees", href: "/category/sarees" },
+                  { name: "🧥 Suits", href: "/category/suits" },
+                  { name: "✂️ Fabrics", href: "/category/fabrics" },
                 ].map((item) => (
                   <Link
                     key={item.href}

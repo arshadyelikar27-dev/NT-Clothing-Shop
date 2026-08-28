@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
       items,
       paymentMethod,
       deliveryMethod,
-      couponCode,
       notes,
     } = body;
 
@@ -117,38 +116,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 4. Calculate Discount if coupon applied
     let discountAmount = 0;
-    let couponId: string | null = null;
-
-    if (couponCode) {
-      const coupon = await prisma.coupon.findUnique({
-        where: { code: couponCode.toUpperCase().trim() },
-      });
-
-      if (coupon && coupon.isActive && calculatedSubtotal >= coupon.minCartValue) {
-        couponId = coupon.id;
-        if (coupon.type === "PERCENTAGE") {
-          discountAmount = (calculatedSubtotal * coupon.value) / 100;
-          if (coupon.maxDiscount && discountAmount > coupon.maxDiscount) {
-            discountAmount = coupon.maxDiscount;
-          }
-        } else {
-          discountAmount = coupon.value;
-        }
-        discountAmount = Math.min(discountAmount, calculatedSubtotal);
-
-        // Update coupon usage
-        await prisma.coupon.update({
-          where: { id: coupon.id },
-          data: { usedCount: { increment: 1 } },
-        });
-      }
-    }
 
     // 5. Calculate Shipping
-    const freeShippingThreshold = 999;
-    let shippingCharge = calculatedSubtotal >= freeShippingThreshold ? 0 : 79;
+    let shippingCharge = 79;
     if (deliveryMethod === "EXPRESS") {
       shippingCharge += 70; // Express surcharge
     }
@@ -173,7 +144,6 @@ export async function POST(request: NextRequest) {
         shippingCharge,
         tax: Math.round(calculatedSubtotal * 0.05), // GST 5% included breakdown
         total: calculatedTotal,
-        couponId,
         paymentMethod,
         deliveryMethod: deliveryMethod || "STANDARD",
         notes: notes?.trim() || null,

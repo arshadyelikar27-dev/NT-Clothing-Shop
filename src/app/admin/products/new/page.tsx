@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/db";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { BackButton } from "@/components/ui/BackButton";
 import { AdminProductForm } from "./AdminProductForm";
 
 export default async function AdminNewProductPage() {
@@ -12,20 +11,11 @@ export default async function AdminNewProductPage() {
   return (
     <div style={{ maxWidth: "900px" }}>
       <div style={{ marginBottom: "24px" }}>
-        <Link
-          href="/admin/products"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            fontSize: "13px",
-            color: "#8A8279",
-            textDecoration: "none",
-            marginBottom: "8px",
-          }}
-        >
-          <ArrowLeft size={14} /> Back to Products
-        </Link>
+        <BackButton 
+          label="Back to Products" 
+          fallbackUrl="/admin/products"
+          className="mb-2 text-[#8A8279]"
+        />
         <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "24px", color: "#1A1918" }}>
           Add New Textile / Product
         </h1>

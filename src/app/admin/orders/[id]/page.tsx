@@ -2,7 +2,8 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
-import { ArrowLeft, Printer, Truck, MapPin, User, CheckCircle2 } from "lucide-react";
+import { Printer, Truck, MapPin, User, CheckCircle2 } from "lucide-react";
+import { BackButton } from "@/components/ui/BackButton";
 import { AdminOrderStatusUpdater } from "./AdminOrderStatusUpdater";
 
 export default async function AdminOrderDetailPage({
@@ -36,20 +37,11 @@ export default async function AdminOrderDetailPage({
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
-          <Link
-            href="/admin/orders"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "13px",
-              color: "#8A8279",
-              textDecoration: "none",
-              marginBottom: "8px",
-            }}
-          >
-            <ArrowLeft size={14} /> Back to Orders
-          </Link>
+          <BackButton 
+            label="Back to Orders" 
+            fallbackUrl="/admin/orders"
+            className="mb-2 text-[#8A8279]"
+          />
           <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "24px", color: "#1A1918" }}>
             Order #{order.orderNumber}
           </h1>

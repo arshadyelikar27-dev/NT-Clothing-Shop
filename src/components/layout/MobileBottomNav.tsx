@@ -2,20 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Grid, Search, Heart, ShoppingBag, User } from "lucide-react";
-import { useCartStore, useWishlistStore, useUIStore } from "@/lib/store";
+import { Home, Grid, Search, ShoppingBag, User } from "lucide-react";
+import { useCartStore, useUIStore } from "@/lib/store";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const cartItemCount = useCartStore((s) => s.items.length);
-  const wishlistCount = useWishlistStore((s) => s.items.length);
   const { setSearchOpen, setMobileMenu } = useUIStore();
 
   const isHome = pathname === "/";
   const isShop = pathname.startsWith("/shop") || pathname.startsWith("/category");
-  const isWishlist = pathname === "/account/wishlist";
   const isCart = pathname === "/cart";
-  const isAccount = pathname.startsWith("/account") && !isWishlist;
+  const isAccount = pathname.startsWith("/account");
 
   return (
     <nav aria-label="Mobile Navigation" className="mobile-bottom-nav-bar">
@@ -46,21 +44,6 @@ export function MobileBottomNav() {
         <span>Search</span>
       </button>
 
-      {/* Wishlist */}
-      <Link
-        href="/account/wishlist"
-        className={`mobile-tab ${isWishlist ? "active" : ""}`}
-      >
-        <div style={{ position: "relative" }}>
-          <Heart size={20} strokeWidth={isWishlist ? 2.5 : 2} />
-          {wishlistCount > 0 && (
-            <span className="mobile-tab-badge">
-              {wishlistCount}
-            </span>
-          )}
-        </div>
-        <span>Wishlist</span>
-      </Link>
 
       {/* Bag / Cart */}
       <Link

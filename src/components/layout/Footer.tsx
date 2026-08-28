@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, MapPin, Mail } from "lucide-react";
+import { Phone, MapPin, Mail, ArrowRight } from "lucide-react";
 
 const SHOP_LINKS = [
-  { href: "/shop", label: "All Products" },
-  { href: "/category/sarees", label: "Sarees" },
-  { href: "/category/dress-materials", label: "Dress Materials" },
-  { href: "/category/fabrics", label: "Fabrics" },
-  { href: "/category/kurtis", label: "Kurtis" },
+  { href: "/shop", label: "All Collection" },
   { href: "/category/mens-wear", label: "Men's Wear" },
+  { href: "/category/womens-wear", label: "Women's Wear" },
+  { href: "/category/dress-materials", label: "Dress Materials" },
+  { href: "/category/kurtis", label: "Kurtis" },
+  { href: "/category/sarees", label: "Sarees" },
+  { href: "/category/suits", label: "Suits" },
+  { href: "/category/fabrics", label: "Fabrics" },
 ];
 
 const SUPPORT_LINKS = [
@@ -24,32 +26,30 @@ export function Footer() {
   return (
     <footer
       style={{
-        backgroundColor: "#1A1918",
+        backgroundColor: "#11100F",
         color: "#B8AFA4",
         fontFamily: "var(--font-sans)",
+        borderTop: "1px solid #2D2B29",
       }}
     >
-      {/* ─── Main Footer ─── */}
-      <div className="container-main" style={{ padding: "64px 20px 48px" }}>
+      <div className="container-main" style={{ padding: "80px 20px 60px" }}>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "40px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "60px",
           }}
-          className="sm:grid-cols-2 lg:grid-cols-4"
-          // Note: using CSS classes for responsive grid
         >
           {/* Brand Column */}
           <div>
             <h3
               style={{
                 fontFamily: "var(--font-serif)",
-                fontSize: "20px",
-                fontWeight: 600,
+                fontSize: "24px",
+                fontWeight: 500,
                 color: "#FAF7F2",
-                letterSpacing: "0.04em",
-                marginBottom: "16px",
+                letterSpacing: "0.06em",
+                marginBottom: "24px",
               }}
             >
               NOBLE TEXTILE
@@ -57,58 +57,53 @@ export function Footer() {
             <p
               style={{
                 fontSize: "14px",
-                lineHeight: 1.7,
-                marginBottom: "24px",
-                maxWidth: "280px",
+                lineHeight: 1.8,
+                marginBottom: "32px",
+                maxWidth: "320px",
+                color: "#8A8279",
               }}
             >
-              Quality fabrics and clothing, carefully selected for how they look,
-              feel and wear. Visit us at Hatte Nagar, Latur.
+              Curated fabrics, handwoven sarees, and premium clothing. Quality over quantity, always.
             </p>
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "12px",
+                gap: "16px",
                 fontSize: "13px",
               }}
             >
               <a
-                href="tel:+917821059350"
+                href="https://wa.me/917821059350"
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
-                  color: "inherit",
-                  textDecoration: "none",
-                  display: "flex",
+                  display: "inline-flex",
                   alignItems: "center",
-                  gap: "8px",
-                }}
-              >
-                <Phone size={14} />
-                +91 78210 59350
-              </a>
-              <a
-                href="mailto:contact@nobletextile.com"
-                style={{
-                  color: "inherit",
+                  gap: "10px",
+                  padding: "12px 20px",
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  color: "#FAF7F2",
                   textDecoration: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
+                  fontWeight: 500,
+                  transition: "all 0.3s ease",
+                  width: "max-content",
                 }}
+                className="hover:bg-white hover:text-black"
               >
-                <Mail size={14} />
-                contact@nobletextile.com
+                <Phone size={14} /> Chat on WhatsApp
               </a>
-              <span
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "8px",
-                }}
-              >
-                <MapPin size={14} style={{ marginTop: "2px", flexShrink: 0 }} />
-                Hatte Nagar, Latur, Maharashtra 413512, India
-              </span>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px", color: "#8A8279" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Mail size={14} /> contact@nobletextile.com
+                </span>
+                <span style={{ display: "flex", alignItems: "flex-start", gap: "8px", lineHeight: 1.5 }}>
+                  <MapPin size={14} style={{ marginTop: "3px", flexShrink: 0 }} />
+                  Hatte Nagar, Latur, Maharashtra 413512, India
+                </span>
+              </div>
             </div>
           </div>
 
@@ -116,22 +111,22 @@ export function Footer() {
           <div>
             <h4
               style={{
-                fontSize: "12px",
+                fontSize: "13px",
                 fontWeight: 600,
-                letterSpacing: "0.08em",
+                letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: "#FAF7F2",
-                marginBottom: "20px",
+                color: "#E0A96D",
+                marginBottom: "24px",
                 fontFamily: "var(--font-sans)",
               }}
             >
-              Shop
+              Collections
             </h4>
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "12px",
+                gap: "16px",
               }}
             >
               {SHOP_LINKS.map((link) => (
@@ -142,15 +137,14 @@ export function Footer() {
                     color: "#B8AFA4",
                     textDecoration: "none",
                     fontSize: "14px",
-                    transition: "color 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    transition: "color 0.2s, transform 0.2s",
                   }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#FAF7F2")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#B8AFA4")
-                  }
+                  className="group hover:text-white"
                 >
+                  <ArrowRight size={12} className="opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                   {link.label}
                 </Link>
               ))}
@@ -161,22 +155,22 @@ export function Footer() {
           <div>
             <h4
               style={{
-                fontSize: "12px",
+                fontSize: "13px",
                 fontWeight: 600,
-                letterSpacing: "0.08em",
+                letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: "#FAF7F2",
-                marginBottom: "20px",
+                color: "#E0A96D",
+                marginBottom: "24px",
                 fontFamily: "var(--font-sans)",
               }}
             >
-              Customer Support
+              Support & Legal
             </h4>
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "12px",
+                gap: "16px",
               }}
             >
               {SUPPORT_LINKS.map((link) => (
@@ -189,105 +183,12 @@ export function Footer() {
                     fontSize: "14px",
                     transition: "color 0.2s",
                   }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#FAF7F2")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#B8AFA4")
-                  }
+                  className="hover:text-white"
                 >
                   {link.label}
                 </Link>
               ))}
             </div>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h4
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "#FAF7F2",
-                marginBottom: "20px",
-                fontFamily: "var(--font-sans)",
-              }}
-            >
-              Stay Updated
-            </h4>
-            <p
-              style={{
-                fontSize: "14px",
-                lineHeight: 1.6,
-                marginBottom: "16px",
-              }}
-            >
-              New collections, fabric drops and offers.
-            </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              style={{
-                display: "flex",
-                gap: "0",
-              }}
-            >
-              <input
-                type="email"
-                placeholder="Your email"
-                aria-label="Email for newsletter"
-                style={{
-                  flex: 1,
-                  padding: "12px 14px",
-                  fontSize: "13px",
-                  backgroundColor: "#2D2B29",
-                  border: "1px solid #3D3B39",
-                  color: "#FAF7F2",
-                  fontFamily: "var(--font-sans)",
-                  minWidth: 0,
-                }}
-              />
-              <button
-                type="submit"
-                style={{
-                  padding: "12px 20px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
-                  backgroundColor: "#9E3B2B",
-                  color: "white",
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "var(--font-sans)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Subscribe
-              </button>
-            </form>
-
-            <a
-              href="https://wa.me/917821059350"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                marginTop: "20px",
-                padding: "10px 16px",
-                fontSize: "13px",
-                fontWeight: 500,
-                color: "#FAF7F2",
-                border: "1px solid #3D3B39",
-                textDecoration: "none",
-                transition: "border-color 0.2s",
-              }}
-            >
-              Chat on WhatsApp
-            </a>
           </div>
         </div>
       </div>
@@ -296,16 +197,18 @@ export function Footer() {
       <div
         style={{
           borderTop: "1px solid #2D2B29",
-          padding: "20px 0",
+          backgroundColor: "#0A0909",
+          padding: "24px 0",
         }}
       >
         <div
           className="container-main"
           style={{
             display: "flex",
-            flexDirection: "column",
+            justifyContent: "space-between",
             alignItems: "center",
-            gap: "12px",
+            flexWrap: "wrap",
+            gap: "16px",
             fontSize: "12px",
             color: "#8A8279",
           }}
@@ -316,18 +219,14 @@ export function Footer() {
           <div
             style={{
               display: "flex",
-              gap: "16px",
+              gap: "20px",
               fontSize: "11px",
-              letterSpacing: "0.02em",
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+              fontWeight: 500,
             }}
           >
-            <span>UPI</span>
-            <span>•</span>
-            <span>Cards</span>
-            <span>•</span>
-            <span>Net Banking</span>
-            <span>•</span>
-            <span>COD</span>
+            <span>Secure Payments via Razorpay & UPI</span>
           </div>
         </div>
       </div>

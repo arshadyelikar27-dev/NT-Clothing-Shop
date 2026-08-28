@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,70 +11,63 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const {
-      name,
-      description,
-      shortDescription,
-      sku,
-      price,
-      compareAtPrice,
-      categoryId,
-      fabric,
-      weave,
-      gsm,
-      widthInches,
-      careInstructions,
-      unitType,
-      stock,
-      imageUrl,
-      isFeatured,
-      tags,
-    } = body;
+    const formData = await request.formData();
 
-    if (!name || !price || !categoryId || !sku) {
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const priceStr = formData.get("price") as string;
+    const categoryId = formData.get("categoryId") as string;
+    const videoUrl = formData.get("videoUrl") as string;
+
+    if (!name || !priceStr || !categoryId) {
       return NextResponse.json(
-        { error: "Product name, SKU, price, and category are required" },
+        { error: "Product name, price, and category are required" },
+        { status: 400 }
+      );
+    }
+
+    // Upload images to Cloudinary
+    const uploadIfPresent = async (key: string): Promise<string | null> => {
+      const file = formData.get(key) as File | null;
+      if (!file || file.size === 0) return null;
+      return await uploadToCloudinary(file, "noble-textile/products");
+    };
+
+    const imageFrontUrl = await uploadIfPresent("imageFront");
+    const imageRightUrl = await uploadIfPresent("imageRight");
+    const imageLeftUrl  = await uploadIfPresent("imageLeft");
+    const imageBackUrl  = await uploadIfPresent("imageBack");
+
+    if (!imageFrontUrl) {
+      return NextResponse.json(
+        { error: "Front Image is required" },
         { status: 400 }
       );
     }
 
     const slug = slugify(name);
+    const sku = "NT-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    const price = parseFloat(priceStr);
 
-    // Check unique SKU
-    const existingSku = await prisma.product.findUnique({ where: { sku } });
-    if (existingSku) {
-      return NextResponse.json({ error: "A product with this SKU already exists" }, { status: 400 });
-    }
+    const imagesToCreate = [];
+    if (imageFrontUrl) imagesToCreate.push({ url: imageFrontUrl, alt: `${name} Front`, sortOrder: 0, isPrimary: true });
+    if (imageRightUrl) imagesToCreate.push({ url: imageRightUrl, alt: `${name} Right`, sortOrder: 1, isPrimary: false });
+    if (imageLeftUrl)  imagesToCreate.push({ url: imageLeftUrl,  alt: `${name} Left`,  sortOrder: 2, isPrimary: false });
+    if (imageBackUrl)  imagesToCreate.push({ url: imageBackUrl,  alt: `${name} Back`,  sortOrder: 3, isPrimary: false });
 
     const product = await prisma.product.create({
       data: {
         name: name.trim(),
         slug,
         description: description || name,
-        shortDescription: shortDescription || null,
-        sku: sku.trim().toUpperCase(),
-        price: parseFloat(price),
-        compareAtPrice: compareAtPrice ? parseFloat(compareAtPrice) : null,
+        sku,
+        price,
         categoryId,
-        fabric: fabric || null,
-        weave: weave || null,
-        gsm: gsm || null,
-        widthInches: widthInches || null,
-        careInstructions: careInstructions || null,
-        unitType: unitType || "PER_PIECE",
-        stock: parseInt(stock) || 0,
-        isFeatured: Boolean(isFeatured),
-        tags: tags || null,
+        videoUrl: videoUrl || null,
+        stock: 100,
+        isFeatured: false,
         images: {
-          create: [
-            {
-              url: imageUrl || "/images/products/premium-cotton-fabric.jpg",
-              alt: name,
-              isPrimary: true,
-              sortOrder: 0,
-            },
-          ],
+          create: imagesToCreate,
         },
       },
     });

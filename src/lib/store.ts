@@ -11,7 +11,6 @@ export interface CartItemData {
   name: string;
   image: string;
   price: number;
-  compareAtPrice?: number;
   quantity: number;
   unitType: string;
   sku: string;
@@ -19,23 +18,16 @@ export interface CartItemData {
   maxStock: number;
 }
 
-export interface AppliedCouponData {
-  id: string;
-  code: string;
-  discountAmount: number;
-}
 
 interface CartState {
   items: CartItemData[];
   isOpen: boolean;
-  appliedCoupon: AppliedCouponData | null;
   addItem: (item: CartItemData) => void;
   removeItem: (productId: string, variantId?: string) => void;
   updateQuantity: (productId: string, quantity: number, variantId?: string) => void;
   clearCart: () => void;
   toggleCart: () => void;
   setCartOpen: (open: boolean) => void;
-  setAppliedCoupon: (coupon: AppliedCouponData | null) => void;
   getTotal: () => number;
   getItemCount: () => number;
 }
@@ -45,7 +37,6 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       isOpen: false,
-      appliedCoupon: null,
 
       addItem: (item) => {
         set((state) => {
@@ -85,10 +76,9 @@ export const useCartStore = create<CartState>()(
         }));
       },
 
-      clearCart: () => set({ items: [], appliedCoupon: null }),
+      clearCart: () => set({ items: [] }),
       toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
       setCartOpen: (open) => set({ isOpen: open }),
-      setAppliedCoupon: (coupon) => set({ appliedCoupon: coupon }),
 
       getTotal: () => {
         return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -105,56 +95,7 @@ export const useCartStore = create<CartState>()(
   )
 );
 
-// ─── Wishlist Store ───
 
-export interface WishlistItemData {
-  productId: string;
-  name: string;
-  image: string;
-  price: number;
-  compareAtPrice?: number;
-  slug: string;
-}
-
-interface WishlistState {
-  items: WishlistItemData[];
-  addItem: (item: WishlistItemData) => void;
-  removeItem: (productId: string) => void;
-  isInWishlist: (productId: string) => boolean;
-  clearWishlist: () => void;
-}
-
-export const useWishlistStore = create<WishlistState>()(
-  persist(
-    (set, get) => ({
-      items: [],
-
-      addItem: (item) => {
-        set((state) => {
-          if (state.items.find((i) => i.productId === item.productId)) {
-            return state;
-          }
-          return { items: [...state.items, item] };
-        });
-      },
-
-      removeItem: (productId) => {
-        set((state) => ({
-          items: state.items.filter((i) => i.productId !== productId),
-        }));
-      },
-
-      isInWishlist: (productId) => {
-        return get().items.some((i) => i.productId === productId);
-      },
-
-      clearWishlist: () => set({ items: [] }),
-    }),
-    {
-      name: "nt-wishlist",
-    }
-  )
-);
 
 // ─── UI Store ───
 

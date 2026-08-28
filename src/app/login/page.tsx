@@ -92,7 +92,7 @@ function LoginForm() {
         <p style={{ fontSize: "13px", color: "#8A8279" }}>
           {redirectTarget.includes("checkout")
             ? "Sign in to complete your order and track delivery"
-            : "Access your orders, saved addresses, and wishlist"}
+            : "Access your orders and saved addresses"}
         </p>
       </div>
 
@@ -185,11 +185,6 @@ function LoginForm() {
         </Link>
       </div>
 
-      {/* Demo Admin Account Note */}
-      <div style={{ marginTop: "20px", backgroundColor: "#F3EFEA", padding: "12px", fontSize: "12px", color: "#8A8279" }}>
-        <p style={{ fontWeight: 600, color: "#1A1918", marginBottom: "2px" }}>Admin Access:</p>
-        <p>admin@nobletextile.com / Admin@12345</p>
-      </div>
     </div>
   );
 }

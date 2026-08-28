@@ -174,7 +174,6 @@ export default async function CategoryPage({
                 name={product.name}
                 slug={product.slug}
                 price={product.price}
-                compareAtPrice={product.compareAtPrice}
                 image={product.images[0]?.url || "/images/products/premium-cotton-fabric.jpg"}
                 fabric={product.fabric}
                 unitType={product.unitType}

@@ -35,11 +35,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
 
   const statuses = [
     { id: "ALL", label: "All Orders" },
-    { id: "PENDING", label: "Pending" },
     { id: "CONFIRMED", label: "Confirmed" },
-    { id: "PROCESSING", label: "Processing" },
-    { id: "PACKED", label: "Packed" },
-    { id: "SHIPPED", label: "Shipped" },
     { id: "DELIVERED", label: "Delivered" },
     { id: "CANCELLED", label: "Cancelled" },
   ];

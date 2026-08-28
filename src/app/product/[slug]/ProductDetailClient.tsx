@@ -18,9 +18,10 @@ import {
   ChevronRight,
   ZoomIn,
 } from "lucide-react";
-import { useCartStore, useWishlistStore, useUIStore } from "@/lib/store";
+import { useCartStore, useUIStore } from "@/lib/store";
 import { formatPrice, getDiscountPercentage, getUnitLabel } from "@/lib/utils";
 import { ProductCard } from "@/components/product/ProductCard";
+import { BackButton } from "@/components/ui/BackButton";
 
 interface ProductImage {
   id: string;
@@ -63,7 +64,6 @@ interface Product {
   shortDescription?: string | null;
   sku: string;
   price: number;
-  compareAtPrice?: number | null;
   fabric?: string | null;
   weave?: string | null;
   gsm?: string | null;
@@ -87,7 +87,6 @@ interface ProductDetailClientProps {
     name: string;
     slug: string;
     price: number;
-    compareAtPrice?: number | null;
     fabric?: string | null;
     unitType: string;
     stock: number;
@@ -113,13 +112,7 @@ export function ProductDetailClient({
   const [isZoomed, setIsZoomed] = useState(false);
 
   const addItem = useCartStore((s) => s.addItem);
-  const { addItem: addWishlist, removeItem: removeWishlist, isInWishlist } = useWishlistStore();
   const { showNotification } = useUIStore();
-
-  const wishlisted = isInWishlist(product.id);
-  const discount = product.compareAtPrice
-    ? getDiscountPercentage(product.price, product.compareAtPrice)
-    : 0;
 
   const currentPrice = selectedVariant?.price || product.price;
   const totalPrice = currentPrice * quantity;
@@ -138,7 +131,6 @@ export function ProductDetailClient({
       name: product.name,
       image: primaryImage,
       price: currentPrice,
-      compareAtPrice: product.compareAtPrice || undefined,
       quantity,
       unitType: product.unitType,
       sku: selectedVariant ? `${product.sku}-${selectedVariant.name}` : product.sku,
@@ -156,22 +148,7 @@ export function ProductDetailClient({
     router.push("/checkout");
   };
 
-  const handleWishlistToggle = () => {
-    if (wishlisted) {
-      removeWishlist(product.id);
-      showNotification("Removed from wishlist", "info");
-    } else {
-      addWishlist({
-        productId: product.id,
-        name: product.name,
-        image: primaryImage,
-        price: product.price,
-        compareAtPrice: product.compareAtPrice || undefined,
-        slug: product.slug,
-      });
-      showNotification("Saved to your wishlist", "success");
-    }
-  };
+
 
   const handleCheckPincode = (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,6 +195,11 @@ export function ProductDetailClient({
             flexWrap: "wrap",
           }}
         >
+          <BackButton 
+            label="Back" 
+            fallbackUrl="/shop"
+            className="mr-2 text-[#1A1918]"
+          />
           <Link href="/" style={{ color: "#8A8279", textDecoration: "none" }}>
             Home
           </Link>
@@ -289,9 +271,7 @@ export function ProductDetailClient({
                     gap: "6px",
                   }}
                 >
-                  {discount > 0 && (
-                    <span className="badge badge-sale">{discount}% off</span>
-                  )}
+
                   {!inStock && <span className="badge badge-out">Out of stock</span>}
                 </div>
 
@@ -386,26 +366,7 @@ export function ProductDetailClient({
                 </div>
 
                 <div style={{ display: "flex", gap: "8px" }}>
-                  <button
-                    onClick={handleWishlistToggle}
-                    aria-label="Wishlist"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      border: "1px solid #E4DDD3",
-                      backgroundColor: "white",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <Heart
-                      size={18}
-                      fill={wishlisted ? "#9E3B2B" : "none"}
-                      color={wishlisted ? "#9E3B2B" : "#1A1918"}
-                    />
-                  </button>
+
                   <button
                     onClick={handleShare}
                     aria-label="Share"
@@ -462,25 +423,9 @@ export function ProductDetailClient({
                 {product.unitType === "PER_METER" && (
                   <span style={{ fontSize: "14px", color: "#8A8279" }}>per meter</span>
                 )}
-                {product.compareAtPrice && product.compareAtPrice > currentPrice && (
-                  <span
-                    style={{
-                      fontSize: "16px",
-                      color: "#B8AFA4",
-                      textDecoration: "line-through",
-                    }}
-                  >
-                    {formatPrice(product.compareAtPrice)}
-                  </span>
-                )}
-                {discount > 0 && (
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#9E3B2B" }}>
-                    Save {discount}%
-                  </span>
-                )}
               </div>
               <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>
-                Inclusive of all taxes. Free shipping on orders above ₹999.
+                Inclusive of all taxes.
               </p>
             </div>
 
@@ -924,7 +869,6 @@ export function ProductDetailClient({
                   name={rel.name}
                   slug={rel.slug}
                   price={rel.price}
-                  compareAtPrice={rel.compareAtPrice}
                   image={rel.images[0]?.url || "/images/products/premium-cotton-fabric.jpg"}
                   fabric={rel.fabric}
                   unitType={rel.unitType}
