@@ -84,15 +84,30 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
         body: formData, // fetch will automatically set Content-Type to multipart/form-data
       });
 
+      if (!res.ok) {
+        let errorMessage = `Server Error (${res.status}): ${res.statusText}.`;
+        if (res.status === 413) errorMessage = "File too large. Vercel limits uploads to 4.5MB.";
+        if (res.status === 504) errorMessage = "Upload timed out (took longer than 10s).";
+        
+        try {
+          const data = await res.json();
+          setError(data.error || "Failed to create product");
+        } catch {
+          setError(errorMessage);
+        }
+        return;
+      }
+
       const data = await res.json();
-      if (res.ok && data.success) {
+      if (data.success) {
         router.push("/admin/products");
         router.refresh();
       } else {
         setError(data.error || "Failed to create product");
       }
-    } catch {
-      setError("Connection error");
+    } catch (err) {
+      console.error(err);
+      setError("Network or Connection error. Please check your internet connection.");
     } finally {
       setIsSubmitting(false);
     }
