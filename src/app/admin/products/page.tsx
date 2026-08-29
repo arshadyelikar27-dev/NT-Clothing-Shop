@@ -3,7 +3,8 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
-import { Plus, Search, Package, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, Package, Edit } from "lucide-react";
+import { DeleteProductButton } from "./DeleteProductButton";
 
 export default async function AdminProductsPage() {
   const products = await prisma.product.findMany({
@@ -57,6 +58,7 @@ export default async function AdminProductsPage() {
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Stock</th>
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Price</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Status</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -121,6 +123,11 @@ export default async function AdminProductsPage() {
                   >
                     {product.isPublished ? "Published" : "Draft"}
                   </span>
+                </td>
+                <td style={{ padding: "12px 16px", textAlign: "right" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                    <DeleteProductButton productId={product.id} productName={product.name} />
+                  </div>
                 </td>
               </tr>
             ))}

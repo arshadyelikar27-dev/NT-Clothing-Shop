@@ -46,3 +46,41 @@ export async function uploadToSupabaseStorage(
 
   return publicUrlData.publicUrl;
 }
+
+/**
+ * Delete a file from Supabase Storage using its public URL.
+ * @param fileUrl - The public URL of the file to delete
+ * @param bucket - The Supabase Storage bucket name (default: "nt-shop-media")
+ */
+export async function deleteFromSupabaseStorage(
+  fileUrl: string,
+  bucket = "nt-shop-media"
+): Promise<boolean> {
+  if (!supabaseUrl || !supabaseKey || !fileUrl) return false;
+
+  try {
+    // Extract the file path from the public URL
+    // URL format: https://[project].supabase.co/storage/v1/object/public/[bucket]/[folder]/[filename]
+    const baseUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/`;
+    if (!fileUrl.startsWith(baseUrl)) {
+      console.warn(`URL does not match expected Supabase storage format: ${fileUrl}`);
+      return false;
+    }
+
+    const filePath = fileUrl.replace(baseUrl, "");
+    
+    const { error } = await supabase.storage
+      .from(bucket)
+      .remove([filePath]);
+
+    if (error) {
+      console.error("Supabase Storage Delete Error:", error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Failed to delete from Supabase:", error);
+    return false;
+  }
+}
