@@ -14,7 +14,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
  */
 export async function uploadToSupabaseStorage(
   file: File,
-  bucket = "NT-SHOP-MEDIA",
+  bucket = "nt-shop-media",
   folder = "products"
 ): Promise<string> {
   if (!supabaseUrl || !supabaseKey) {

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { uploadToSupabaseStorage } from "@/lib/supabase-storage";
 
 interface Category {
   id: string;
