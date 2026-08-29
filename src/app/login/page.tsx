@@ -12,15 +12,15 @@ function LoginForm() {
   const redirectTarget = searchParams.get("redirect") || "/account";
   const { showNotification } = useUIStore();
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError("Please enter both email and password");
+    if (!identifier || !password) {
+      setError("Please enter your Mobile Number (or Admin Email) and password");
       return;
     }
 
@@ -31,7 +31,7 @@ function LoginForm() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }),
       });
 
       const data = await res.json();
@@ -149,20 +149,47 @@ function LoginForm() {
       )}
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <div>
-          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-            Email Address
+        <div style={{ marginBottom: "20px" }}>
+          <label
+            style={{
+              display: "block",
+              fontSize: "13px",
+              fontWeight: 500,
+              color: "#4A453F",
+              marginBottom: "8px",
+            }}
+          >
+            Mobile Number (or Admin Email)
           </label>
           <div style={{ position: "relative" }}>
-            <Mail size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#8A8279" }} />
+            <div
+              style={{
+                position: "absolute",
+                left: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#8A8279",
+              }}
+            >
+              <Mail size={18} />
+            </div>
             <input
-              type="email"
+              type="text"
               required
-              className="input"
-              style={{ paddingLeft: "40px" }}
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 12px 12px 40px",
+                border: "1px solid #E4DDD3",
+                borderRadius: "0",
+                fontSize: "14px",
+                outline: "none",
+                transition: "border-color 0.2s",
+              }}
+              placeholder="Enter your registered mobile number"
+              onFocus={(e) => (e.target.style.borderColor = "#1A1918")}
+              onBlur={(e) => (e.target.style.borderColor = "#E4DDD3")}
             />
           </div>
         </div>

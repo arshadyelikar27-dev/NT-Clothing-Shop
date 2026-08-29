@@ -5,18 +5,19 @@ import { verifyPassword, createSession } from "@/lib/auth";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { phone, password } = body;
+    const { identifier, password } = body;
 
-    if (!phone || !password) {
+    if (!identifier || !password) {
       return NextResponse.json(
-        { error: "Mobile number and password are required" },
+        { error: "Mobile number or Email and password are required" },
         { status: 400 }
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { phone: phone.replace(/\D/g, "") },
-    });
+    const isEmail = identifier.includes("@");
+    const user = isEmail 
+      ? await prisma.user.findFirst({ where: { email: identifier } })
+      : await prisma.user.findUnique({ where: { phone: identifier.replace(/\D/g, "") } });
 
     if (!user) {
       return NextResponse.json(
