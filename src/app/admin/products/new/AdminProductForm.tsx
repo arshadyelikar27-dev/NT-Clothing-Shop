@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { uploadToSupabaseStorage } from "@/lib/supabase-storage";
 
 interface Category {
   id: string;
@@ -57,31 +58,41 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
     setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("price", price);
-      formData.append("categoryId", categoryId);
-      formData.append("description", description);
-      if (videoFile) formData.append("videoFile", videoFile);
-      
-      // Append Variants
-      if (sizes.length > 0) formData.append("sizes", JSON.stringify(sizes));
-      
-      const colorNames = colors.map(c => c.name);
-      if (colorNames.length > 0) formData.append("colorNames", JSON.stringify(colorNames));
-      colors.forEach((c, i) => {
-        if (c.file) {
-          formData.append(`colorImage_${i}`, c.file);
+      // 1. Upload files directly to Supabase
+      const imageFrontUrl = imageFront ? await uploadToSupabaseStorage(imageFront) : null;
+      const imageRightUrl = imageRight ? await uploadToSupabaseStorage(imageRight) : null;
+      const imageLeftUrl = imageLeft ? await uploadToSupabaseStorage(imageLeft) : null;
+      const imageBackUrl = imageBack ? await uploadToSupabaseStorage(imageBack) : null;
+      const uploadedVideoUrl = videoFile ? await uploadToSupabaseStorage(videoFile) : null;
+
+      const uploadedColors = [];
+      for (let i = 0; i < colors.length; i++) {
+        const c = colors[i];
+        if (c.file && c.name) {
+          const url = await uploadToSupabaseStorage(c.file);
+          uploadedColors.push({ name: c.name, imageUrl: url });
         }
-      });
-      if (imageFront) formData.append("imageFront", imageFront);
-      if (imageRight) formData.append("imageRight", imageRight);
-      if (imageLeft) formData.append("imageLeft", imageLeft);
-      if (imageBack) formData.append("imageBack", imageBack);
+      }
+
+      // 2. Send JSON payload to API
+      const payload = {
+        name,
+        price,
+        categoryId,
+        description,
+        imageFrontUrl,
+        imageRightUrl,
+        imageLeftUrl,
+        imageBackUrl,
+        videoUrl: uploadedVideoUrl,
+        sizes,
+        colors: uploadedColors,
+      };
 
       const res = await fetch("/api/admin/products", {
         method: "POST",
-        body: formData, // fetch will automatically set Content-Type to multipart/form-data
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {

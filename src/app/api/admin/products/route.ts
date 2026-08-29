@@ -11,42 +11,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const formData = await request.formData();
+    const body = await request.json();
+    const {
+      name,
+      description,
+      price: priceStr,
+      categoryId,
+      imageFrontUrl,
+      imageRightUrl,
+      imageLeftUrl,
+      imageBackUrl,
+      videoUrl: uploadedVideoUrl,
+      sizes,
+      colors,
+      isWholesale,
+      wholesaleTiers
+    } = body;
 
-    const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
-    const priceStr = formData.get("price") as string;
-    const categoryId = formData.get("categoryId") as string;
-    const videoFile = formData.get("videoFile") as File | null;
-    const sizesStr = formData.get("sizes") as string | null;
-    const colorNamesStr = formData.get("colorNames") as string | null;
-    const isWholesaleStr = formData.get("isWholesale") as string | null;
-    const isWholesale = isWholesaleStr === "true";
-    const wholesaleTiersStr = formData.get("wholesaleTiers") as string | null;
-
-    if (!name || !priceStr || !categoryId) {
+    if (!name || !priceStr || !categoryId || !imageFrontUrl) {
       return NextResponse.json(
-        { error: "Product name, price, and category are required" },
-        { status: 400 }
-      );
-    }
-
-    // Upload images to Supabase Storage
-    const uploadIfPresent = async (key: string): Promise<string | null> => {
-      const file = formData.get(key) as File | null;
-      if (!file || file.size === 0) return null;
-      return await uploadToSupabaseStorage(file, "NT-SHOP-MEDIA", "products");
-    };
-
-    const imageFrontUrl = await uploadIfPresent("imageFront");
-    const imageRightUrl = await uploadIfPresent("imageRight");
-    const imageLeftUrl  = await uploadIfPresent("imageLeft");
-    const imageBackUrl  = await uploadIfPresent("imageBack");
-    const uploadedVideoUrl = await uploadIfPresent("videoFile");
-
-    if (!imageFrontUrl) {
-      return NextResponse.json(
-        { error: "Front Image is required" },
+        { error: "Product name, price, category, and front image are required" },
         { status: 400 }
       );
     }
@@ -61,32 +45,31 @@ export async function POST(request: NextRequest) {
     if (imageLeftUrl)  imagesToCreate.push({ url: imageLeftUrl,  alt: `${name} Left`,  sortOrder: 2, isPrimary: false });
     if (imageBackUrl)  imagesToCreate.push({ url: imageBackUrl,  alt: `${name} Back`,  sortOrder: 3, isPrimary: false });
 
-    const sizes = sizesStr ? JSON.parse(sizesStr) : [];
-    const colorNames = colorNamesStr ? JSON.parse(colorNamesStr) : [];
-
     const variantsToCreate: any[] = [];
-    sizes.forEach((s: string) => {
-      variantsToCreate.push({
-        name: "Size",
-        type: "SIZE",
-        value: s,
-      });
-    });
-
-    for (let i = 0; i < colorNames.length; i++) {
-      const colorFileUrl = await uploadIfPresent(`colorImage_${i}`);
-      if (colorFileUrl) {
+    if (sizes && Array.isArray(sizes)) {
+      sizes.forEach((s: string) => {
         variantsToCreate.push({
-          name: "Color",
-          type: "COLOR",
-          value: colorNames[i],
-          imageUrl: colorFileUrl,
+          name: "Size",
+          type: "SIZE",
+          value: s,
         });
-      }
+      });
+    }
+
+    if (colors && Array.isArray(colors)) {
+      colors.forEach((c: any) => {
+        if (c.imageUrl) {
+          variantsToCreate.push({
+            name: "Color",
+            type: "COLOR",
+            value: c.name,
+            imageUrl: c.imageUrl,
+          });
+        }
+      });
     }
 
     const tags = isWholesale ? "WHOLESALE" : null;
-    const wholesaleTiers = wholesaleTiersStr ? JSON.parse(wholesaleTiersStr) : [];
 
     const product = await prisma.product.create({
       data: {
@@ -108,9 +91,9 @@ export async function POST(request: NextRequest) {
             create: variantsToCreate,
           },
         }),
-        ...(wholesaleTiers.length > 0 && {
+        ...((wholesaleTiers || []).length > 0 && {
           wholesalePrices: {
-            create: wholesaleTiers.map((t: any) => ({
+            create: (wholesaleTiers || []).map((t: any) => ({
               minQty: t.minQty,
               price: t.price,
             })),
