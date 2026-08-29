@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const isEmail = identifier.includes("@");
     const user = isEmail 
       ? await prisma.user.findFirst({ where: { email: identifier } })
-      : await prisma.user.findUnique({ where: { phone: identifier.replace(/\D/g, "") } });
+      : await prisma.user.findFirst({ where: { phone: identifier.replace(/\D/g, "") } });
 
     if (!user) {
       return NextResponse.json(
@@ -43,9 +43,9 @@ export async function POST(request: NextRequest) {
 
     await createSession({
       userId: user.id,
-      phone: user.phone,
-      name: user.name,
-      role: user.role,
+      phone: user.phone || "",
+      name: user.name || "",
+      role: user.role || "CUSTOMER",
     });
 
     return NextResponse.json({
