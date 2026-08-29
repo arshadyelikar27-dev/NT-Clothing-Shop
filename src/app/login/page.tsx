@@ -39,11 +39,10 @@ function LoginForm() {
       if (res.ok && data.user) {
         showNotification(`Welcome back, ${data.user.name}!`, "success");
         if (data.user.role !== "CUSTOMER") {
-          router.push("/admin");
+          window.location.href = "/admin";
         } else {
-          router.push(redirectTarget);
+          window.location.href = redirectTarget;
         }
-        router.refresh();
       } else {
         setError(data.error || "Invalid email or password");
       }

@@ -23,6 +23,13 @@ export default async function AdminCategoriesPage() {
             {categories.length} active categories across store catalog
           </p>
         </div>
+        <Link
+          href="/admin/categories/new"
+          className="btn btn-primary btn-sm"
+          style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+        >
+          <Plus size={14} /> Add Category
+        </Link>
       </div>
 
       <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3" }}>

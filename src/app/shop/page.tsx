@@ -1,8 +1,9 @@
-export const dynamic = "force-dynamic";
+
 
 import { prisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { ProductCard } from "@/components/product/ProductCard";
+import { SortSelect } from "@/components/ui/SortSelect";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -188,49 +189,29 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             >
               Sort by:
             </label>
-            <div style={{ position: "relative" }}>
-              {sortOptions.map((opt) => (
-                <Link
-                  key={opt.value}
-                  href={`/shop?${new URLSearchParams({
-                    ...(category ? { category } : {}),
-                    ...(search ? { search } : {}),
-                    sort: opt.value,
-                  }).toString()}`}
-                  style={{
-                    display: "inline-block",
-                    padding: "6px 14px",
-                    fontSize: "12px",
-                    fontWeight: sort === opt.value ? 600 : 400,
-                    color: sort === opt.value ? "#1A1918" : "#8A8279",
-                    textDecoration: "none",
-                    border: "1px solid",
-                    borderColor:
-                      sort === opt.value ? "#1A1918" : "#E4DDD3",
-                    backgroundColor:
-                      sort === opt.value ? "#1A1918" : "transparent",
-                    ...(sort === opt.value ? { color: "white" } : {}),
-                    fontFamily: "var(--font-sans)",
-                    marginLeft: "4px",
-                  }}
-                >
-                  {opt.label}
-                </Link>
-              ))}
-            </div>
+            <SortSelect currentSort={sort} />
           </div>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "32px",
-          }}
-          className="md:grid-cols-[220px_1fr]"
-        >
+        <style>{`
+          .shop-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 48px;
+            align-items: start;
+          }
+          @media (max-width: 768px) {
+            .shop-layout {
+              grid-template-columns: 1fr;
+            }
+            .shop-sidebar {
+              display: none;
+            }
+          }
+        `}</style>
+        <div className="shop-layout">
           {/* ─── Sidebar Filters (Desktop) ─── */}
-          <aside className="hidden md:block">
+          <aside className="shop-sidebar">
             <div style={{ position: "sticky", top: "100px" }}>
               <h3
                 style={{
@@ -249,7 +230,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "8px",
+                  gap: "4px",
                   marginBottom: "32px",
                 }}
               >
@@ -258,11 +239,15 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                   style={{
                     fontSize: "14px",
                     color: !category ? "#9E3B2B" : "#1A1918",
-                    fontWeight: !category ? 600 : 400,
+                    fontWeight: !category ? 600 : 500,
+                    backgroundColor: !category ? "rgba(224, 169, 109, 0.15)" : "transparent",
                     textDecoration: "none",
                     fontFamily: "var(--font-sans)",
-                    padding: "4px 0",
+                    padding: "8px 12px",
+                    borderRadius: "6px",
+                    transition: "all 0.2s ease",
                   }}
+                  className="hover:bg-black/5"
                 >
                   All Products
                 </Link>
@@ -273,11 +258,15 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                     style={{
                       fontSize: "14px",
                       color: category === cat.slug ? "#9E3B2B" : "#1A1918",
-                      fontWeight: category === cat.slug ? 600 : 400,
+                      fontWeight: category === cat.slug ? 600 : 500,
+                      backgroundColor: category === cat.slug ? "rgba(224, 169, 109, 0.15)" : "transparent",
                       textDecoration: "none",
                       fontFamily: "var(--font-sans)",
-                      padding: "4px 0",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      transition: "all 0.2s ease",
                     }}
+                    className="hover:bg-black/5"
                   >
                     {cat.name}
                   </Link>
@@ -307,7 +296,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "8px",
+                    gap: "4px",
                   }}
                 >
                   {[
@@ -327,11 +316,16 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                       }).toString()}`}
                       style={{
                         fontSize: "14px",
-                        color: "#1A1918",
+                        color: search === fab ? "#9E3B2B" : "#1A1918",
+                        fontWeight: search === fab ? 600 : 500,
+                        backgroundColor: search === fab ? "rgba(224, 169, 109, 0.15)" : "transparent",
                         textDecoration: "none",
                         fontFamily: "var(--font-sans)",
-                        padding: "4px 0",
+                        padding: "8px 12px",
+                        borderRadius: "6px",
+                        transition: "all 0.2s ease",
                       }}
+                      className="hover:bg-black/5"
                     >
                       {fab}
                     </Link>
