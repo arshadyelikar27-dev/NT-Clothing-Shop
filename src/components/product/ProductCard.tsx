@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { ShoppingBag, Eye } from "lucide-react";
 import { useCartStore, useUIStore } from "@/lib/store";
@@ -84,26 +85,31 @@ export function ProductCard({
             }}
             className="aspect-product group"
           >
-            <img
+            <Image
               src={image}
               alt={name}
-              loading="lazy"
-              decoding="async"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               style={{
-                width: "100%",
-                height: "100%",
                 objectFit: "cover",
                 transition: "opacity 0.4s ease",
               }}
-              onMouseEnter={(e) => {
-                if (hoverImage) {
-                  (e.currentTarget as HTMLImageElement).src = hoverImage;
-                }
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLImageElement).src = image;
-              }}
+              className="primary-img"
             />
+            
+            {hoverImage && (
+              <Image
+                src={hoverImage}
+                alt={`${name} alternate view`}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{
+                  objectFit: "cover",
+                  transition: "opacity 0.4s ease",
+                }}
+                className="hover-img"
+              />
+            )}
 
             {/* Badges */}
             <div style={{ position: "absolute", top: "8px", left: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -268,6 +274,12 @@ export function ProductCard({
         <style>{`
           .aspect-product:hover .card-actions {
             opacity: 1 !important;
+          }
+          .hover-img {
+            opacity: 0;
+          }
+          .aspect-product:hover .hover-img {
+            opacity: 1;
           }
         `}</style>
       </div>

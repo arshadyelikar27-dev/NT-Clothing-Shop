@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Search, X, ArrowRight } from "lucide-react";
 import { useUIStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
@@ -262,13 +263,15 @@ export function SearchModal() {
                           color: "inherit",
                         }}
                       >
-                        <img
-                          src={item.images[0]?.url || "/images/products/premium-cotton-fabric.jpg"}
-                          alt={item.name}
-                          loading="lazy"
-                          decoding="async"
-                          style={{ width: "50px", height: "65px", objectFit: "cover" }}
-                        />
+                        <div style={{ position: "relative", width: "50px", height: "65px", flexShrink: 0 }}>
+                          <Image
+                            src={item.images[0]?.url || "/images/products/premium-cotton-fabric.jpg"}
+                            alt={item.name}
+                            fill
+                            sizes="50px"
+                            style={{ objectFit: "cover" }}
+                          />
+                        </div>
                         <div>
                           <h4 style={{ fontSize: "13px", fontWeight: 500, color: "#1A1918", marginBottom: "2px" }}>
                             {item.name}
