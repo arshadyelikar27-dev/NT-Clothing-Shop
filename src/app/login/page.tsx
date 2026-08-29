@@ -20,7 +20,7 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier || !password) {
-      setError("Please enter your Mobile Number (or Admin Email) and password");
+      setError("Please enter your Mobile Number and password");
       return;
     }
 
@@ -159,7 +159,7 @@ function LoginForm() {
               marginBottom: "8px",
             }}
           >
-            Mobile Number (or Admin Email)
+            Mobile Number
           </label>
           <div style={{ position: "relative" }}>
             <div

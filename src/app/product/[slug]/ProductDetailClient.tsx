@@ -320,7 +320,7 @@ export function ProductDetailClient({
                   {product.images.map((img, idx) => (
                     <button
                       key={img.id}
-                      onClick={() => setSelectedImageIndex(idx)}
+                      onClick={() => handleThumbnailClick(img.url, idx)}
                       style={{
                         width: "70px",
                         height: "85px",
@@ -894,9 +894,6 @@ export function ProductDetailClient({
                   <div>
                     <p style={{ marginBottom: "8px" }}>
                       Orders are packed and dispatched directly from our store in <strong>Hatte Nagar, Latur</strong> within 24–48 hours.
-                    </p>
-                    <p style={{ color: "#8A8279", fontSize: "13px", marginBottom: "8px" }}>
-                      • Free delivery across India for orders above ₹999.
                     </p>
                     <p style={{ color: "#8A8279", fontSize: "13px" }}>
                       • Local pickup available at our Latur retail store.
