@@ -18,6 +18,7 @@ import {
 import { formatPrice } from "@/lib/utils";
 import type { Metadata } from "next";
 import { InvoicePrintButton } from "./InvoicePrintButton";
+import { RefreshStatusButton } from "./RefreshStatusButton";
 
 interface OrderSuccessPageProps {
   params: Promise<{ orderNumber: string }>;
@@ -117,9 +118,12 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
             marginBottom: "32px",
           }}
         >
-          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "18px", marginBottom: "20px" }}>
-            Order Status & Timeline
-          </h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "18px", margin: 0 }}>
+              Order Status & Timeline
+            </h2>
+            <RefreshStatusButton />
+          </div>
 
           <div style={{ position: "relative", paddingLeft: "24px" }}>
             {/* Timeline track line */}

@@ -16,11 +16,11 @@ export async function GET(request: NextRequest) {
           isPublished: true,
           isArchived: false,
           OR: [
-            { name: { contains: q } },
-            { description: { contains: q } },
-            { fabric: { contains: q } },
-            { tags: { contains: q } },
-            { sku: { contains: q } },
+            { name: { contains: q, mode: "insensitive" } },
+            { description: { contains: q, mode: "insensitive" } },
+            { fabric: { contains: q, mode: "insensitive" } },
+            { tags: { contains: q, mode: "insensitive" } },
+            { sku: { contains: q, mode: "insensitive" } },
           ],
         },
         include: {
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       prisma.category.findMany({
         where: {
           isActive: true,
-          name: { contains: q },
+          name: { contains: q, mode: "insensitive" },
         },
         take: 4,
       }),
