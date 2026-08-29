@@ -90,6 +90,7 @@ export function AdminOrderStatusUpdater({
           >
             <option value="PENDING">Pending Payment</option>
             <option value="CONFIRMED">Confirmed</option>
+            <option value="PAYMENT_RECEIVED">✅ Payment Received</option>
             <option value="PROCESSING">Processing / Cutting Fabric</option>
             <option value="PACKED">Packed in Store</option>
             <option value="SHIPPED">Handed to Courier (Shipped)</option>

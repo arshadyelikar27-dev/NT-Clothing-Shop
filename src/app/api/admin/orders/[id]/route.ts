@@ -29,10 +29,22 @@ export async function PATCH(
 
     // If status changed, record a timeline event
     if (status && status !== order.status) {
-      let timelineMsg = `Order status updated to ${status.replace(/_/g, " ")}`;
-      if (trackingNumber) {
-        timelineMsg += ` with tracking #${trackingNumber} via ${courierPartner || "Courier"}`;
-      }
+      const statusMessages: Record<string, string> = {
+        CONFIRMED: "Order confirmed by store. Your fabric is being prepared.",
+        PROCESSING: "Your order is being processed and packed.",
+        PAYMENT_RECEIVED: "Payment received. Order will be dispatched soon.",
+        SHIPPED: trackingNumber
+          ? `Order shipped via ${courierPartner || "Courier"} — Tracking #${trackingNumber}`
+          : "Order has been handed over to the courier.",
+        OUT_FOR_DELIVERY: "Your order is out for delivery today.",
+        DELIVERED: "Order delivered successfully. Thank you for shopping with Noble Textile!",
+        CANCELLED: "Order has been cancelled.",
+        RETURNED: "Order return has been initiated.",
+      };
+
+      const timelineMsg =
+        statusMessages[status] ||
+        `Order status updated to ${status.replace(/_/g, " ")}`;
 
       await prisma.orderTimeline.create({
         data: {

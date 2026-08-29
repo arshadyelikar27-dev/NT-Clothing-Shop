@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"; // Always fetch fresh order status
+
 import { prisma } from "@/lib/db";
 import { getSession, isAdmin } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
@@ -132,59 +134,89 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
               }}
             />
 
-            {order.timeline.map((item, index) => (
-              <div key={item.id} style={{ position: "relative", marginBottom: "20px" }}>
-                {/* Node icon */}
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "-24px",
-                    top: "3px",
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "50%",
-                    backgroundColor: index === order.timeline.length - 1 ? "#9E3B2B" : "#2C6E3F",
-                    border: "3px solid white",
-                    boxShadow: "0 0 0 1px #E4DDD3",
-                  }}
-                />
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                  <p style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918" }}>
-                    {item.status.replace(/_/g, " ")}
+            {order.timeline.map((item, index) => {
+              const isLast = index === order.timeline.length - 1;
+              const isDelivered = item.status === "DELIVERED";
+              const isPaid = item.status === "PAYMENT_RECEIVED" || item.status === "PAID";
+              // Green for all completed steps; amber for current last step if not delivered
+              const dotColor = isDelivered ? "#2C6E3F" : isPaid ? "#B8860B" : isLast ? "#9E3B2B" : "#2C6E3F";
+              return (
+                <div key={item.id} style={{ position: "relative", marginBottom: "20px" }}>
+                  {/* Node dot */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: "-24px",
+                      top: "3px",
+                      width: "16px",
+                      height: "16px",
+                      borderRadius: "50%",
+                      backgroundColor: dotColor,
+                      border: "3px solid white",
+                      boxShadow: "0 0 0 1px #E4DDD3",
+                    }}
+                  />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                    <p style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918" }}>
+                      {item.status.replace(/_/g, " ")}
+                    </p>
+                    <span style={{ fontSize: "12px", color: "#8A8279" }}>
+                      {new Date(item.createdAt).toLocaleString("en-IN", {
+                        timeZone: "Asia/Kolkata",
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#8A8279", marginTop: "2px" }}>
+                    {item.message}
                   </p>
-                  <span style={{ fontSize: "12px", color: "#8A8279" }}>
-                    {new Date(item.createdAt).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
                 </div>
-                <p style={{ fontSize: "13px", color: "#8A8279", marginTop: "2px" }}>
-                  {item.message}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          <div
-            style={{
-              backgroundColor: "#FAF7F2",
-              padding: "12px 16px",
-              border: "1px solid #E4DDD3",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              fontSize: "13px",
-              color: "#1A1918",
-            }}
-          >
-            <Clock size={16} color="#9E3B2B" />
-            <span>
-              Estimated Delivery: <strong>7-10 Days</strong>
-            </span>
-          </div>
+          {/* Show estimated delivery only if NOT yet delivered */}
+          {!["DELIVERED", "COMPLETED"].includes(order.status) && (
+            <div
+              style={{
+                backgroundColor: "#FAF7F2",
+                padding: "12px 16px",
+                border: "1px solid #E4DDD3",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "13px",
+                color: "#1A1918",
+              }}
+            >
+              <Clock size={16} color="#9E3B2B" />
+              <span>
+                Estimated Delivery: <strong>7–10 Days</strong>
+              </span>
+            </div>
+          )}
+          {["DELIVERED", "COMPLETED"].includes(order.status) && (
+            <div
+              style={{
+                backgroundColor: "#F0FDF4",
+                padding: "12px 16px",
+                border: "1px solid #86EFAC",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "13px",
+                color: "#2C6E3F",
+                fontWeight: 600,
+              }}
+            >
+              <CheckCircle2 size={16} color="#2C6E3F" />
+              <span>✅ Order Successfully Delivered!</span>
+            </div>
+          )}
         </div>
 
         {/* ════ Order Breakdown & Tax Invoice View ════ */}
