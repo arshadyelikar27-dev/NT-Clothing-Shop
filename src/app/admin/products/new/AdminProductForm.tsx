@@ -15,7 +15,22 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id || "");
   const [description, setDescription] = useState("");
-  const [videoUrl, setVideoUrl] = useState("");
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  // Variants State
+  const [sizes, setSizes] = useState<string[]>([]);
+  const [colors, setColors] = useState<{ name: string; file: File | null }[]>([]);
+
+  const toggleSize = (size: string) => {
+    setSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
+  };
+
+  const addColor = () => setColors([...colors, { name: "", file: null }]);
+  const updateColor = (index: number, field: "name" | "file", value: any) => {
+    const newColors = [...colors];
+    newColors[index][field] = value;
+    setColors(newColors);
+  };
+  const removeColor = (index: number) => setColors(colors.filter((_, i) => i !== index));
   
   // Image files state
   const [imageFront, setImageFront] = useState<File | null>(null);
@@ -47,8 +62,18 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
       formData.append("price", price);
       formData.append("categoryId", categoryId);
       formData.append("description", description);
-      if (videoUrl) formData.append("videoUrl", videoUrl);
+      if (videoFile) formData.append("videoFile", videoFile);
       
+      // Append Variants
+      if (sizes.length > 0) formData.append("sizes", JSON.stringify(sizes));
+      
+      const colorNames = colors.map(c => c.name);
+      if (colorNames.length > 0) formData.append("colorNames", JSON.stringify(colorNames));
+      colors.forEach((c, i) => {
+        if (c.file) {
+          formData.append(`colorImage_${i}`, c.file);
+        }
+      });
       if (imageFront) formData.append("imageFront", imageFront);
       if (imageRight) formData.append("imageRight", imageRight);
       if (imageLeft) formData.append("imageLeft", imageLeft);
@@ -151,6 +176,67 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
           </div>
         </div>
 
+        {/* Product Variants (Sizes & Colors) */}
+        <div style={{ paddingBottom: "24px", borderBottom: "1px solid #F3EFEA" }}>
+          <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1A1918", marginBottom: "16px" }}>Product Variants (Optional)</h3>
+          
+          <div style={{ marginBottom: "24px" }}>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "8px" }}>Available Sizes</label>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              {["XS", "S", "M", "L", "XL", "XXL", "3XL"].map(size => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => toggleSize(size)}
+                  style={{
+                    padding: "8px 16px",
+                    border: sizes.includes(size) ? "2px solid #1A1918" : "1px solid #E4DDD3",
+                    backgroundColor: sizes.includes(size) ? "#1A1918" : "white",
+                    color: sizes.includes(size) ? "white" : "#1A1918",
+                    borderRadius: "4px",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    cursor: "pointer"
+                  }}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600 }}>Available Colors</label>
+              <button type="button" onClick={addColor} className="btn btn-secondary btn-sm">
+                + Add Color
+              </button>
+            </div>
+            
+            {colors.length === 0 ? (
+              <div style={{ padding: "20px", textAlign: "center", backgroundColor: "#FAF7F2", border: "1px dashed #E4DDD3", fontSize: "13px", color: "#8A8279" }}>
+                No colors added.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                {colors.map((color, idx) => (
+                  <div key={idx} style={{ display: "flex", gap: "16px", alignItems: "flex-end", backgroundColor: "#FAF7F2", padding: "16px", border: "1px solid #E4DDD3" }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Color Name</label>
+                      <input type="text" required value={color.name} onChange={(e) => updateColor(idx, "name", e.target.value)} className="input" placeholder="e.g. Ruby Red" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Color Image (Required)</label>
+                      <input type="file" accept="image/*" required onChange={(e) => updateColor(idx, "file", e.target.files?.[0] || null)} style={{ fontSize: "12px", width: "100%" }} />
+                    </div>
+                    <button type="button" onClick={() => removeColor(idx)} style={{ padding: "10px", backgroundColor: "#FEE2E2", color: "#991B1B", border: "1px solid #FCA5A5", borderRadius: "4px", fontSize: "12px", fontWeight: 600 }}>Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Media Uploads */}
         <div>
           <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1A1918", marginBottom: "16px" }}>Product Media</h3>
@@ -214,17 +300,16 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
 
           <div style={{ marginTop: "20px" }}>
             <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-              Video URL (Optional)
+              Video Upload (Optional)
             </label>
             <input
-              type="text"
-              placeholder="e.g. https://youtube.com/..."
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
+              type="file"
+              accept="video/*"
+              onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
               className="input"
             />
             <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>
-              Paste a link to showcase a video of this product.
+              Upload a video to showcase this product.
             </p>
           </div>
         </div>

@@ -5,11 +5,11 @@ import { hashPassword, createSession } from "@/lib/auth";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, password } = body;
+    const { name, phone, password } = body;
 
-    if (!name || !email || !password) {
+    if (!name || !phone || !password) {
       return NextResponse.json(
-        { error: "Name, email and password are required" },
+        { error: "Name, mobile number and password are required" },
         { status: 400 }
       );
     }
@@ -22,12 +22,12 @@ export async function POST(request: NextRequest) {
     }
 
     const existingUser = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { phone: phone.replace(/\D/g, "") },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "An account with this email already exists" },
+        { error: "An account with this mobile number already exists" },
         { status: 409 }
       );
     }
@@ -37,8 +37,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: {
         name: name.trim(),
-        email: email.toLowerCase().trim(),
-        phone: phone?.trim() || null,
+        phone: phone.replace(/\D/g, ""),
         password: hashedPassword,
         role: "CUSTOMER",
       },
@@ -50,7 +49,7 @@ export async function POST(request: NextRequest) {
     // Create session
     await createSession({
       userId: user.id,
-      email: user.email,
+      phone: user.phone,
       name: user.name,
       role: user.role,
     });

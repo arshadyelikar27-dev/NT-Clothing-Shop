@@ -5,43 +5,38 @@ import { useState, useEffect } from "react";
 import {
   Search,
   User,
-  Heart,
   ShoppingBag,
   Menu,
   X,
   ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { useCartStore, useUIStore } from "@/lib/store";
 
-const NAV_LINKS = [
+interface CategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+  children?: CategoryItem[];
+}
+
+const STATIC_NAV = [
   { href: "/shop", label: "Shop" },
-  {
-    href: "/shop",
-    label: "Categories",
-    children: [
-      { href: "/category/mens-wear", label: "Men's Wear" },
-      { href: "/category/womens-wear", label: "Women's Wear" },
-      { href: "/category/dress-materials", label: "Dress Materials" },
-      { href: "/category/kurtis", label: "Kurtis" },
-      { href: "/category/sarees", label: "Sarees" },
-      { href: "/category/suits", label: "Suits" },
-      { href: "/category/fabrics", label: "Fabrics" },
-    ],
-  },
   { href: "/shop?sort=newest", label: "New Arrivals" },
-  { href: "/shop?sort=best-selling", label: "Best Sellers" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/wholesale", label: "Wholesale" },
+  { href: "/bulk-enquiry", label: "Bulk Orders" },
 ];
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const { isMobileMenuOpen, setMobileMenu, setSearchOpen } = useUIStore();
   const cartItemCount = useCartStore((s) => s.items.length);
   const toggleCart = useCartStore((s) => s.toggleCart);
 
+  // Load user session
   useEffect(() => {
     async function loadUser() {
       try {
@@ -55,6 +50,22 @@ export function Header() {
       }
     }
     loadUser();
+  }, []);
+
+  // Load dynamic categories
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch("/api/categories");
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data.categories || []);
+        }
+      } catch {
+        // Use empty list if API fails
+      }
+    }
+    loadCategories();
   }, []);
 
   useEffect(() => {
@@ -161,118 +172,167 @@ export function Header() {
               border: "1px solid rgba(0, 0, 0, 0.03)",
             }}
           >
-            {NAV_LINKS.map((link) =>
-              link.children ? (
-                <div
-                  key={link.label}
-                  style={{ position: "relative" }}
-                  onMouseEnter={() => setMegaMenuOpen(true)}
-                  onMouseLeave={() => setMegaMenuOpen(false)}
-                >
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setMegaMenuOpen((prev) => !prev);
-                    }}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      fontFamily: "var(--font-sans)",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      letterSpacing: "0.04em",
-                      textTransform: "uppercase",
-                      color: megaMenuOpen ? "#9E3B2B" : "#1A1918",
-                      padding: "6px 12px",
-                      borderRadius: "9999px",
-                      transition: "all 0.2s ease",
-                    }}
-                    className="hover:bg-white hover:shadow-sm"
-                  >
-                    {link.label}
-                    <ChevronDown
-                      size={14}
-                      style={{
-                        transform: megaMenuOpen ? "rotate(180deg)" : "rotate(0)",
-                        transition: "transform 0.2s ease",
-                      }}
-                    />
-                  </button>
+            {/* Static links */}
+            {STATIC_NAV.map((link) => (
+              <Link
+                key={link.href + link.label}
+                href={link.href}
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  color: "#1A1918",
+                  textDecoration: "none",
+                  padding: "6px 12px",
+                  borderRadius: "9999px",
+                  transition: "all 0.2s ease",
+                  fontFamily: "var(--font-sans)",
+                }}
+                className="hover:bg-white hover:text-[#9E3B2B] hover:shadow-sm"
+              >
+                {link.label}
+              </Link>
+            ))}
 
-                  {/* Dropdown Menu */}
-                  {megaMenuOpen && (
+            {/* Dynamic Categories Mega Menu */}
+            {categories.length > 0 && (
+              <div
+                style={{ position: "relative" }}
+                onMouseEnter={() => setMegaMenuOpen(true)}
+                onMouseLeave={() => setMegaMenuOpen(false)}
+              >
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMegaMenuOpen((prev) => !prev);
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                    color: megaMenuOpen ? "#9E3B2B" : "#1A1918",
+                    padding: "6px 12px",
+                    borderRadius: "9999px",
+                    transition: "all 0.2s ease",
+                  }}
+                  className="hover:bg-white hover:shadow-sm"
+                >
+                  Categories
+                  <ChevronDown
+                    size={14}
+                    style={{
+                      transform: megaMenuOpen ? "rotate(180deg)" : "rotate(0)",
+                      transition: "transform 0.2s ease",
+                    }}
+                  />
+                </button>
+
+                {/* Mega Menu Dropdown */}
+                {megaMenuOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      paddingTop: "12px",
+                      zIndex: 100,
+                    }}
+                  >
                     <div
                       style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        paddingTop: "12px",
-                        zIndex: 100,
+                        backgroundColor: "rgba(255, 255, 255, 0.98)",
+                        backdropFilter: "blur(24px)",
+                        WebkitBackdropFilter: "blur(24px)",
+                        border: "1px solid rgba(228, 221, 211, 0.95)",
+                        borderRadius: "16px",
+                        boxShadow: "0 20px 48px rgba(0,0,0,0.16)",
+                        minWidth: "270px",
+                        padding: "8px",
+                        animation: "fadeIn 0.2s ease-out",
                       }}
                     >
-                      <div
-                        style={{
-                          backgroundColor: "rgba(255, 255, 255, 0.98)",
-                          backdropFilter: "blur(24px)",
-                          WebkitBackdropFilter: "blur(24px)",
-                          border: "1px solid rgba(228, 221, 211, 0.95)",
-                          borderRadius: "16px",
-                          boxShadow: "0 20px 48px rgba(0,0,0,0.16)",
-                          minWidth: "270px",
-                          padding: "8px",
-                          animation: "fadeIn 0.2s ease-out",
-                        }}
-                      >
-                        {link.children.map((child) => (
+                      {categories.map((cat) => (
+                        <div key={cat.id}>
                           <Link
-                            key={child.href}
-                            href={child.href}
+                            href={`/category/${cat.slug}`}
                             onClick={() => setMegaMenuOpen(false)}
                             style={{
-                              display: "block",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
                               padding: "10px 16px",
                               fontSize: "13px",
-                              fontWeight: 500,
+                              fontWeight: 600,
                               color: "#1A1918",
                               textDecoration: "none",
                               borderRadius: "10px",
                               transition: "all 0.15s ease",
                               fontFamily: "var(--font-sans)",
                             }}
-                            className="hover:bg-[#FAF7F2] hover:text-[#9E3B2B] hover:translate-x-1"
+                            className="hover:bg-[#FAF7F2] hover:text-[#9E3B2B]"
                           >
-                            {child.label}
+                            {cat.name}
+                            {cat.children && cat.children.length > 0 && (
+                              <ChevronRight size={14} style={{ opacity: 0.5 }} />
+                            )}
                           </Link>
-                        ))}
-                      </div>
+                          {cat.children && cat.children.length > 0 && (
+                            <div style={{ paddingLeft: "16px" }}>
+                              {cat.children.map((child) => (
+                                <Link
+                                  key={child.id}
+                                  href={`/category/${child.slug}`}
+                                  onClick={() => setMegaMenuOpen(false)}
+                                  style={{
+                                    display: "block",
+                                    padding: "7px 16px",
+                                    fontSize: "12px",
+                                    fontWeight: 500,
+                                    color: "#8A8279",
+                                    textDecoration: "none",
+                                    borderRadius: "8px",
+                                    fontFamily: "var(--font-sans)",
+                                  }}
+                                  className="hover:bg-[#FAF7F2] hover:text-[#9E3B2B]"
+                                >
+                                  {child.name}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      <div style={{ borderTop: "1px solid #E4DDD3", margin: "4px 0" }} />
+                      <Link
+                        href="/shop"
+                        onClick={() => setMegaMenuOpen(false)}
+                        style={{
+                          display: "block",
+                          padding: "10px 16px",
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          color: "#9E3B2B",
+                          textDecoration: "none",
+                          borderRadius: "10px",
+                          fontFamily: "var(--font-sans)",
+                        }}
+                        className="hover:bg-[#FAF7F2]"
+                      >
+                        View All →
+                      </Link>
                     </div>
-                  )}
-                </div>
-              ) : (
-                <Link
-                  key={link.href + link.label}
-                  href={link.href}
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    letterSpacing: "0.04em",
-                    textTransform: "uppercase",
-                    color: "#1A1918",
-                    textDecoration: "none",
-                    padding: "6px 12px",
-                    borderRadius: "9999px",
-                    transition: "all 0.2s ease",
-                    fontFamily: "var(--font-sans)",
-                  }}
-                  className="hover:bg-white hover:text-[#9E3B2B] hover:shadow-sm"
-                >
-                  {link.label}
-                </Link>
-              )
+                  </div>
+                )}
+              </div>
             )}
           </nav>
 
@@ -284,7 +344,7 @@ export function Header() {
               gap: "8px",
             }}
           >
-            {/* Search Button (Mobile & Desktop) */}
+            {/* Search Button */}
             <button
               onClick={() => setSearchOpen(true)}
               aria-label="Search Catalog"
@@ -306,9 +366,15 @@ export function Header() {
               <Search size={18} />
             </button>
 
-            {/* User Account Icon (Desktop Only - Mobile has Bottom Nav) */}
+            {/* User Account Icon (Desktop Only) */}
             <Link
-              href={user ? "/account" : "/login"}
+              href={
+                user
+                  ? ["ADMIN", "SUPER_ADMIN", "ORDER_MANAGER", "PRODUCT_MANAGER"].includes(user.role)
+                    ? "/admin"
+                    : "/account"
+                  : "/login"
+              }
               aria-label={user ? `Account (${user.name})` : "Sign In"}
               className="hidden md:flex items-center justify-center transition-all relative hover:bg-black/10 hover:scale-105 active:scale-95 no-underline"
               style={{
@@ -321,7 +387,7 @@ export function Header() {
               }}
             >
               <User size={18} />
-              {user?.role === "ADMIN" && (
+              {["ADMIN", "SUPER_ADMIN", "ORDER_MANAGER", "PRODUCT_MANAGER"].includes(user?.role || "") && (
                 <span
                   style={{
                     position: "absolute",
@@ -344,8 +410,7 @@ export function Header() {
               )}
             </Link>
 
-
-            {/* Shopping Bag Icon Button (Mobile & Desktop) */}
+            {/* Shopping Bag Icon Button */}
             <button
               onClick={toggleCart}
               aria-label="Shopping Bag"
@@ -394,7 +459,7 @@ export function Header() {
         </div>
       </header>
 
-      {/* ─── Mobile Slide-In Mega Drawer ─── */}
+      {/* ─── Mobile Slide-In Drawer ─── */}
       {isMobileMenuOpen && (
         <>
           <div
@@ -470,7 +535,7 @@ export function Header() {
               </button>
             </div>
 
-            {/* Quick Categories List */}
+            {/* Dynamic Categories in Mobile */}
             <div style={{ padding: "16px 20px", flex: 1 }}>
               <p
                 style={{
@@ -486,35 +551,68 @@ export function Header() {
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                {[
-                  { name: "✨ All Collection", href: "/shop" },
-                  { name: "👔 Men's Wear", href: "/category/mens-wear" },
-                  { name: "👗 Women's Wear", href: "/category/womens-wear" },
-                  { name: "✨ Dress Materials", href: "/category/dress-materials" },
-                  { name: "🌸 Kurtis", href: "/category/kurtis" },
-                  { name: "👑 Sarees", href: "/category/sarees" },
-                  { name: "🧥 Suits", href: "/category/suits" },
-                  { name: "✂️ Fabrics", href: "/category/fabrics" },
-                ].map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileMenu(false)}
-                    style={{
-                      display: "block",
-                      padding: "10px 14px",
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      color: "#1A1918",
-                      textDecoration: "none",
-                      backgroundColor: "#FFFFFF",
-                      borderRadius: "8px",
-                      border: "1px solid #E4DDD3",
-                      marginBottom: "6px",
-                    }}
-                  >
-                    {item.name}
-                  </Link>
+                <Link
+                  href="/shop"
+                  onClick={() => setMobileMenu(false)}
+                  style={{
+                    display: "block",
+                    padding: "10px 14px",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    color: "#9E3B2B",
+                    textDecoration: "none",
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: "8px",
+                    border: "1px solid #E4DDD3",
+                    marginBottom: "6px",
+                  }}
+                >
+                  ✨ All Products
+                </Link>
+                {categories.map((cat) => (
+                  <div key={cat.id}>
+                    <Link
+                      href={`/category/${cat.slug}`}
+                      onClick={() => setMobileMenu(false)}
+                      style={{
+                        display: "block",
+                        padding: "10px 14px",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        color: "#1A1918",
+                        textDecoration: "none",
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: "8px",
+                        border: "1px solid #E4DDD3",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {cat.name}
+                    </Link>
+                    {cat.children && cat.children.length > 0 && (
+                      <div style={{ paddingLeft: "12px", marginBottom: "4px" }}>
+                        {cat.children.map((child) => (
+                          <Link
+                            key={child.id}
+                            href={`/category/${child.slug}`}
+                            onClick={() => setMobileMenu(false)}
+                            style={{
+                              display: "block",
+                              padding: "8px 14px",
+                              fontSize: "13px",
+                              fontWeight: 400,
+                              color: "#8A8279",
+                              textDecoration: "none",
+                              borderRadius: "6px",
+                              marginBottom: "2px",
+                            }}
+                          >
+                            → {child.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
 
@@ -533,32 +631,29 @@ export function Header() {
                   Quick Links
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  <Link
-                    href="/about"
-                    onClick={() => setMobileMenu(false)}
-                    style={{ fontSize: "14px", color: "#1A1918", textDecoration: "none" }}
-                  >
-                    About Noble Textile
-                  </Link>
-                  <Link
-                    href="/contact"
-                    onClick={() => setMobileMenu(false)}
-                    style={{ fontSize: "14px", color: "#1A1918", textDecoration: "none" }}
-                  >
-                    Store Location & Contact
-                  </Link>
-                  <Link
-                    href="/account"
-                    onClick={() => setMobileMenu(false)}
-                    style={{ fontSize: "14px", color: "#1A1918", textDecoration: "none" }}
-                  >
-                    My Orders & Account
-                  </Link>
+                  {[
+                    { href: "/shop?sort=newest", label: "New Arrivals" },
+                    { href: "/wholesale", label: "Wholesale Account" },
+                    { href: "/bulk-enquiry", label: "Bulk Order Enquiry" },
+                    { href: "/track", label: "Track My Order" },
+                    { href: "/account", label: "My Account & Orders" },
+                    { href: "/about", label: "About Noble Textile" },
+                    { href: "/contact", label: "Store Location & Contact" },
+                  ].map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenu(false)}
+                      style={{ fontSize: "14px", color: "#1A1918", textDecoration: "none" }}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Drawer Footer Contact */}
+            {/* Drawer Footer */}
             <div
               style={{
                 padding: "16px 20px",

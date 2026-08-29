@@ -27,13 +27,22 @@ export default async function AdminProductsPage() {
           </p>
         </div>
 
-        <Link
-          href="/admin/products/new"
-          className="btn btn-primary btn-sm"
-          style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
-        >
-          <Plus size={14} /> Add New Textile / Product
-        </Link>
+        <div style={{ display: "flex", gap: "12px" }}>
+          <Link
+            href="/admin/products/new"
+            className="btn btn-secondary btn-sm"
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+          >
+            <Plus size={14} /> Add Retail Product
+          </Link>
+          <Link
+            href="/admin/wholesale/products/new"
+            className="btn btn-primary btn-sm"
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+          >
+            <Plus size={14} /> Add Wholesale Product
+          </Link>
+        </div>
       </div>
 
       {/* Products Table */}

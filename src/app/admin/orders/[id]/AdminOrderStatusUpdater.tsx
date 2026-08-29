@@ -102,52 +102,6 @@ export function AdminOrderStatusUpdater({
           </select>
         </div>
 
-        <div>
-          <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-            Courier Partner
-          </label>
-          <select
-            value={courierPartner}
-            onChange={(e) => setCourierPartner(e.target.value)}
-            className="input"
-            style={{ fontSize: "13px", padding: "8px 12px" }}
-          >
-            <option value="">Select courier...</option>
-            <option value="DTDC Express">DTDC Express</option>
-            <option value="Delhivery Surface">Delhivery Surface</option>
-            <option value="India Post (Speed Post)">India Post (Speed Post)</option>
-            <option value="Blue Dart">Blue Dart</option>
-            <option value="Local Store Pickup">Local Latur Pickup</option>
-          </select>
-        </div>
-
-        <div>
-          <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-            Tracking / AWB Number
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. DTDC123456789"
-            value={trackingNumber}
-            onChange={(e) => setTrackingNumber(e.target.value)}
-            className="input"
-            style={{ fontSize: "13px", padding: "8px 12px" }}
-          />
-        </div>
-
-        <div>
-          <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>
-            Internal Staff Note
-          </label>
-          <textarea
-            rows={2}
-            placeholder="e.g. Cut 2.5m Cambric cotton roll #14..."
-            value={adminNotes}
-            onChange={(e) => setAdminNotes(e.target.value)}
-            className="input"
-            style={{ fontSize: "13px", padding: "8px 12px" }}
-          />
-        </div>
 
         <button
           type="submit"

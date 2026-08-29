@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/auth";
+import { getSession, isAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
@@ -7,13 +7,14 @@ import {
   Package,
   Layers,
   Users,
-  Tag,
   Settings,
-  BarChart3,
   Sliders,
-  LogOut,
   Store,
-  FileText,
+  LogOut,
+  Building2,
+  Star,
+  MessageSquare,
+  Truck,
 } from "lucide-react";
 
 export default async function AdminLayout({
@@ -24,7 +25,7 @@ export default async function AdminLayout({
   const session = await getSession();
 
   // Guard: Must be authenticated and have an admin role
-  if (!session || session.role === "CUSTOMER") {
+  if (!session || !isAdmin(session.role)) {
     redirect("/login");
   }
 
@@ -35,6 +36,10 @@ export default async function AdminLayout({
     { href: "/admin/categories", label: "Categories", icon: <Layers size={18} /> },
     { href: "/admin/inventory", label: "Inventory", icon: <Sliders size={18} /> },
     { href: "/admin/customers", label: "Customers", icon: <Users size={18} /> },
+    { href: "/admin/wholesale", label: "Wholesale", icon: <Building2 size={18} /> },
+    { href: "/admin/reviews", label: "Reviews", icon: <Star size={18} /> },
+    { href: "/admin/bulk-enquiries", label: "Bulk Enquiries", icon: <MessageSquare size={18} /> },
+    { href: "/admin/shipping", label: "Shipping", icon: <Truck size={18} /> },
     { href: "/admin/settings", label: "Store Settings", icon: <Settings size={18} /> },
   ];
 

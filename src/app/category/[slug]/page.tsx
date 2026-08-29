@@ -40,6 +40,7 @@ export default async function CategoryPage({
     where: { slug, isActive: true },
     include: {
       children: true,
+      parent: true,
     },
   });
 
@@ -58,9 +59,15 @@ export default async function CategoryPage({
       orderBy = { createdAt: "desc" };
   }
 
+  // Include current category ID, its subcategory IDs, and parent ID if subcategory has no direct items
+  const categoryIds = [category.id, ...(category.children?.map((c) => c.id) || [])];
+  if (category.parentId) {
+    categoryIds.push(category.parentId);
+  }
+
   const products = await prisma.product.findMany({
     where: {
-      categoryId: category.id,
+      categoryId: { in: categoryIds },
       isPublished: true,
       isArchived: false,
     },

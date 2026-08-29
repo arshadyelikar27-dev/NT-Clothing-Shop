@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
+import { useState } from "react";
+import { ShoppingBag, Eye } from "lucide-react";
 import { useCartStore, useUIStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
+import { QuickViewModal } from "./QuickViewModal";
 
 interface ProductCardProps {
   id: string;
   name: string;
   slug: string;
   price: number;
+  compareAtPrice?: number | null;
   image: string;
   hoverImage?: string | null;
   fabric?: string | null;
@@ -23,6 +26,7 @@ export function ProductCard({
   name,
   slug,
   price,
+  compareAtPrice,
   image,
   hoverImage,
   fabric,
@@ -33,6 +37,12 @@ export function ProductCard({
   const addItem = useCartStore((s) => s.addItem);
   const outOfStock = stock <= 0;
   const { showNotification } = useUIStore();
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
+
+  const discount =
+    compareAtPrice && compareAtPrice > price
+      ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+      : null;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -52,129 +62,223 @@ export function ProductCard({
     showNotification(`${name} added to bag`, "success");
   };
 
-
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setQuickViewOpen(true);
+  };
 
   return (
-    <div style={{ position: "relative" }}>
-      <Link
-        href={`/product/${slug}`}
-        style={{ textDecoration: "none", color: "inherit", display: "block" }}
-      >
-        {/* Image */}
-        <div
-          style={{
-            position: "relative",
-            overflow: "hidden",
-            backgroundColor: "#F3EFEA",
-          }}
-          className="aspect-product group"
+    <>
+      <div style={{ position: "relative" }}>
+        <Link
+          href={`/product/${slug}`}
+          style={{ textDecoration: "none", color: "inherit", display: "block" }}
         >
-          <img
-            src={image}
-            alt={name}
-            loading="lazy"
-            decoding="async"
+          {/* Image */}
+          <div
             style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              transition: "opacity 0.4s ease",
+              position: "relative",
+              overflow: "hidden",
+              backgroundColor: "#F3EFEA",
             }}
-            onMouseEnter={(e) => {
-              if (hoverImage) {
-                (e.currentTarget as HTMLImageElement).src = hoverImage;
-              }
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLImageElement).src = image;
-            }}
-          />
+            className="aspect-product group"
+          >
+            <img
+              src={image}
+              alt={name}
+              loading="lazy"
+              decoding="async"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "opacity 0.4s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (hoverImage) {
+                  (e.currentTarget as HTMLImageElement).src = hoverImage;
+                }
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLImageElement).src = image;
+              }}
+            />
 
+            {/* Badges */}
+            <div style={{ position: "absolute", top: "8px", left: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+              {isNew && (
+                <span style={{ background: "#1A1918", color: "white", fontSize: "10px", fontWeight: 700, padding: "3px 8px", borderRadius: "3px", letterSpacing: "0.06em" }}>
+                  NEW
+                </span>
+              )}
+              {discount && (
+                <span style={{ background: "#9E3B2B", color: "white", fontSize: "10px", fontWeight: 700, padding: "3px 8px", borderRadius: "3px" }}>
+                  -{discount}%
+                </span>
+              )}
+            </div>
 
-          {/* Quick Add */}
-          {!outOfStock && (
-            <button
-              onClick={handleQuickAdd}
+            {/* Action Buttons on Hover */}
+            <div
+              className="card-actions"
               style={{
                 position: "absolute",
                 bottom: "0",
                 left: "0",
                 right: "0",
-                padding: "12px",
-                backgroundColor: "rgba(26, 25, 24, 0.9)",
-                color: "white",
-                border: "none",
-                cursor: "pointer",
-                fontSize: "12px",
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                fontFamily: "var(--font-sans)",
                 opacity: 0,
                 transition: "opacity 0.2s ease",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-              className="quick-add-btn"
             >
-              <ShoppingBag size={14} />
-              Quick Add
-            </button>
-          )}
-        </div>
+              {/* Quick View */}
+              <button
+                onClick={handleQuickView}
+                style={{
+                  flex: 1,
+                  padding: "11px 8px",
+                  backgroundColor: "rgba(250, 247, 242, 0.95)",
+                  color: "#1A1918",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontFamily: "var(--font-sans)",
+                  borderRight: "1px solid #E4DDD3",
+                }}
+              >
+                <Eye size={13} />
+                Quick View
+              </button>
 
-        {/* Info */}
-        <div style={{ padding: "12px 0 0" }}>
-          {fabric && (
-            <p
+              {/* Quick Add */}
+              {!outOfStock && (
+                <button
+                  onClick={handleQuickAdd}
+                  style={{
+                    flex: 1,
+                    padding: "11px 8px",
+                    backgroundColor: "rgba(26, 25, 24, 0.92)",
+                    color: "white",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  <ShoppingBag size={13} />
+                  Quick Add
+                </button>
+              )}
+            </div>
+
+            {/* Out of stock overlay */}
+            {outOfStock && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  backgroundColor: "rgba(255,255,255,0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <span
+                  style={{
+                    background: "white",
+                    border: "1px solid #E4DDD3",
+                    padding: "6px 14px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    color: "#8A8279",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Out of Stock
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div style={{ padding: "12px 0 0" }}>
+            {fabric && (
+              <p
+                style={{
+                  fontSize: "11px",
+                  color: "#8A8279",
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  marginBottom: "4px",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                {fabric}
+              </p>
+            )}
+            <h3
               style={{
-                fontSize: "11px",
-                color: "#8A8279",
-                letterSpacing: "0.04em",
-                textTransform: "uppercase",
-                marginBottom: "4px",
+                fontSize: "14px",
+                fontWeight: 500,
+                lineHeight: 1.4,
+                marginBottom: "6px",
+                fontFamily: "var(--font-sans)",
+                color: "#1A1918",
+              }}
+            >
+              {name}
+            </h3>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
                 fontFamily: "var(--font-sans)",
               }}
             >
-              {fabric}
-            </p>
-          )}
-          <h3
-            style={{
-              fontSize: "14px",
-              fontWeight: 500,
-              lineHeight: 1.4,
-              marginBottom: "6px",
-              fontFamily: "var(--font-sans)",
-              color: "#1A1918",
-            }}
-          >
-            {name}
-          </h3>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              fontFamily: "var(--font-sans)",
-            }}
-          >
-            <span style={{ fontSize: "14px", fontWeight: 700, color: "#1A1918", fontFamily: "var(--font-sans)" }}>
-              {formatPrice(price)}
-              {unitType === "PER_METER" ? "/m" : ""}
-            </span>
+              <span style={{ fontSize: "14px", fontWeight: 700, color: "#1A1918" }}>
+                {formatPrice(price)}
+                {unitType === "PER_METER" ? "/m" : ""}
+              </span>
+              {compareAtPrice && compareAtPrice > price && (
+                <span style={{ fontSize: "12px", color: "#8A8279", textDecoration: "line-through" }}>
+                  {formatPrice(compareAtPrice)}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      </Link>
+        </Link>
 
-      <style jsx global>{`
-        .aspect-product:hover .quick-add-btn {
-          opacity: 1 !important;
-        }
-      `}</style>
-    </div>
+        <style>{`
+          .aspect-product:hover .card-actions {
+            opacity: 1 !important;
+          }
+        `}</style>
+      </div>
+
+      {/* Quick View Modal */}
+      {quickViewOpen && (
+        <QuickViewModal
+          productSlug={slug}
+          onClose={() => setQuickViewOpen(false)}
+        />
+      )}
+    </>
   );
 }

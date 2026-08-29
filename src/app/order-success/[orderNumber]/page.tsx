@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
+import { getSession, isAdmin } from "@/lib/auth";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -51,6 +52,11 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
 
   if (!order) notFound();
 
+  const session = await getSession();
+  if (!session || (session.userId !== order.userId && !isAdmin(session.role))) {
+    redirect("/login");
+  }
+
   return (
     <div style={{ backgroundColor: "#FAF7F2", minHeight: "100vh", padding: "40px 0 80px" }}>
       <div className="container-main" style={{ maxWidth: "900px" }}>
@@ -89,8 +95,7 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
             Order #{order.orderNumber} Confirmed
           </h1>
           <p style={{ fontSize: "14px", color: "#8A8279", maxWidth: "540px", margin: "0 auto 24px" }}>
-            We have sent order details and invoice receipt to{" "}
-            <strong>{order.user.email}</strong>. Our team in Hatte Nagar, Latur is preparing your fabric.
+            Our team in Hatte Nagar, Latur is preparing your fabric.
           </p>
 
           <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
@@ -177,7 +182,7 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
           >
             <Clock size={16} color="#9E3B2B" />
             <span>
-              Estimated Delivery: <strong>{order.estimatedDelivery || "3-5 Business Days"}</strong>
+              Estimated Delivery: <strong>7-10 Days</strong>
             </span>
           </div>
         </div>
@@ -270,7 +275,7 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
                 Payment & Delivery Method:
               </p>
               <p style={{ fontWeight: 500 }}>
-                {order.paymentMethod === "COD" ? "Cash on Delivery (COD)" : "Online Payment (Razorpay)"}
+                Shop Owner
               </p>
               <p style={{ color: "#8A8279" }}>
                 Payment Status: <strong style={{ color: order.payment?.status === "PAID" ? "#2C6E3F" : "#B8860B" }}>{order.payment?.status || "PENDING"}</strong>

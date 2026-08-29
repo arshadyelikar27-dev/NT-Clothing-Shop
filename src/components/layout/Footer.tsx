@@ -226,7 +226,7 @@ export function Footer() {
               fontWeight: 500,
             }}
           >
-            <span>Secure Payments via Razorpay & UPI</span>
+            <span>Secure Payments</span>
           </div>
         </div>
       </div>

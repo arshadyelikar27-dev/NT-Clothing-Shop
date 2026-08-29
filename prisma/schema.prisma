@@ -9,21 +9,22 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  name      String
-  email     String    @unique
-  phone     String?
-  password  String
-  role      String    @default("CUSTOMER")
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  addresses Address[]
-  cart      Cart?
-  orders    Order[]
-  reviews   Review[]
+  id               String            @id @default(cuid())
+  name             String
+  email            String?
+  phone            String            @unique
+  password         String
+  role             String            @default("CUSTOMER")
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  addresses        Address[]
+  cart             Cart?
+  orders           Order[]
+  reviews          Review[]
+  wholesaleProfile WholesaleProfile?
 
-  @@index([email])
+  @@index([phone])
   @@index([role])
 }
 
@@ -70,12 +71,12 @@ model Category {
 }
 
 model Product {
-  id                String           @id @default(cuid())
+  id                String               @id @default(cuid())
   name              String
-  slug              String           @unique
+  slug              String               @unique
   description       String
   shortDescription  String?
-  sku               String           @unique
+  sku               String               @unique
   price             Float
   compareAtPrice    Float?
   costPrice         Float?
@@ -85,27 +86,28 @@ model Product {
   gsm               String?
   widthInches       String?
   careInstructions  String?
-  unitType          String           @default("PER_PIECE")
-  minQuantity       Float            @default(1)
-  maxQuantity       Float            @default(100)
-  quantityStep      Float            @default(1)
-  stock             Int              @default(0)
-  lowStockThreshold Int              @default(5)
-  isPublished       Boolean          @default(true)
-  isArchived        Boolean          @default(false)
-  isFeatured        Boolean          @default(false)
+  unitType          String               @default("PER_PIECE")
+  minQuantity       Float                @default(1)
+  maxQuantity       Float                @default(100)
+  quantityStep      Float                @default(1)
+  stock             Int                  @default(0)
+  lowStockThreshold Int                  @default(5)
+  isPublished       Boolean              @default(true)
+  isArchived        Boolean              @default(false)
+  isFeatured        Boolean              @default(false)
   tags              String?
   seoTitle          String?
   seoDescription    String?
   videoUrl          String?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
   cartItems         CartItem[]
   orderItems        OrderItem[]
-  category          Category         @relation(fields: [categoryId], references: [id])
+  category          Category             @relation(fields: [categoryId], references: [id])
   images            ProductImage[]
   variants          ProductVariant[]
   reviews           Review[]
+  wholesalePrices   WholesalePriceTier[]
 
   @@index([slug])
   @@index([categoryId])
@@ -134,6 +136,7 @@ model ProductVariant {
   price      Float?
   stock      Int         @default(0)
   sku        String?
+  imageUrl   String?
   isActive   Boolean     @default(true)
   cartItems  CartItem[]
   orderItems OrderItem[]
@@ -250,21 +253,25 @@ model Payment {
 }
 
 model Review {
-  id         String   @id @default(cuid())
-  productId  String
-  userId     String
-  rating     Int
-  title      String?
-  comment    String?
-  isVerified Boolean  @default(false)
-  isApproved Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id])
+  id           String   @id @default(cuid())
+  productId    String
+  userId       String
+  orderItemId  String?
+  rating       Int
+  title        String?
+  comment      String?
+  reviewImages String?
+  isVerified   Boolean  @default(false)
+  isApproved   Boolean  @default(false)
+  isHidden     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id])
 
   @@unique([productId, userId])
   @@index([productId])
+  @@index([isApproved, isHidden])
 }
 
 model StoreSetting {
@@ -282,4 +289,61 @@ model HomepageContent {
   isActive  Boolean  @default(true)
   sortOrder Int      @default(0)
   updatedAt DateTime @updatedAt
+}
+
+// ─── Wholesale System ───
+
+model WholesaleProfile {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  businessName         String
+  shopName             String?
+  gstNumber            String?
+  businessAddress      String
+  whatsapp             String
+  interestedCategories String?
+  status               String    @default("PENDING")
+  adminNote            String?
+  reviewedAt           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([userId])
+}
+
+model WholesalePriceTier {
+  id        String   @id @default(cuid())
+  productId String
+  minQty    Int
+  maxQty    Int?
+  price     Float
+  label     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+// ─── Bulk Order Enquiry ───
+
+model BulkOrderEnquiry {
+  id           String   @id @default(cuid())
+  productName  String?
+  productId    String?
+  quantity     String
+  size         String?
+  color        String?
+  businessName String
+  whatsapp     String
+  gstNumber    String?
+  location     String
+  message      String?
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
 }

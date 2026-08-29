@@ -10,7 +10,7 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export interface SessionPayload extends JWTPayload {
   userId: string;
-  email: string;
+  phone: string;
   name: string;
   role: string;
 }

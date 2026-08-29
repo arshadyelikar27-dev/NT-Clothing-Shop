@@ -26,7 +26,7 @@ import { formatPrice } from "@/lib/utils";
 interface AuthenticatedUser {
   userId: string;
   name: string;
-  email: string;
+  phone: string;
   role: string;
 }
 
@@ -43,13 +43,13 @@ export default function CheckoutPage() {
 
   const [authUser, setAuthUser] = useState<AuthenticatedUser | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [orderCreated, setOrderCreated] = useState(false);
 
   // Inline Auth Form state (if not logged in)
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
-  const [authEmail, setAuthEmail] = useState("");
+  const [authPhone, setAuthPhone] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [authName, setAuthName] = useState("");
-  const [authPhone, setAuthPhone] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState("");
 
@@ -96,7 +96,7 @@ export default function CheckoutPage() {
           setCustomer((prev) => ({
             ...prev,
             name: data.user.name || prev.name,
-            email: data.user.email || prev.email,
+            phone: data.user.phone || prev.phone,
           }));
         } else {
           setAuthUser(null);
@@ -115,8 +115,8 @@ export default function CheckoutPage() {
 
   const handleInlineLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authEmail || !authPassword) {
-      setAuthError("Please enter your email and password");
+    if (!authPhone || !authPassword) {
+      setAuthError("Please enter your mobile number and password");
       return;
     }
 
@@ -127,7 +127,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: authEmail, password: authPassword }),
+        body: JSON.stringify({ phone: authPhone, password: authPassword }),
       });
 
       const data = await res.json();
@@ -136,16 +136,16 @@ export default function CheckoutPage() {
         setAuthUser({
           userId: data.user.id,
           name: data.user.name,
-          email: data.user.email,
+          phone: data.user.phone,
           role: data.user.role,
         });
         setCustomer((prev) => ({
           ...prev,
           name: data.user.name,
-          email: data.user.email,
+          phone: data.user.phone || prev.phone,
         }));
       } else {
-        setAuthError(data.error || "Invalid email or password");
+        setAuthError(data.error || "Invalid mobile number or password");
       }
     } catch {
       setAuthError("Error connecting to server");
@@ -156,8 +156,8 @@ export default function CheckoutPage() {
 
   const handleInlineRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authName || !authEmail || !authPassword) {
-      setAuthError("Please fill in name, email and password");
+    if (!authName || !authPhone || !authPassword) {
+      setAuthError("Please fill in name, mobile number and password");
       return;
     }
 
@@ -175,7 +175,6 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: authName,
-          email: authEmail,
           phone: authPhone,
           password: authPassword,
         }),
@@ -187,14 +186,13 @@ export default function CheckoutPage() {
         setAuthUser({
           userId: data.user.id,
           name: data.user.name,
-          email: data.user.email,
+          phone: data.user.phone,
           role: data.user.role,
         });
         setCustomer((prev) => ({
           ...prev,
           name: data.user.name,
-          email: data.user.email,
-          phone: authPhone || prev.phone,
+          phone: data.user.phone || prev.phone,
         }));
       } else {
         setAuthError(data.error || "Registration failed");
@@ -231,13 +229,12 @@ export default function CheckoutPage() {
   if (deliveryMethod === "EXPRESS") {
     shippingCharge += 70;
   }
-  const codCharge = paymentMethod === "COD" ? 50 : 0;
-  const finalTotal = subtotal + shippingCharge + codCharge;
+  const codCharge = 0;
+  const finalTotal = subtotal + shippingCharge;
 
   // Validation
   const validateStep1 = () => {
     if (!customer.name.trim()) return "Please enter your full name";
-    if (!customer.email.trim() || !customer.email.includes("@")) return "Please enter a valid email address";
     if (!customer.phone.trim() || customer.phone.replace(/\D/g, "").length < 10)
       return "Please enter a valid 10-digit mobile number";
     return "";
@@ -269,7 +266,7 @@ export default function CheckoutPage() {
       }
       setStep(3);
     } else if (step === 3) {
-      setStep(4);
+      handlePlaceOrder();
     }
   };
 
@@ -304,76 +301,11 @@ export default function CheckoutPage() {
         return;
       }
 
-      // COD or Online Payment
-      if (data.isCOD) {
-        clearCart();
-        showNotification("Order placed successfully with Cash on Delivery!", "success");
-        router.push(`/order-success/${data.orderNumber}`);
-      } else {
-        // Razorpay Online Flow
-        if (data.razorpayOrder) {
-          if (typeof window !== "undefined" && window.Razorpay) {
-            const options = {
-              key: data.razorpayOrder.keyId,
-              amount: data.razorpayOrder.amount,
-              currency: data.razorpayOrder.currency,
-              name: "NOBLE TEXTILE",
-              description: `Order ${data.orderNumber}`,
-              order_id: data.razorpayOrder.id,
-              prefill: {
-                name: customer.name,
-                email: customer.email,
-                contact: customer.phone,
-              },
-              theme: { color: "#9E3B2B" },
-              handler: async function (response: {
-                razorpay_order_id: string;
-                razorpay_payment_id: string;
-                razorpay_signature: string;
-              }) {
-                const verifyRes = await fetch("/api/checkout/razorpay/verify", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    orderNumber: data.orderNumber,
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_signature: response.razorpay_signature,
-                  }),
-                });
-                if (verifyRes.ok) {
-                  clearCart();
-                  router.push(`/order-success/${data.orderNumber}`);
-                } else {
-                  setErrorMessage("Payment verification failed. Please contact store support.");
-                }
-              },
-            };
-            const rzp = new (window.Razorpay as new (opts: unknown) => { open: () => void })(options);
-            rzp.open();
-          } else {
-            // Simulated development verification
-            const verifyRes = await fetch("/api/checkout/razorpay/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                orderNumber: data.orderNumber,
-                razorpay_order_id: data.razorpayOrder.id,
-                razorpay_payment_id: `pay_sim_${Date.now()}`,
-                razorpay_signature: "simulated_signature",
-              }),
-            });
-
-            if (verifyRes.ok) {
-              clearCart();
-              showNotification("Payment verified successfully!", "success");
-              router.push(`/order-success/${data.orderNumber}`);
-            } else {
-              setErrorMessage("Payment verification failed");
-            }
-          }
-        }
-      }
+      // Manual Order Confirmation Flow
+      setOrderCreated(true);
+      clearCart();
+      showNotification("Order submitted successfully!", "success");
+      router.push(`/track?order=${data.orderNumber}`);
     } catch (err) {
       console.error("Checkout submission failed", err);
       setErrorMessage("Network error. Please try again.");
@@ -381,6 +313,15 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (orderCreated) {
+    return (
+      <div style={{ backgroundColor: "#FAF7F2", minHeight: "70vh", display: "flex", flexDirection: "column", gap: "16px", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: "24px", height: "24px", border: "2px solid #9E3B2B", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+        <p style={{ fontSize: "14px", color: "#8A8279" }}>Redirecting to order tracking...</p>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -411,7 +352,6 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       <div style={{ backgroundColor: "#FAF7F2", minHeight: "100vh", paddingTop: "110px", paddingBottom: "80px" }}>
         <div className="container-main">
         {/* Checkout Header */}
@@ -456,7 +396,7 @@ export default function CheckoutPage() {
                 }}
               >
                 <CheckCircle2 size={15} />
-                <span>Signed in as <strong>{authUser.name}</strong> ({authUser.email})</span>
+                <span>Signed in as <strong>{authUser.name}</strong> ({authUser.phone})</span>
               </div>
             )}
           </div>
@@ -541,18 +481,18 @@ export default function CheckoutPage() {
                 <form onSubmit={handleInlineLogin} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                   <div>
                     <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-                      Email Address
+                      Mobile Number
                     </label>
                     <div style={{ position: "relative" }}>
-                      <Mail size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#8A8279" }} />
+                      <Phone size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#8A8279" }} />
                       <input
-                        type="email"
+                        type="tel"
                         required
                         className="input"
                         style={{ paddingLeft: "40px" }}
-                        placeholder="you@example.com"
-                        value={authEmail}
-                        onChange={(e) => setAuthEmail(e.target.value)}
+                        placeholder="10-digit mobile number"
+                        value={authPhone}
+                        onChange={(e) => setAuthPhone(e.target.value.replace(/\D/g, ""))}
                       />
                     </div>
                   </div>
@@ -600,24 +540,6 @@ export default function CheckoutPage() {
                         placeholder="e.g. Ramesh Kulkarni"
                         value={authName}
                         onChange={(e) => setAuthName(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-                      Email Address *
-                    </label>
-                    <div style={{ position: "relative" }}>
-                      <Mail size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "#8A8279" }} />
-                      <input
-                        type="email"
-                        required
-                        className="input"
-                        style={{ paddingLeft: "40px" }}
-                        placeholder="you@example.com"
-                        value={authEmail}
-                        onChange={(e) => setAuthEmail(e.target.value)}
                       />
                     </div>
                   </div>
@@ -790,20 +712,7 @@ export default function CheckoutPage() {
                         />
                       </div>
 
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }} className="sm:grid-cols-2">
-                        <div>
-                          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-                            Email Address (for invoice & tracking) *
-                          </label>
-                          <input
-                            type="email"
-                            className="input"
-                            placeholder="e.g. ramesh@example.com"
-                            value={customer.email}
-                            onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
-                          />
-                        </div>
-                        <div>
+                      <div>
                           <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
                             Mobile Number (10-digit) *
                           </label>
@@ -815,7 +724,6 @@ export default function CheckoutPage() {
                             value={customer.phone}
                             onChange={(e) => setCustomer({ ...customer, phone: e.target.value.replace(/\D/g, "") })}
                           />
-                        </div>
                       </div>
 
                       <div>
@@ -1007,7 +915,7 @@ export default function CheckoutPage() {
                               Standard Courier Delivery
                             </p>
                             <p style={{ fontSize: "12px", color: "#8A8279" }}>
-                              Estimated: 3-5 business days across India (1-2 days in Maharashtra)
+                              Estimated: 7-10 days
                             </p>
                           </div>
                         </div>
@@ -1015,39 +923,6 @@ export default function CheckoutPage() {
                           ₹79
                         </span>
                       </label>
-
-                      <label
-                        onClick={() => setDeliveryMethod("EXPRESS")}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          padding: "16px 20px",
-                          border: deliveryMethod === "EXPRESS" ? "2px solid #9E3B2B" : "1px solid #E4DDD3",
-                          backgroundColor: deliveryMethod === "EXPRESS" ? "#FAF7F2" : "white",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                          <input
-                            type="radio"
-                            checked={deliveryMethod === "EXPRESS"}
-                            onChange={() => setDeliveryMethod("EXPRESS")}
-                          />
-                          <div>
-                            <p style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918" }}>
-                              Priority Express Dispatch (Air / Superfast)
-                            </p>
-                            <p style={{ fontSize: "12px", color: "#8A8279" }}>
-                              Direct dispatch within 12 hours from Latur store
-                            </p>
-                          </div>
-                        </div>
-                        <span style={{ fontSize: "14px", fontWeight: 600 }}>
-                          ₹149
-                        </span>
-                      </label>
-
                       {/* Order notes */}
                       <div style={{ marginTop: "12px" }}>
                         <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
@@ -1066,8 +941,8 @@ export default function CheckoutPage() {
                         <button onClick={() => setStep(2)} className="btn btn-secondary btn-sm">
                           ← Back
                         </button>
-                        <button onClick={handleNext} className="btn btn-primary">
-                          Continue to Payment <ArrowRight size={16} />
+                        <button onClick={handlePlaceOrder} disabled={isSubmitting} className="btn btn-primary">
+                          {isSubmitting ? "Processing..." : "Confirm Order"} <ArrowRight size={16} />
                         </button>
                       </div>
                     </div>
@@ -1219,12 +1094,6 @@ export default function CheckoutPage() {
                       <span style={{ color: "#8A8279" }}>Shipping</span>
                       <span>{formatPrice(shippingCharge)}</span>
                     </div>
-                    {paymentMethod === "COD" && (
-                      <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ color: "#8A8279" }}>COD Handling Fee</span>
-                        <span>₹50</span>
-                      </div>
-                    )}
                     <div style={{ borderTop: "1px solid #E4DDD3", paddingTop: "12px", display: "flex", justifyContent: "space-between", fontSize: "16px", fontWeight: 600 }}>
                       <span>Final Payable Total</span>
                       <span style={{ color: "#9E3B2B" }}>{formatPrice(finalTotal)}</span>

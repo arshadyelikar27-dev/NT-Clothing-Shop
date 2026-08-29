@@ -16,9 +16,9 @@ export async function POST(request: NextRequest) {
       notes,
     } = body;
 
-    if (!customer?.name || !customer?.email || !customer?.phone) {
+    if (!customer?.name || !customer?.phone) {
       return NextResponse.json(
-        { error: "Customer name, email and mobile number are required" },
+        { error: "Customer name and mobile number are required" },
         { status: 400 }
       );
     }
@@ -124,10 +124,7 @@ export async function POST(request: NextRequest) {
       shippingCharge += 70; // Express surcharge
     }
 
-    // Add COD charge if applicable
-    if (paymentMethod === "COD") {
-      shippingCharge += 50;
-    }
+    // Removed COD charge
 
     const calculatedTotal = Math.round(calculatedSubtotal - discountAmount + shippingCharge);
     const orderNumber = generateOrderNumber();
@@ -138,19 +135,16 @@ export async function POST(request: NextRequest) {
         orderNumber,
         userId,
         addressId: savedAddress.id,
-        status: paymentMethod === "COD" ? "CONFIRMED" : "PAYMENT_PENDING",
+        status: "PENDING",
         subtotal: calculatedSubtotal,
         discount: discountAmount,
         shippingCharge,
         tax: Math.round(calculatedSubtotal * 0.05), // GST 5% included breakdown
         total: calculatedTotal,
-        paymentMethod,
+        paymentMethod: "OFFLINE",
         deliveryMethod: deliveryMethod || "STANDARD",
         notes: notes?.trim() || null,
-        estimatedDelivery:
-          address.pinCode.startsWith("413") || address.pinCode.startsWith("41")
-            ? "1-2 Business Days (Maharashtra)"
-            : "3-5 Business Days",
+        estimatedDelivery: "7-10 Days",
         items: {
           create: validatedItems.map((i) => ({
             productId: i.productId,
@@ -166,7 +160,7 @@ export async function POST(request: NextRequest) {
         payment: {
           create: {
             method: paymentMethod,
-            status: paymentMethod === "COD" ? "PENDING" : "PENDING",
+            status: "PENDING",
             amount: calculatedTotal,
             currency: "INR",
           },
@@ -174,11 +168,8 @@ export async function POST(request: NextRequest) {
         timeline: {
           create: [
             {
-              status: paymentMethod === "COD" ? "CONFIRMED" : "PENDING",
-              message:
-                paymentMethod === "COD"
-                  ? "Order placed successfully with Cash on Delivery"
-                  : "Order initiated, awaiting Razorpay payment verification",
+              status: "PENDING",
+              message: "Order placed, awaiting manual confirmation by store owner.",
             },
           ],
         },
@@ -201,73 +192,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 8. Razorpay Order Creation (if Online Payment)
-    let razorpayOrderData = null;
-    const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
-    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
-
-    if (paymentMethod === "RAZORPAY") {
-      if (razorpayKeyId && razorpayKeySecret) {
-        try {
-          const authString = Buffer.from(`${razorpayKeyId}:${razorpayKeySecret}`).toString("base64");
-          const rzRes = await fetch("https://api.razorpay.com/v1/orders", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Basic ${authString}`,
-            },
-            body: JSON.stringify({
-              amount: calculatedTotal * 100, // in paise
-              currency: "INR",
-              receipt: order.orderNumber,
-              notes: {
-                orderNumber: order.orderNumber,
-                store: "NOBLE TEXTILE Latur",
-              },
-            }),
-          });
-
-          if (rzRes.ok) {
-            const rzOrder = await rzRes.json();
-            await prisma.payment.update({
-              where: { orderId: order.id },
-              data: { gatewayOrderId: rzOrder.id },
-            });
-            razorpayOrderData = {
-              id: rzOrder.id,
-              amount: rzOrder.amount,
-              currency: rzOrder.currency,
-              keyId: razorpayKeyId,
-            };
-          }
-        } catch (rzErr) {
-          console.error("Razorpay API error:", rzErr);
-        }
-      }
-
-      // If Razorpay keys not yet provided, provide a seamless simulated gateway order id for testing
-      if (!razorpayOrderData) {
-        const mockRzId = `order_sim_${Date.now()}`;
-        await prisma.payment.update({
-          where: { orderId: order.id },
-          data: { gatewayOrderId: mockRzId },
-        });
-        razorpayOrderData = {
-          id: mockRzId,
-          amount: calculatedTotal * 100,
-          currency: "INR",
-          keyId: razorpayKeyId || "rzp_test_simulation",
-        };
-      }
-    }
-
     return NextResponse.json({
       success: true,
       orderNumber: order.orderNumber,
       orderId: order.id,
       total: calculatedTotal,
-      razorpayOrder: razorpayOrderData,
-      isCOD: paymentMethod === "COD",
     });
   } catch (error) {
     console.error("Order creation error:", error);

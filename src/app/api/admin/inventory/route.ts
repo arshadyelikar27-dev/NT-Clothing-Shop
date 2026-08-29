@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { getSession, canManageProducts } from "@/lib/auth";
 
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getSession();
-    if (!session || session.role === "CUSTOMER") {
+    if (!session || !canManageProducts(session.role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

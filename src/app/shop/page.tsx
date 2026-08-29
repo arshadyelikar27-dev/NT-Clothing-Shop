@@ -29,9 +29,17 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const search = params.search;
   const page = parseInt(params.page || "1");
 
-  const where: Record<string, unknown> = {
+  const where: Record<string, any> = {
     isPublished: true,
     isArchived: false,
+    AND: [
+      {
+        OR: [
+          { tags: null },
+          { NOT: { tags: { contains: "WHOLESALE" } } }
+        ]
+      }
+    ]
   };
 
   if (category) {
@@ -39,12 +47,14 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   }
 
   if (search) {
-    where.OR = [
-      { name: { contains: search } },
-      { description: { contains: search } },
-      { fabric: { contains: search } },
-      { tags: { contains: search } },
-    ];
+    where.AND.push({
+      OR: [
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { fabric: { contains: search, mode: "insensitive" } },
+        { tags: { contains: search, mode: "insensitive" } },
+      ]
+    });
   }
 
   let orderBy: Record<string, string> = {};

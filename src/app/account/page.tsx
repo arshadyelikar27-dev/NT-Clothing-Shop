@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getSession } from "@/lib/auth";
+import { getSession, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -73,15 +73,26 @@ export default async function AccountPage() {
             <p style={{ fontSize: "13px", color: "#8A8279" }}>{user.email} • {user.phone || "No phone added"}</p>
           </div>
 
-          <form action="/api/auth/logout" method="POST">
-            <button
-              type="submit"
-              className="btn btn-secondary btn-sm"
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
-            >
-              <LogOut size={14} /> Sign Out
-            </button>
-          </form>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {isAdmin(user.role) && (
+              <Link
+                href="/admin"
+                className="btn btn-primary btn-sm"
+                style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+              >
+                <ShieldCheck size={14} /> Admin Portal
+              </Link>
+            )}
+            <form action="/api/auth/logout" method="POST">
+              <button
+                type="submit"
+                className="btn btn-secondary btn-sm"
+                style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+              >
+                <LogOut size={14} /> Sign Out
+              </button>
+            </form>
+          </div>
         </div>
 
         {/* Quick Links Grid */}

@@ -283,7 +283,7 @@ export default function CartPage() {
 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginTop: "16px", fontSize: "12px", color: "#8A8279" }}>
                 <ShieldCheck size={14} color="#2C6E3F" />
-                <span>100% Secure Checkout • Razorpay & COD</span>
+                <span>100% Secure Checkout</span>
               </div>
             </div>
           </div>

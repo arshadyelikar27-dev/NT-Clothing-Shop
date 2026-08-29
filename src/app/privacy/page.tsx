@@ -21,7 +21,7 @@ export default function PrivacyPage() {
             1. Information We Collect
           </h2>
           <p style={{ marginBottom: "20px" }}>
-            We collect personal information necessary to process and dispatch your textile orders: your name, shipping address, contact phone number, and email address. Payment credentials (card numbers, UPI IDs) are processed securely through certified payment gateways (Razorpay) and are never stored on our servers.
+            We collect personal information necessary to process and dispatch your textile orders: your name, shipping address, contact phone number, and email address. Payment credentials (card numbers, UPI IDs) are processed securely through certified payment gateways and are never stored on our servers.
           </p>
 
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "20px", marginBottom: "12px", color: "#1A1918" }}>

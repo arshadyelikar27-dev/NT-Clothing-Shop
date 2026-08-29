@@ -164,7 +164,7 @@ export default async function CustomerOrdersPage() {
                   }}
                 >
                   <span style={{ color: "#8A8279" }}>
-                    Payment: {order.paymentMethod === "COD" ? "Cash on Delivery" : "Razorpay Online"}
+                    Payment: Shop Owner
                   </span>
                   <span style={{ fontSize: "15px", fontWeight: 600 }}>
                     Total: {formatPrice(order.total)}

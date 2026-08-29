@@ -38,10 +38,31 @@ function LoginForm() {
 
       if (res.ok && data.user) {
         showNotification(`Welcome back, ${data.user.name}!`, "success");
-        if (data.user.role !== "CUSTOMER") {
-          window.location.href = "/admin";
+        const adminRoles = ["ADMIN", "SUPER_ADMIN", "ORDER_MANAGER", "PRODUCT_MANAGER"];
+        const isUserAdmin = adminRoles.includes(data.user.role);
+
+        if (isUserAdmin) {
+          // If admin, send to requested redirect target if specified (and safe), otherwise /admin
+          if (
+            redirectTarget &&
+            redirectTarget !== "/account" &&
+            !redirectTarget.startsWith("/login") &&
+            !redirectTarget.startsWith("/register")
+          ) {
+            window.location.href = redirectTarget;
+          } else {
+            window.location.href = "/admin";
+          }
         } else {
-          window.location.href = redirectTarget;
+          // Regular customers and wholesale users should ALWAYS go to customer account / requested safe page
+          const safeTarget =
+            redirectTarget &&
+            !redirectTarget.startsWith("/admin") &&
+            !redirectTarget.startsWith("/login") &&
+            !redirectTarget.startsWith("/register")
+              ? redirectTarget
+              : "/account";
+          window.location.href = safeTarget;
         }
       } else {
         setError(data.error || "Invalid email or password");

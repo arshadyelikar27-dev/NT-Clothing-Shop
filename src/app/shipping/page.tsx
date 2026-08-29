@@ -31,8 +31,6 @@ export default function ShippingPage() {
           </h2>
           <ul style={{ paddingLeft: "20px", marginBottom: "20px" }}>
             <li><strong>Standard Surface Shipping:</strong> A flat charge of ₹79 applies on all orders.</li>
-            <li><strong>Priority Express Dispatch:</strong> Available for an additional charge of ₹70 for urgent requirements.</li>
-            <li><strong>Cash on Delivery (COD):</strong> A flat handling fee of ₹50 is charged for COD orders.</li>
           </ul>
 
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "20px", marginBottom: "12px", color: "#1A1918" }}>
@@ -41,10 +39,8 @@ export default function ShippingPage() {
           <p style={{ marginBottom: "12px" }}>
             Delivery timelines depend on your PIN code and location:
           </p>
-          <ul style={{ paddingLeft: "20px", marginBottom: "20px" }}>
-            <li><strong>Maharashtra Region (Latur, Pune, Mumbai, Marathwada):</strong> 1 to 2 business days.</li>
-            <li><strong>Metro Cities (Delhi, Bengaluru, Hyderabad, Chennai):</strong> 2 to 4 business days.</li>
-            <li><strong>Rest of India:</strong> 3 to 5 business days.</li>
+          <ul style={{ paddingLeft: "20px", marginBottom: "32px" }}>
+            <li><strong>All Across India:</strong> Standard delivery time is 7 to 10 days.</li>
           </ul>
 
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "20px", marginBottom: "12px", color: "#1A1918" }}>

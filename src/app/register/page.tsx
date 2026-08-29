@@ -47,7 +47,14 @@ function RegisterForm() {
 
       if (res.ok && data.user) {
         showNotification(`Welcome to NOBLE TEXTILE, ${data.user.name}!`, "success");
-        window.location.href = redirectTarget;
+        const safeTarget =
+          redirectTarget &&
+          !redirectTarget.startsWith("/admin") &&
+          !redirectTarget.startsWith("/login") &&
+          !redirectTarget.startsWith("/register")
+            ? redirectTarget
+            : "/account";
+        router.push(safeTarget);
       } else {
         setError(data.error || "Registration failed");
       }

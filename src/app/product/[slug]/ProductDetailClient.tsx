@@ -21,6 +21,7 @@ import {
 import { useCartStore, useUIStore } from "@/lib/store";
 import { formatPrice, getDiscountPercentage, getUnitLabel } from "@/lib/utils";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ReviewSection } from "@/components/product/ReviewSection";
 import { BackButton } from "@/components/ui/BackButton";
 
 interface ProductImage {
@@ -34,6 +35,7 @@ interface ProductVariant {
   name: string;
   type: string;
   value: string;
+  imageUrl?: string | null;
   price?: number | null;
   stock: number;
 }
@@ -100,12 +102,13 @@ export function ProductDetailClient({
 }: ProductDetailClientProps) {
   const router = useRouter();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-    product.variants[0] || null
-  );
-  const [quantity, setQuantity] = useState<number>(
-    product.unitType === "PER_METER" ? 1.0 : 1
-  );
+  const colorVariants = product.variants.filter((v) => v.type === "COLOR");
+  const sizeVariants = product.variants.filter((v) => v.type === "SIZE");
+
+  const [selectedColor, setSelectedColor] = useState<ProductVariant | null>(colorVariants[0] || null);
+  const [selectedSize, setSelectedSize] = useState<ProductVariant | null>(sizeVariants[0] || null);
+  const [displayImage, setDisplayImage] = useState<string | null>(selectedColor?.imageUrl || null);
+  const [quantity, setQuantity] = useState<number>(product.unitType === "PER_METER" ? 1.0 : 1);
   const [pincode, setPincode] = useState("");
   const [pincodeStatus, setPincodeStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"desc" | "specs" | "care" | "shipping">("desc");
@@ -114,28 +117,44 @@ export function ProductDetailClient({
   const addItem = useCartStore((s) => s.addItem);
   const { showNotification } = useUIStore();
 
-  const currentPrice = selectedVariant?.price || product.price;
+  const currentPrice = selectedColor?.price || selectedSize?.price || product.price;
   const totalPrice = currentPrice * quantity;
   const inStock = product.stock > 0;
 
+  const handleColorSelect = (color: ProductVariant) => {
+    setSelectedColor(color);
+    if (color.imageUrl) {
+      setDisplayImage(color.imageUrl);
+    }
+  };
+
+  const handleThumbnailClick = (url: string, index: number) => {
+    setSelectedImageIndex(index);
+    setDisplayImage(url);
+  };
+
   const primaryImage =
+    displayImage ||
     product.images[selectedImageIndex]?.url ||
     product.images[0]?.url ||
     "/images/products/premium-cotton-fabric.jpg";
 
   const handleAddToCart = () => {
     if (!inStock) return;
+    const variantName = [selectedColor?.value, selectedSize?.value].filter(Boolean).join(" - ");
+    const variantId = selectedColor?.id || selectedSize?.id;
+
     addItem({
       productId: product.id,
-      variantId: selectedVariant?.id,
+      variantId: variantId,
       name: product.name,
       image: primaryImage,
       price: currentPrice,
       quantity,
       unitType: product.unitType,
-      sku: selectedVariant ? `${product.sku}-${selectedVariant.name}` : product.sku,
-      variantName: selectedVariant ? selectedVariant.name : undefined,
-      maxStock: selectedVariant?.stock || product.stock,
+      sku: variantName ? `${product.sku}-${variantName}` : product.sku,
+      variantName: variantName || undefined,
+      maxStock: product.stock,
     });
     showNotification(
       `${quantity} ${getUnitLabel(product.unitType, quantity)} of ${product.name} added to bag`,
@@ -157,11 +176,7 @@ export function ProductDetailClient({
       return;
     }
     // Realistic delivery time simulation for Indian PIN codes
-    if (pincode.startsWith("413") || pincode.startsWith("41") || pincode.startsWith("40")) {
-      setPincodeStatus("Express Delivery: 1-2 Days (Maharashtra Region) • COD Available");
-    } else {
-      setPincodeStatus("Standard Delivery: 3-5 Days across India • COD Available");
-    }
+    setPincodeStatus("Standard Delivery: 7-10 Days");
   };
 
   const handleShare = async () => {
@@ -224,10 +239,9 @@ export function ProductDetailClient({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr",
             gap: "48px",
           }}
-          className="lg:grid-cols-[1.1fr_1fr]"
+          className="lg:grid-cols-[450px_1fr] md:grid-cols-[380px_1fr] grid-cols-1"
         >
           {/* ════ LEFT: Image Gallery ════ */}
           <div>
@@ -429,8 +443,8 @@ export function ProductDetailClient({
               </p>
             </div>
 
-            {/* ════ Variant Selector (if any) ════ */}
-            {product.variants.length > 0 && (
+            {/* ════ Color Selector ════ */}
+            {colorVariants.length > 0 && (
               <div style={{ marginBottom: "24px" }}>
                 <label
                   style={{
@@ -443,25 +457,79 @@ export function ProductDetailClient({
                     color: "#1A1918",
                   }}
                 >
-                  Select Variant: <span style={{ fontWeight: 400 }}>{selectedVariant?.name}</span>
+                  Color: <span style={{ fontWeight: 400 }}>{selectedColor?.value}</span>
+                </label>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  {colorVariants.map((color) => (
+                    <button
+                      key={color.id}
+                      onClick={() => handleColorSelect(color)}
+                      style={{
+                        width: "50px",
+                        height: "65px",
+                        padding: 0,
+                        border: selectedColor?.id === color.id ? "2px solid #9E3B2B" : "1px solid #E4DDD3",
+                        backgroundColor: "#F3EFEA",
+                        cursor: "pointer",
+                        overflow: "hidden",
+                        flexShrink: 0,
+                      }}
+                      title={color.value}
+                    >
+                      {color.imageUrl ? (
+                        <img
+                          src={color.imageUrl}
+                          alt={color.value}
+                          loading="lazy"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: "10px", padding: "4px" }}>{color.value}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ════ Size Selector ════ */}
+            {sizeVariants.length > 0 && (
+              <div style={{ marginBottom: "24px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    marginBottom: "10px",
+                    color: "#1A1918",
+                  }}
+                >
+                  Size: <span style={{ fontWeight: 400 }}>{selectedSize?.value}</span>
                 </label>
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                  {product.variants.map((v) => (
+                  {sizeVariants.map((size) => (
                     <button
-                      key={v.id}
-                      onClick={() => setSelectedVariant(v)}
+                      key={size.id}
+                      onClick={() => setSelectedSize(size)}
                       style={{
-                        padding: "8px 16px",
-                        border: selectedVariant?.id === v.id ? "1.5px solid #1A1918" : "1px solid #E4DDD3",
-                        backgroundColor: selectedVariant?.id === v.id ? "#1A1918" : "white",
-                        color: selectedVariant?.id === v.id ? "white" : "#1A1918",
+                        minWidth: "45px",
+                        height: "45px",
+                        padding: "0 12px",
+                        border: selectedSize?.id === size.id ? "1.5px solid #1A1918" : "1px solid #E4DDD3",
+                        backgroundColor: selectedSize?.id === size.id ? "#1A1918" : "white",
+                        color: selectedSize?.id === size.id ? "white" : "#1A1918",
                         fontSize: "13px",
                         fontWeight: 500,
                         cursor: "pointer",
                         transition: "all 0.15s",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
                       }}
                     >
-                      {v.name}
+                      {size.value}
                     </button>
                   ))}
                 </div>
@@ -573,8 +641,8 @@ export function ProductDetailClient({
                     >
                       Quantity ({product.unitType === "PER_SET" ? "Sets" : "Pieces"}):
                     </label>
-                    <span style={{ fontSize: "13px", color: "#8A8279" }}>
-                      {product.stock > 0 ? `${product.stock} available in store` : "Out of stock"}
+                    <span style={{ fontSize: "13px", color: product.stock > 0 ? "#2C6E3F" : "#B91C1C", fontWeight: 500 }}>
+                      {product.stock > 0 ? "In Stock" : "Out of stock"}
                     </span>
                   </div>
 
@@ -663,7 +731,7 @@ export function ProductDetailClient({
             >
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
                 <MapPin size={16} color="#9E3B2B" />
-                <span style={{ fontSize: "13px", fontWeight: 600 }}>Delivery & COD Check</span>
+                <span style={{ fontSize: "13px", fontWeight: 600 }}>Delivery Check</span>
               </div>
               <form onSubmit={handleCheckPincode} style={{ display: "flex", gap: "8px" }}>
                 <input
@@ -702,7 +770,7 @@ export function ProductDetailClient({
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
+                gridTemplateColumns: "repeat(2, 1fr)",
                 gap: "12px",
                 padding: "16px 0",
                 borderTop: "1px solid #E4DDD3",
@@ -717,10 +785,6 @@ export function ProductDetailClient({
               <div style={{ textAlign: "center", fontSize: "12px", color: "#8A8279" }}>
                 <ShieldCheck size={18} style={{ margin: "0 auto 6px", color: "#1A1918" }} />
                 <span>100% Genuine Mill Fabric</span>
-              </div>
-              <div style={{ textAlign: "center", fontSize: "12px", color: "#8A8279" }}>
-                <RotateCcw size={18} style={{ margin: "0 auto 6px", color: "#1A1918" }} />
-                <span>7-Day Return Policy</span>
               </div>
             </div>
 
@@ -834,9 +898,6 @@ export function ProductDetailClient({
                     <p style={{ color: "#8A8279", fontSize: "13px", marginBottom: "8px" }}>
                       • Free delivery across India for orders above ₹999.
                     </p>
-                    <p style={{ color: "#8A8279", fontSize: "13px", marginBottom: "8px" }}>
-                      • Cash on Delivery (COD) available with OTP/phone confirmation.
-                    </p>
                     <p style={{ color: "#8A8279", fontSize: "13px" }}>
                       • Local pickup available at our Latur retail store.
                     </p>
@@ -846,6 +907,7 @@ export function ProductDetailClient({
             </div>
           </div>
         </div>
+
 
         {/* ════ Related Products Section ════ */}
         {relatedProducts.length > 0 && (
