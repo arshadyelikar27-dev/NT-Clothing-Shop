@@ -58,18 +58,30 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
     setError("");
 
     try {
-      // 1. Upload files directly to Supabase
-      const imageFrontUrl = imageFront ? await uploadToSupabaseStorage(imageFront) : null;
-      const imageRightUrl = imageRight ? await uploadToSupabaseStorage(imageRight) : null;
-      const imageLeftUrl = imageLeft ? await uploadToSupabaseStorage(imageLeft) : null;
-      const imageBackUrl = imageBack ? await uploadToSupabaseStorage(imageBack) : null;
-      const uploadedVideoUrl = videoFile ? await uploadToSupabaseStorage(videoFile) : null;
+      // 1. Upload files directly to Supabase via signed URLs (server-generated)
+      const uploadViaApi = async (file: File): Promise<string> => {
+        const fd = new FormData();
+        fd.append("file", file);
+        const r = await fetch("/api/admin/upload", { method: "POST", body: fd });
+        if (!r.ok) {
+          const errData = await r.json().catch(() => ({}));
+          throw new Error(errData.error || `Upload failed (${r.status})`);
+        }
+        const { url } = await r.json();
+        return url;
+      };
+
+      const imageFrontUrl = imageFront ? await uploadViaApi(imageFront) : null;
+      const imageRightUrl = imageRight ? await uploadViaApi(imageRight) : null;
+      const imageLeftUrl = imageLeft ? await uploadViaApi(imageLeft) : null;
+      const imageBackUrl = imageBack ? await uploadViaApi(imageBack) : null;
+      const uploadedVideoUrl = videoFile ? await uploadViaApi(videoFile) : null;
 
       const uploadedColors = [];
       for (let i = 0; i < colors.length; i++) {
         const c = colors[i];
         if (c.file && c.name) {
-          const url = await uploadToSupabaseStorage(c.file);
+          const url = await uploadViaApi(c.file);
           uploadedColors.push({ name: c.name, imageUrl: url });
         }
       }
@@ -116,9 +128,9 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
       } else {
         setError(data.error || "Failed to create product");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Network or Connection error. Please check your internet connection.");
+      setError(err?.message || "Upload failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
