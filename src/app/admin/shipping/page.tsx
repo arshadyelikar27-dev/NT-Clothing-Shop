@@ -114,7 +114,7 @@ export default function AdminShippingPage() {
             Delivery Charges
           </h2>
           <p style={{ fontSize: "13px", color: "#8A8279", marginBottom: "20px" }}>
-            Set the base shipping charges. Express surcharge is added on top of the base charge.
+            Set the base shipping charges and free shipping threshold.
           </p>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
@@ -129,21 +129,6 @@ export default function AdminShippingPage() {
                 min="0"
                 value={settings.shipping_base_charge}
                 onChange={(e) => set("shipping_base_charge", e.target.value)}
-                style={inputStyle}
-              />
-            </SettingField>
-
-            <SettingField
-              label="Express Delivery Surcharge (₹)"
-              hint="Added on top of base charge for express"
-              id="s-express"
-            >
-              <input
-                id="s-express"
-                type="number"
-                min="0"
-                value={settings.shipping_express_surcharge}
-                onChange={(e) => set("shipping_express_surcharge", e.target.value)}
                 style={inputStyle}
               />
             </SettingField>
@@ -175,7 +160,6 @@ export default function AdminShippingPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
             {[
               { label: "Standard Shipping", value: `₹${settings.shipping_base_charge}` },
-              { label: "Express Shipping", value: `₹${parseFloat(settings.shipping_base_charge) + parseFloat(settings.shipping_express_surcharge)}` },
               {
                 label: "Free Shipping",
                 value: parseFloat(settings.shipping_free_threshold) > 0 ? `Above ₹${settings.shipping_free_threshold}` : "Disabled",

@@ -127,7 +127,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: authPhone, password: authPassword }),
+        body: JSON.stringify({ identifier: authPhone, password: authPassword }),
       });
 
       const data = await res.json();
