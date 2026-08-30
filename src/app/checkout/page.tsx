@@ -144,6 +144,7 @@ export default function CheckoutPage() {
           name: data.user.name,
           phone: data.user.phone || prev.phone,
         }));
+        window.dispatchEvent(new Event("auth-change"));
       } else {
         setAuthError(data.error || "Invalid mobile number or password");
       }
@@ -194,6 +195,7 @@ export default function CheckoutPage() {
           name: data.user.name,
           phone: data.user.phone || prev.phone,
         }));
+        window.dispatchEvent(new Event("auth-change"));
       } else {
         setAuthError(data.error || "Registration failed");
       }

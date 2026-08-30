@@ -50,6 +50,10 @@ export function Header() {
       }
     }
     loadUser();
+
+    // Listen for auth state changes from other components (like checkout login)
+    window.addEventListener("auth-change", loadUser);
+    return () => window.removeEventListener("auth-change", loadUser);
   }, []);
 
   // Load dynamic categories
