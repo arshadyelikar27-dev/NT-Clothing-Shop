@@ -27,8 +27,6 @@ export async function POST(request: NextRequest) {
       videoUrl: uploadedVideoUrl,
       sizes,
       colors,
-      isWholesale,
-      wholesaleTiers,
     } = body;
 
     if (!name || !priceInput || !categoryId || !imageFrontUrl) {
@@ -87,7 +85,6 @@ export async function POST(request: NextRequest) {
     }
 
     const tagList: string[] = [];
-    if (isWholesale) tagList.push("WHOLESALE");
     if (parsed.comboLabel || unitType === "PER_SET") tagList.push("COMBO");
     const tags = tagList.length > 0 ? tagList.join(",") : null;
 
@@ -112,14 +109,6 @@ export async function POST(request: NextRequest) {
         ...(variantsToCreate.length > 0 && {
           variants: {
             create: variantsToCreate,
-          },
-        }),
-        ...((wholesaleTiers || []).length > 0 && {
-          wholesalePrices: {
-            create: (wholesaleTiers || []).map((t: any) => ({
-              minQty: t.minQty,
-              price: t.price,
-            })),
           },
         }),
       },

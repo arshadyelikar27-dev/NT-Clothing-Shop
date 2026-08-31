@@ -27,8 +27,6 @@ const navItems = [
   { href: "/admin/categories", label: "Categories", icon: <Layers size={18} /> },
   { href: "/admin/inventory", label: "Inventory", icon: <Sliders size={18} /> },
   { href: "/admin/customers", label: "Customers", icon: <Users size={18} /> },
-  { href: "/admin/wholesale", label: "Wholesale", icon: <Building2 size={18} /> },
-  { href: "/admin/bulk-enquiries", label: "Bulk Enquiries", icon: <MessageSquare size={18} /> },
   { href: "/admin/shipping", label: "Shipping", icon: <Truck size={18} /> },
   { href: "/admin/settings", label: "Store Settings", icon: <Settings size={18} /> },
 ];

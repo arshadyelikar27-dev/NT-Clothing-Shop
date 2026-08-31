@@ -23,9 +23,6 @@ interface CategoryItem {
 
 const STATIC_NAV = [
   { href: "/shop", label: "Shop" },
-  { href: "/shop?sort=newest", label: "New Arrivals" },
-  { href: "/wholesale", label: "Wholesale" },
-  { href: "/bulk-enquiry", label: "Bulk Orders" },
 ];
 
 // Module-level client cache to prevent redundant fetches on route change
@@ -123,40 +120,11 @@ export function Header() {
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
 
-            {/* Brand Logo & Title */}
+            {/* Brand Title */}
             <Link
               href="/"
               className="group flex items-center gap-2 sm:gap-2.5 no-underline shrink-0"
             >
-              <div
-                style={{
-                  width: "30px",
-                  height: "30px",
-                  borderRadius: "50%",
-                  overflow: "hidden",
-                  backgroundColor: "#1A1918",
-                  border: "1px solid rgba(224, 169, 109, 0.4)",
-                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <Image
-                  src="/images/nt-logo.jpg"
-                  alt="NOBLE TEXTILE"
-                  width={30}
-                  height={30}
-                  priority
-                  quality={85}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-              </div>
               <span
                 style={{
                   fontFamily: "var(--font-serif)",
@@ -169,7 +137,7 @@ export function Header() {
                 }}
                 className="group-hover:text-[#9E3B2B] sm:text-[18px] md:text-[19px]"
               >
-                NOBLE TEXTILE
+                NOBLE TEXTILE <span style={{ fontSize: "13px", opacity: 0.9, fontWeight: 500, fontFamily: "var(--font-sans)", textTransform: "none", letterSpacing: "normal", marginLeft: "4px" }}>(Wholesale Shopee)</span>
               </span>
             </Link>
           </div>
@@ -646,9 +614,6 @@ export function Header() {
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {[
-                    { href: "/shop?sort=newest", label: "New Arrivals" },
-                    { href: "/wholesale", label: "Wholesale Account" },
-                    { href: "/bulk-enquiry", label: "Bulk Order Enquiry" },
                     { href: "/track", label: "Track My Order" },
                     { href: "/account", label: "My Account & Orders" },
                     { href: "/about", label: "About Noble Textile" },

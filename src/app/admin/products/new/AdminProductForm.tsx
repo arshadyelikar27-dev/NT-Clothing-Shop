@@ -530,11 +530,19 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
         <div>
           <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1A1918", marginBottom: "16px" }}>Product Images (Cloudinary CDN)</h3>
           
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }} className="sm:grid-cols-2 lg:grid-cols-4">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "20px" }} className="sm:grid-cols-2 lg:grid-cols-4">
+            {/* Front View */}
             <div>
               <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
                 Front View *
               </label>
+              <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {imageFront ? (
+                  <img src={URL.createObjectURL(imageFront)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <span style={{ fontSize: "12px", color: "#8A8279" }}>No image</span>
+                )}
+              </div>
               <input
                 type="file"
                 accept="image/*"
@@ -544,10 +552,18 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
               />
             </div>
 
+            {/* Right View */}
             <div>
               <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
                 Right Angle View
               </label>
+              <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {imageRight ? (
+                  <img src={URL.createObjectURL(imageRight)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <span style={{ fontSize: "12px", color: "#8A8279" }}>No image</span>
+                )}
+              </div>
               <input
                 type="file"
                 accept="image/*"
@@ -556,10 +572,18 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
               />
             </div>
 
+            {/* Left View */}
             <div>
               <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
                 Left Angle View
               </label>
+              <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {imageLeft ? (
+                  <img src={URL.createObjectURL(imageLeft)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <span style={{ fontSize: "12px", color: "#8A8279" }}>No image</span>
+                )}
+              </div>
               <input
                 type="file"
                 accept="image/*"
@@ -568,10 +592,18 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
               />
             </div>
 
+            {/* Back View */}
             <div>
               <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
                 Back View
               </label>
+              <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {imageBack ? (
+                  <img src={URL.createObjectURL(imageBack)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <span style={{ fontSize: "12px", color: "#8A8279" }}>No image</span>
+                )}
+              </div>
               <input
                 type="file"
                 accept="image/*"

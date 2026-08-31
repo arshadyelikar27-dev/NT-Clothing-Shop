@@ -33,14 +33,6 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const where: Record<string, any> = {
     isPublished: true,
     isArchived: false,
-    AND: [
-      {
-        OR: [
-          { tags: null },
-          { NOT: { tags: { contains: "WHOLESALE" } } }
-        ]
-      }
-    ]
   };
 
   if (category) {

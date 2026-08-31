@@ -55,7 +55,7 @@ function LoginForm() {
             window.location.href = "/admin";
           }
         } else {
-          // Regular customers and wholesale users should ALWAYS go to customer account / requested safe page
+          // Regular customers should ALWAYS go to customer account / requested safe page
           const safeTarget =
             redirectTarget &&
             !redirectTarget.startsWith("/admin") &&

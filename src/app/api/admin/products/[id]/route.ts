@@ -68,7 +68,7 @@ export async function DELETE(
 
     // 2. Delete product from database
     // Because of Prisma relations (onDelete: Cascade), this will automatically 
-    // delete related ProductImage, ProductVariant, and WholesaleTier records in the DB.
+    // delete related ProductImage and ProductVariant records in the DB.
     await prisma.product.delete({
       where: { id },
     });

@@ -31,17 +31,10 @@ export default async function AdminProductsPage() {
         <div style={{ display: "flex", gap: "12px" }}>
           <Link
             href="/admin/products/new"
-            className="btn btn-secondary btn-sm"
-            style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
-          >
-            <Plus size={14} /> Add Retail Product
-          </Link>
-          <Link
-            href="/admin/wholesale/products/new"
             className="btn btn-primary btn-sm"
             style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
           >
-            <Plus size={14} /> Add Wholesale Product
+            <Plus size={14} /> Add Product
           </Link>
         </div>
       </div>
