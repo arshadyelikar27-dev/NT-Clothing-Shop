@@ -21,16 +21,20 @@ export async function uploadToSupabaseStorage(
     throw new Error("Supabase URL or Key is not configured.");
   }
 
+  // Auto-detect if it's a video or image, use organized subfolders
+  const isVideo = file.type.startsWith("video/");
+  const subfolder = isVideo ? `${folder}/videos` : `${folder}/images`;
+
   // Generate a unique filename using timestamp and random string
-  const fileExt = file.name.split(".").pop();
+  const fileExt = file.name.split(".").pop()?.toLowerCase();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-  const filePath = `${folder}/${fileName}`;
+  const filePath = `${subfolder}/${fileName}`;
 
   // Upload to Supabase Storage
   const { data, error } = await supabase.storage
     .from(bucket)
     .upload(filePath, file, {
-      cacheControl: "3600",
+      cacheControl: "31536000", // 1 year — uploaded files don't change
       upsert: false,
     });
 

@@ -271,17 +271,6 @@ export function ProductCard({
           </div>
         </Link>
 
-        <style>{`
-          .aspect-product:hover .card-actions {
-            opacity: 1 !important;
-          }
-          .hover-img {
-            opacity: 0;
-          }
-          .aspect-product:hover .hover-img {
-            opacity: 1;
-          }
-        `}</style>
       </div>
 
       {/* Quick View Modal */}

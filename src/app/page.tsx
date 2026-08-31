@@ -30,17 +30,14 @@ async function getCategoriesWithProducts() {
   });
 }
 
-// Fetch a mixed "random" collection
+// Fetch 12 recently-updated products as the "Discover" collection
 async function getDiscoverCollection() {
-  // Fetch a mix of recent/featured products across all categories
-  const products = await prisma.product.findMany({
+  return prisma.product.findMany({
     where: { isPublished: true, isArchived: false },
-    take: 40,
+    take: 12,
     include: { images: { orderBy: { sortOrder: "asc" }, take: 1 }, category: true },
+    orderBy: { updatedAt: "desc" },
   });
-  
-  // Shuffle array and take 12
-  return products.sort(() => 0.5 - Math.random()).slice(0, 12);
 }
 
 export default async function HomePage() {

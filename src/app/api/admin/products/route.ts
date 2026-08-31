@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession, canManageProducts } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
-import { uploadToSupabaseStorage } from "@/lib/supabase-storage";
 
 export async function POST(request: NextRequest) {
   try {

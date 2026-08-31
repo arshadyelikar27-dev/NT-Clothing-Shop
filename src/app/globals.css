@@ -289,6 +289,7 @@ h1, h2, h3, h4, h5, h6 {
 /* ─── Image Aspect Ratios ─── */
 .aspect-product {
   aspect-ratio: 3 / 4;
+  contain: layout;
 }
 
 .aspect-category {
@@ -303,6 +304,24 @@ h1, h2, h3, h4, h5, h6 {
   .aspect-hero {
     aspect-ratio: 3 / 4;
   }
+}
+
+/* ─── ProductCard Hover Interactions ─── */
+.primary-img {
+  will-change: opacity;
+}
+
+.hover-img {
+  opacity: 0;
+  will-change: opacity;
+}
+
+.aspect-product:hover .hover-img {
+  opacity: 1;
+}
+
+.aspect-product:hover .card-actions {
+  opacity: 1 !important;
 }
 
 /* ─── Modern Animations ─── */
