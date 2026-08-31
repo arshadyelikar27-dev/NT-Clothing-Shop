@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidateTag, revalidatePath } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSession, canManageProducts } from "@/lib/auth";
-import { slugify } from "@/lib/utils";
+import { slugify, parsePriceAndCombo } from "@/lib/utils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +15,10 @@ export async function POST(request: NextRequest) {
     const {
       name,
       description,
-      price: priceStr,
+      shortDescription: customShortDesc,
+      price: priceInput,
+      compareAtPrice: compareAtPriceInput,
+      unitType: explicitUnitType,
       categoryId,
       imageFrontUrl,
       imageRightUrl,
@@ -25,19 +28,33 @@ export async function POST(request: NextRequest) {
       sizes,
       colors,
       isWholesale,
-      wholesaleTiers
+      wholesaleTiers,
     } = body;
 
-    if (!name || !priceStr || !categoryId || !imageFrontUrl) {
+    if (!name || !priceInput || !categoryId || !imageFrontUrl) {
       return NextResponse.json(
         { error: "Product name, price, category, and front image are required" },
         { status: 400 }
       );
     }
 
+    // Smart parse price (handles "4 in 1000", "1000", "4 for 1000", etc.)
+    const parsed = parsePriceAndCombo(priceInput, explicitUnitType || "PER_PIECE");
+    const price = parsed.numericPrice;
+
+    if (!price || price <= 0) {
+      return NextResponse.json(
+        { error: "Please enter a valid price (e.g. 1000 or '4 in 1000')" },
+        { status: 400 }
+      );
+    }
+
+    const unitType = explicitUnitType || parsed.unitType || "PER_PIECE";
+    const shortDescription = customShortDesc || parsed.comboLabel || null;
+    const compareAtPrice = compareAtPriceInput ? parseFloat(compareAtPriceInput) : null;
+
     const slug = slugify(name);
     const sku = "NT-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-    const price = parseFloat(priceStr);
 
     const imagesToCreate = [];
     if (imageFrontUrl) imagesToCreate.push({ url: imageFrontUrl, alt: `${name} Front`, sortOrder: 0, isPrimary: true });
@@ -69,15 +86,21 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const tags = isWholesale ? "WHOLESALE" : null;
+    const tagList: string[] = [];
+    if (isWholesale) tagList.push("WHOLESALE");
+    if (parsed.comboLabel || unitType === "PER_SET") tagList.push("COMBO");
+    const tags = tagList.length > 0 ? tagList.join(",") : null;
 
     const product = await prisma.product.create({
       data: {
         name: name.trim(),
         slug,
         description: description || name,
+        shortDescription,
         sku,
         price,
+        compareAtPrice,
+        unitType,
         categoryId,
         videoUrl: uploadedVideoUrl || null,
         stock: 100,
@@ -104,10 +127,11 @@ export async function POST(request: NextRequest) {
 
     revalidatePath("/", "layout");
     revalidatePath("/shop");
+    revalidatePath(`/product/${slug}`);
 
     return NextResponse.json({ success: true, product }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Product creation error:", error);
-    return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Failed to create product" }, { status: 500 });
   }
 }

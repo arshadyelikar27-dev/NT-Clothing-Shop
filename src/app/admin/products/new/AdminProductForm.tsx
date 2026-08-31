@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { parsePriceAndCombo, formatPrice } from "@/lib/utils";
+import { Sparkles, Tag, Layers, Shirt, HelpCircle } from "lucide-react";
 
 interface Category {
   id: string;
@@ -12,10 +14,14 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
   const router = useRouter();
   
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
+  const [priceInput, setPriceInput] = useState("");
+  const [compareAtPrice, setCompareAtPrice] = useState("");
+  const [unitType, setUnitType] = useState<"PER_PIECE" | "PER_SET" | "PER_METER">("PER_PIECE");
+  const [comboOfferText, setComboOfferText] = useState("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id || "");
   const [description, setDescription] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
+
   // Variants State
   const [sizes, setSizes] = useState<string[]>([]);
   const [colors, setColors] = useState<{ name: string; file: File | null }[]>([]);
@@ -41,10 +47,30 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // Live parsed price & combo offer detection
+  const parsedPriceInfo = useMemo(() => {
+    return parsePriceAndCombo(priceInput, unitType);
+  }, [priceInput, unitType]);
+
+  // Handle Price Input Change with Smart Auto-Detection
+  const handlePriceChange = (val: string) => {
+    setPriceInput(val);
+    const parsed = parsePriceAndCombo(val, unitType);
+    if (parsed.comboLabel) {
+      setUnitType("PER_SET");
+      setComboOfferText(parsed.comboLabel);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !price || !categoryId) {
+    if (!name.trim() || !priceInput.trim() || !categoryId) {
       setError("Please fill in all required fields (Name, Price, Category)");
+      return;
+    }
+
+    if (!parsedPriceInfo.numericPrice || parsedPriceInfo.numericPrice <= 0) {
+      setError("Please enter a valid price amount (e.g. 1000 or '4 in 1000')");
       return;
     }
     
@@ -57,7 +83,7 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
     setError("");
 
     try {
-      // 1. Upload files directly to Supabase via signed URLs (server-generated)
+      // 1. Upload files directly to storage
       const uploadViaApi = async (file: File): Promise<string> => {
         const fd = new FormData();
         fd.append("file", file);
@@ -87,8 +113,11 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
 
       // 2. Send JSON payload to API
       const payload = {
-        name,
-        price,
+        name: name.trim(),
+        price: parsedPriceInfo.numericPrice,
+        unitType: unitType,
+        shortDescription: comboOfferText.trim() || parsedPriceInfo.comboLabel || null,
+        compareAtPrice: compareAtPrice ? parseFloat(compareAtPrice) : null,
         categoryId,
         description,
         imageFrontUrl,
@@ -136,43 +165,59 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "32px" }}>
+    <form onSubmit={handleSubmit} style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "32px", borderRadius: "4px" }}>
       {error && (
-        <div style={{ backgroundColor: "#FEE2E2", color: "#991B1B", padding: "10px 14px", fontSize: "13px", marginBottom: "20px" }}>
+        <div style={{ backgroundColor: "#FEE2E2", color: "#991B1B", padding: "12px 16px", fontSize: "13px", marginBottom: "24px", borderRadius: "4px", border: "1px solid #FECACA" }}>
           {error}
         </div>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
         
-        {/* Basic Info */}
+        {/* ════ Basic Details ════ */}
         <div style={{ paddingBottom: "24px", borderBottom: "1px solid #F3EFEA" }}>
           <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1A1918", marginBottom: "16px" }}>Basic Details</h3>
           
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#1A1918", marginBottom: "6px" }}>
                 Product Name *
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Pure Cambric Cotton Fabric"
+                placeholder="e.g. Readymade Cotton Shirt (Combo Set)"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="input"
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  fontSize: "14px",
+                  border: "1px solid #E4DDD3",
+                  borderRadius: "4px",
+                  outline: "none",
+                }}
               />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }} className="sm:grid-cols-2">
+              {/* Category */}
               <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#1A1918", marginBottom: "6px" }}>
                   Category *
                 </label>
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="input"
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    fontSize: "13px",
+                    border: "1px solid #E4DDD3",
+                    borderRadius: "4px",
+                    outline: "none",
+                    backgroundColor: "white",
+                  }}
                 >
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -182,45 +227,214 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
                 </select>
               </div>
 
+              {/* Pricing Unit Mode */}
               <div>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-                  Retail Price (₹) *
+                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#1A1918", marginBottom: "6px" }}>
+                  Pricing Type / Unit
                 </label>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  placeholder="e.g. 350"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="input"
-                />
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUnitType("PER_PIECE");
+                      if (comboOfferText.includes("in")) setComboOfferText("");
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: "8px 10px",
+                      fontSize: "12px",
+                      fontWeight: unitType === "PER_PIECE" ? 600 : 500,
+                      backgroundColor: unitType === "PER_PIECE" ? "#1A1918" : "#F3EFEA",
+                      color: unitType === "PER_PIECE" ? "white" : "#6E675F",
+                      border: "1px solid #E4DDD3",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    👕 Single Piece
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUnitType("PER_SET");
+                      if (!comboOfferText) setComboOfferText("4 in 1000");
+                      if (!priceInput) setPriceInput("1000");
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: "8px 10px",
+                      fontSize: "12px",
+                      fontWeight: unitType === "PER_SET" ? 600 : 500,
+                      backgroundColor: unitType === "PER_SET" ? "#9E3B2B" : "#F3EFEA",
+                      color: unitType === "PER_SET" ? "white" : "#6E675F",
+                      border: unitType === "PER_SET" ? "1px solid #9E3B2B" : "1px solid #E4DDD3",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    🎁 Combo / Pack (4 in 1000)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUnitType("PER_METER")}
+                    style={{
+                      flex: 1,
+                      padding: "8px 10px",
+                      fontSize: "12px",
+                      fontWeight: unitType === "PER_METER" ? 600 : 500,
+                      backgroundColor: unitType === "PER_METER" ? "#1A1918" : "#F3EFEA",
+                      color: unitType === "PER_METER" ? "white" : "#6E675F",
+                      border: "1px solid #E4DDD3",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    📏 Per Meter
+                  </button>
+                </div>
               </div>
             </div>
 
+            {/* Price & Combo Input Section */}
+            <div
+              style={{
+                backgroundColor: unitType === "PER_SET" ? "#FAF7F2" : "transparent",
+                border: unitType === "PER_SET" ? "1px solid #E4DDD3" : "none",
+                padding: unitType === "PER_SET" ? "16px" : "0",
+                borderRadius: "4px",
+              }}
+            >
+              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }} className="sm:grid-cols-2">
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                    <label style={{ fontSize: "13px", fontWeight: 600, color: "#1A1918" }}>
+                      {unitType === "PER_SET" ? "Combo Price (₹) / Expression *" : "Retail Price (₹) *"}
+                    </label>
+                    <span style={{ fontSize: "11px", color: "#8A8279" }}>
+                      Supports text like <strong>4 in 1000</strong> or <strong>1000</strong>
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 1000 or 4 in 1000"
+                    value={priceInput}
+                    onChange={(e) => handlePriceChange(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      fontSize: "14px",
+                      border: "1px solid #E4DDD3",
+                      borderRadius: "4px",
+                      outline: "none",
+                      backgroundColor: "white",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#1A1918", marginBottom: "6px" }}>
+                    {unitType === "PER_SET" ? "Combo Offer Label / Badge" : "Offer Badge (Optional)"}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 4 in 1000, Pack of 4, Buy 4 @ ₹1000"
+                    value={comboOfferText}
+                    onChange={(e) => setComboOfferText(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      fontSize: "14px",
+                      border: "1px solid #E4DDD3",
+                      borderRadius: "4px",
+                      outline: "none",
+                      backgroundColor: "white",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Live Preview of Price and Combo Structure */}
+              {parsedPriceInfo.numericPrice > 0 && (
+                <div
+                  style={{
+                    marginTop: "12px",
+                    padding: "10px 14px",
+                    backgroundColor: unitType === "PER_SET" ? "#FFF8F0" : "#F3EFEA",
+                    border: unitType === "PER_SET" ? "1px solid #FED7AA" : "1px solid #E4DDD3",
+                    borderRadius: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Sparkles size={16} color={unitType === "PER_SET" ? "#C2410C" : "#1A1918"} />
+                    <span style={{ fontSize: "13px", color: "#1A1918", fontWeight: 600 }}>
+                      Effective Checkout Price: {formatPrice(parsedPriceInfo.numericPrice)}
+                    </span>
+                    {unitType === "PER_SET" && (
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: 700,
+                          backgroundColor: "#9E3B2B",
+                          color: "white",
+                          padding: "2px 8px",
+                          borderRadius: "10px",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {comboOfferText || parsedPriceInfo.comboLabel || "Combo Set"}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {unitType === "PER_SET" && parsedPriceInfo.packQuantity > 1 && (
+                    <span style={{ fontSize: "12px", color: "#8A8279" }}>
+                      ({formatPrice(Math.round(parsedPriceInfo.numericPrice / parsedPriceInfo.packQuantity))} / piece)
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Description */}
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#1A1918", marginBottom: "6px" }}>
                 Product Description
               </label>
               <textarea
                 rows={4}
-                placeholder="Describe the product..."
+                placeholder="Describe the product material, fit, stitching, and combo contents..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="input"
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  fontSize: "13px",
+                  border: "1px solid #E4DDD3",
+                  borderRadius: "4px",
+                  outline: "none",
+                  resize: "vertical",
+                }}
               />
             </div>
           </div>
         </div>
 
-        {/* Product Variants (Sizes & Colors) */}
+        {/* ════ Product Variants (Sizes & Colors) ════ */}
         <div style={{ paddingBottom: "24px", borderBottom: "1px solid #F3EFEA" }}>
           <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1A1918", marginBottom: "16px" }}>Product Variants (Optional)</h3>
           
           <div style={{ marginBottom: "24px" }}>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "8px" }}>Available Sizes</label>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "8px", color: "#1A1918" }}>
+              Available Sizes
+            </label>
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {["XS", "S", "M", "L", "XL", "XXL", "3XL"].map(size => (
+              {["XS", "S", "M", "L", "XL", "XXL", "3XL", "Free Size"].map(size => (
                 <button
                   key={size}
                   type="button"
@@ -228,12 +442,13 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
                   style={{
                     padding: "8px 16px",
                     border: sizes.includes(size) ? "2px solid #1A1918" : "1px solid #E4DDD3",
-                    backgroundColor: sizes.includes(size) ? "#1A1918" : "white",
+                    backgroundColor: sizes.includes(size) ? "#1A1918" : "transparent",
                     color: sizes.includes(size) ? "white" : "#1A1918",
-                    borderRadius: "4px",
                     fontSize: "13px",
-                    fontWeight: 500,
-                    cursor: "pointer"
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    borderRadius: "4px",
+                    transition: "all 0.15s",
                   }}
                 >
                   {size}
@@ -243,30 +458,67 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
           </div>
 
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600 }}>Available Colors</label>
-              <button type="button" onClick={addColor} className="btn btn-secondary btn-sm">
-                + Add Color
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+              <label style={{ fontSize: "13px", fontWeight: 600, color: "#1A1918" }}>Color Swatches & Images</label>
+              <button
+                type="button"
+                onClick={addColor}
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "#9E3B2B",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+              >
+                + Add Color Swatch
               </button>
             </div>
             
             {colors.length === 0 ? (
-              <div style={{ padding: "20px", textAlign: "center", backgroundColor: "#FAF7F2", border: "1px dashed #E4DDD3", fontSize: "13px", color: "#8A8279" }}>
-                No colors added.
-              </div>
+              <p style={{ fontSize: "13px", color: "#8A8279", fontStyle: "italic" }}>
+                No color swatches added yet. Click &quot;+ Add Color Swatch&quot; to add color options with image previews.
+              </p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                {colors.map((color, idx) => (
-                  <div key={idx} style={{ display: "flex", gap: "16px", alignItems: "flex-end", backgroundColor: "#FAF7F2", padding: "16px", border: "1px solid #E4DDD3" }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Color Name</label>
-                      <input type="text" required value={color.name} onChange={(e) => updateColor(idx, "name", e.target.value)} className="input" placeholder="e.g. Ruby Red" />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Color Image (Required)</label>
-                      <input type="file" accept="image/*" required onChange={(e) => updateColor(idx, "file", e.target.files?.[0] || null)} style={{ fontSize: "12px", width: "100%" }} />
-                    </div>
-                    <button type="button" onClick={() => removeColor(idx)} style={{ padding: "10px", backgroundColor: "#FEE2E2", color: "#991B1B", border: "1px solid #FCA5A5", borderRadius: "4px", fontSize: "12px", fontWeight: 600 }}>Remove</button>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {colors.map((c, i) => (
+                  <div key={i} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                    <input
+                      type="text"
+                      placeholder="Color Name (e.g. Navy Blue)"
+                      value={c.name}
+                      onChange={(e) => updateColor(i, "name", e.target.value)}
+                      style={{
+                        flex: 1,
+                        padding: "8px 12px",
+                        fontSize: "13px",
+                        border: "1px solid #E4DDD3",
+                        borderRadius: "4px",
+                        outline: "none",
+                      }}
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => updateColor(i, "file", e.target.files ? e.target.files[0] : null)}
+                      style={{ flex: 1, fontSize: "13px" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeColor(i)}
+                      style={{
+                        color: "#991B1B",
+                        border: "none",
+                        background: "none",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Remove
+                    </button>
                   </div>
                 ))}
               </div>
@@ -274,88 +526,98 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
           </div>
         </div>
 
-        {/* Media Uploads */}
+        {/* ════ Media Uploads ════ */}
         <div>
-          <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1A1918", marginBottom: "16px" }}>Product Media</h3>
+          <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1A1918", marginBottom: "16px" }}>Product Images (Cloudinary CDN)</h3>
           
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
-            
-            {/* Front Image (Required) */}
-            <div style={{ border: "1px dashed #E0A96D", padding: "16px", backgroundColor: "#FAF7F2", textAlign: "center" }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "8px" }}>
-                Front Image *
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }} className="sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
+                Front View *
               </label>
               <input
                 type="file"
                 accept="image/*"
                 required
-                onChange={(e) => setImageFront(e.target.files?.[0] || null)}
-                style={{ fontSize: "12px", width: "100%" }}
+                onChange={(e) => setImageFront(e.target.files ? e.target.files[0] : null)}
+                style={{ width: "100%", fontSize: "12px" }}
               />
             </div>
 
-            {/* Right Side */}
-            <div style={{ border: "1px dashed #E4DDD3", padding: "16px", textAlign: "center" }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "8px", color: "#8A8279" }}>
-                Right Side (Optional)
+            <div>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
+                Right Angle View
               </label>
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setImageRight(e.target.files?.[0] || null)}
-                style={{ fontSize: "12px", width: "100%" }}
+                onChange={(e) => setImageRight(e.target.files ? e.target.files[0] : null)}
+                style={{ width: "100%", fontSize: "12px" }}
               />
             </div>
 
-            {/* Left Side */}
-            <div style={{ border: "1px dashed #E4DDD3", padding: "16px", textAlign: "center" }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "8px", color: "#8A8279" }}>
-                Left Side (Optional)
+            <div>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
+                Left Angle View
               </label>
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setImageLeft(e.target.files?.[0] || null)}
-                style={{ fontSize: "12px", width: "100%" }}
+                onChange={(e) => setImageLeft(e.target.files ? e.target.files[0] : null)}
+                style={{ width: "100%", fontSize: "12px" }}
               />
             </div>
 
-            {/* Back Side */}
-            <div style={{ border: "1px dashed #E4DDD3", padding: "16px", textAlign: "center" }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "8px", color: "#8A8279" }}>
-                Back Side (Optional)
+            <div>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
+                Back View
               </label>
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setImageBack(e.target.files?.[0] || null)}
-                style={{ fontSize: "12px", width: "100%" }}
+                onChange={(e) => setImageBack(e.target.files ? e.target.files[0] : null)}
+                style={{ width: "100%", fontSize: "12px" }}
               />
             </div>
-            
           </div>
 
-          <div style={{ marginTop: "20px" }}>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-              Video Upload (Optional)
+          <div style={{ marginTop: "24px" }}>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
+              Product Video (Optional)
             </label>
             <input
               type="file"
               accept="video/*"
-              onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-              className="input"
+              onChange={(e) => setVideoFile(e.target.files ? e.target.files[0] : null)}
+              style={{ width: "100%", fontSize: "12px" }}
             />
-            <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>
-              Upload a video to showcase this product.
-            </p>
+            <span style={{ fontSize: "11px", color: "#8A8279", display: "block", marginTop: "4px" }}>
+              Upload an MP4 or WebM video to showcase texture and drape.
+            </span>
           </div>
         </div>
 
-        <div style={{ marginTop: "16px", paddingTop: "24px", borderTop: "1px solid #F3EFEA" }}>
-          <button type="submit" disabled={isSubmitting} className="btn btn-primary" style={{ padding: "14px 32px" }}>
-            {isSubmitting ? "Uploading & Saving..." : "Save & Publish Product"}
+        {/* ════ Submit Action ════ */}
+        <div style={{ paddingTop: "16px", borderTop: "1px solid #E4DDD3", display: "flex", justifyContent: "flex-end" }}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            style={{
+              padding: "12px 32px",
+              backgroundColor: "#1A1918",
+              color: "white",
+              fontSize: "14px",
+              fontWeight: 600,
+              border: "none",
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+              borderRadius: "4px",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            }}
+          >
+            {isSubmitting ? "Uploading & Publishing..." : "Save & Publish Product"}
           </button>
         </div>
+
       </div>
     </form>
   );

@@ -17,6 +17,8 @@ interface ProductCardProps {
   image: string;
   hoverImage?: string | null;
   fabric?: string | null;
+  shortDescription?: string | null;
+  tags?: string | null;
   unitType: string;
   stock: number;
   isNew?: boolean;
@@ -31,6 +33,8 @@ export function ProductCard({
   image,
   hoverImage,
   fabric,
+  shortDescription,
+  tags,
   unitType,
   stock,
   isNew,
@@ -60,7 +64,11 @@ export function ProductCard({
       sku: slug,
       maxStock: stock,
     });
-    showNotification(`${name} added to bag`, "success");
+
+    showNotification(
+      `${name} added to cart`,
+      "success"
+    );
   };
 
   const handleQuickView = (e: React.MouseEvent) => {
@@ -71,167 +79,221 @@ export function ProductCard({
 
   return (
     <>
-      <div style={{ position: "relative" }}>
+      <div
+        className="group"
+        style={{
+          position: "relative",
+          backgroundColor: "#FAF7F2",
+          transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        }}
+      >
         <Link
           href={`/product/${slug}`}
           style={{ textDecoration: "none", color: "inherit", display: "block" }}
         >
-          {/* Image */}
+          {/* Image Container */}
           <div
             style={{
               position: "relative",
+              width: "100%",
+              aspectRatio: "3 / 4",
               overflow: "hidden",
               backgroundColor: "#F3EFEA",
             }}
-            className="aspect-product group"
           >
             <Image
               src={image}
               alt={name}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               style={{
                 objectFit: "cover",
-                transition: "opacity 0.4s ease",
+                transition: "transform 0.5s ease",
               }}
-              className="primary-img"
+              className="group-hover:scale-105"
             />
-            
+
             {hoverImage && (
               <Image
                 src={hoverImage}
-                alt={`${name} alternate view`}
+                alt={`${name} hover`}
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 style={{
                   objectFit: "cover",
                   transition: "opacity 0.4s ease",
                 }}
-                className="hover-img"
+                className="opacity-0 group-hover:opacity-100"
               />
             )}
 
-            {/* Badges */}
-            <div style={{ position: "absolute", top: "8px", left: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+            {/* Badges (Top Left) */}
+            <div
+              style={{
+                position: "absolute",
+                top: "8px",
+                left: "8px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "4px",
+                zIndex: 2,
+              }}
+            >
+              {discount && (
+                <span
+                  style={{
+                    backgroundColor: "#9E3B2B",
+                    color: "white",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    padding: "2px 6px",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  {discount}% OFF
+                </span>
+              )}
               {isNew && (
-                <span style={{ background: "#1A1918", color: "white", fontSize: "10px", fontWeight: 700, padding: "3px 8px", borderRadius: "3px", letterSpacing: "0.06em" }}>
+                <span
+                  style={{
+                    backgroundColor: "#1A1918",
+                    color: "white",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    padding: "2px 6px",
+                    letterSpacing: "0.04em",
+                  }}
+                >
                   NEW
                 </span>
               )}
-              {discount && (
-                <span style={{ background: "#9E3B2B", color: "white", fontSize: "10px", fontWeight: 700, padding: "3px 8px", borderRadius: "3px" }}>
-                  -{discount}%
-                </span>
-              )}
             </div>
 
-            {/* Action Buttons on Hover */}
-            <div
-              className="card-actions"
-              style={{
-                position: "absolute",
-                bottom: "0",
-                left: "0",
-                right: "0",
-                display: "flex",
-                opacity: 0,
-                transition: "opacity 0.2s ease",
-              }}
-            >
-              {/* Quick View */}
-              <button
-                onClick={handleQuickView}
+            {/* Combo Offer Badge (Top Right) */}
+            {(shortDescription || unitType === "PER_SET" || tags?.includes("COMBO")) && (
+              <span
                 style={{
-                  flex: 1,
-                  padding: "11px 8px",
-                  backgroundColor: "rgba(250, 247, 242, 0.95)",
-                  color: "#1A1918",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  letterSpacing: "0.06em",
+                  position: "absolute",
+                  top: "8px",
+                  right: "8px",
+                  backgroundColor: "#9E3B2B",
+                  color: "white",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  padding: "3px 8px",
+                  borderRadius: "2px",
+                  letterSpacing: "0.04em",
                   textTransform: "uppercase",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "6px",
-                  fontFamily: "var(--font-sans)",
-                  borderRight: "1px solid #E4DDD3",
+                  zIndex: 2,
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
                 }}
               >
-                <Eye size={13} />
-                Quick View
-              </button>
+                {shortDescription || "COMBO DEAL"}
+              </span>
+            )}
 
-              {/* Quick Add */}
-              {!outOfStock && (
-                <button
-                  onClick={handleQuickAdd}
-                  style={{
-                    flex: 1,
-                    padding: "11px 8px",
-                    backgroundColor: "rgba(26, 25, 24, 0.92)",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    letterSpacing: "0.06em",
-                    textTransform: "uppercase",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                    fontFamily: "var(--font-sans)",
-                  }}
-                >
-                  <ShoppingBag size={13} />
-                  Quick Add
-                </button>
-              )}
-            </div>
-
-            {/* Out of stock overlay */}
+            {/* Out of Stock Overlay */}
             {outOfStock && (
               <div
                 style={{
                   position: "absolute",
                   inset: 0,
-                  backgroundColor: "rgba(255,255,255,0.5)",
+                  backgroundColor: "rgba(250, 247, 242, 0.8)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  zIndex: 3,
                 }}
               >
                 <span
                   style={{
-                    background: "white",
-                    border: "1px solid #E4DDD3",
-                    padding: "6px 14px",
-                    fontSize: "11px",
-                    fontWeight: 700,
+                    fontSize: "12px",
+                    fontWeight: 600,
                     letterSpacing: "0.08em",
-                    color: "#8A8279",
                     textTransform: "uppercase",
+                    color: "#8A8279",
+                    border: "1px solid #8A8279",
+                    padding: "6px 14px",
                   }}
                 >
-                  Out of Stock
+                  Sold Out
                 </span>
+              </div>
+            )}
+
+            {/* Hover Actions Bar */}
+            {!outOfStock && (
+              <div
+                className="opacity-0 group-hover:opacity-100"
+                style={{
+                  position: "absolute",
+                  bottom: "8px",
+                  left: "8px",
+                  right: "8px",
+                  display: "flex",
+                  gap: "6px",
+                  transition: "opacity 0.25s ease, transform 0.25s ease",
+                  zIndex: 2,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={handleQuickAdd}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#1A1918",
+                    color: "white",
+                    border: "none",
+                    padding: "8px 12px",
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    letterSpacing: "0.04em",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s",
+                  }}
+                  className="hover:bg-[#9E3B2B]"
+                >
+                  <ShoppingBag size={14} />
+                  <span>Quick Add</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleQuickView}
+                  style={{
+                    backgroundColor: "#FAF7F2",
+                    color: "#1A1918",
+                    border: "1px solid #E4DDD3",
+                    width: "36px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s",
+                  }}
+                  className="hover:bg-white"
+                  title="Quick View"
+                >
+                  <Eye size={15} />
+                </button>
               </div>
             )}
           </div>
 
-          {/* Info */}
-          <div style={{ padding: "12px 0 0" }}>
+          {/* Content */}
+          <div style={{ padding: "12px 4px 4px" }}>
             {fabric && (
               <p
                 style={{
                   fontSize: "11px",
-                  color: "#8A8279",
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.06em",
                   textTransform: "uppercase",
-                  marginBottom: "4px",
+                  color: "#8A8279",
+                  marginBottom: "3px",
                   fontFamily: "var(--font-sans)",
                 }}
               >
@@ -255,16 +317,33 @@ export function ProductCard({
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
+                flexWrap: "wrap",
                 fontFamily: "var(--font-sans)",
               }}
             >
               <span style={{ fontSize: "14px", fontWeight: 700, color: "#1A1918" }}>
                 {formatPrice(price)}
-                {unitType === "PER_METER" ? "/m" : ""}
+                {unitType === "PER_METER" ? "/m" : unitType === "PER_SET" ? " / set" : ""}
               </span>
               {compareAtPrice && compareAtPrice > price && (
                 <span style={{ fontSize: "12px", color: "#8A8279", textDecoration: "line-through" }}>
                   {formatPrice(compareAtPrice)}
+                </span>
+              )}
+              {shortDescription && (
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "#9E3B2B",
+                    backgroundColor: "#FAF0EE",
+                    padding: "2px 6px",
+                    borderRadius: "3px",
+                    border: "1px solid #F3DDD8",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {shortDescription}
                 </span>
               )}
             </div>

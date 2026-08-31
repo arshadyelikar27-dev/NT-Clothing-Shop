@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { parsePriceAndCombo } from "@/lib/utils";
 
 interface Category {
   id: string;
@@ -100,9 +101,13 @@ export function AdminWholesaleProductForm({ categories }: { categories: Category
         }
       }
 
+      const parsedPrice = parsePriceAndCombo(price);
+
       const payload = {
         name,
-        price,
+        price: parsedPrice.numericPrice,
+        unitType: parsedPrice.unitType,
+        shortDescription: parsedPrice.comboLabel || null,
         categoryId,
         description,
         isWholesale: true,
@@ -185,13 +190,12 @@ export function AdminWholesaleProductForm({ categories }: { categories: Category
 
               <div>
                 <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-                  Base Retail Price (₹) *
+                  Base Retail Price (₹) / Expression *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   required
-                  min={0}
-                  placeholder="e.g. 350"
+                  placeholder="e.g. 1000 or 4 in 1000"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="input"

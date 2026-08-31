@@ -426,6 +426,26 @@ export function ProductDetailClient({
                 {product.unitType === "PER_METER" && (
                   <span style={{ fontSize: "14px", color: "#8A8279" }}>per meter</span>
                 )}
+                {product.unitType === "PER_SET" && (
+                  <span style={{ fontSize: "14px", color: "#8A8279" }}>per set</span>
+                )}
+                {product.shortDescription && (
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      backgroundColor: "#FAF0EE",
+                      color: "#9E3B2B",
+                      border: "1px solid #F3DDD8",
+                      padding: "3px 8px",
+                      borderRadius: "3px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    {product.shortDescription}
+                  </span>
+                )}
               </div>
               <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>
                 Inclusive of all taxes.

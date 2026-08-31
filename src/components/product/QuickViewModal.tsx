@@ -32,6 +32,7 @@ interface QuickViewProduct {
   stock: number;
   fabric: string | null;
   description: string;
+  shortDescription?: string | null;
   unitType: string;
   images: ProductImage[];
   variants: Variant[];
@@ -322,14 +323,30 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
             </h2>
 
             {/* Price */}
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
               <span style={{ fontSize: "22px", fontWeight: 700, color: "#1A1918" }}>
                 {formatPrice(effectivePrice)}
-                {product.unitType === "PER_METER" ? "/m" : ""}
+                {product.unitType === "PER_METER" ? "/m" : product.unitType === "PER_SET" ? " / set" : ""}
               </span>
               {product.compareAtPrice && product.compareAtPrice > effectivePrice && (
                 <span style={{ fontSize: "16px", color: "#8A8279", textDecoration: "line-through" }}>
                   {formatPrice(product.compareAtPrice)}
+                </span>
+              )}
+              {product.shortDescription && (
+                <span
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    backgroundColor: "#FAF0EE",
+                    color: "#9E3B2B",
+                    border: "1px solid #F3DDD8",
+                    padding: "3px 8px",
+                    borderRadius: "3px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {product.shortDescription}
                 </span>
               )}
             </div>
