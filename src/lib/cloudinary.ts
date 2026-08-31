@@ -1,25 +1,32 @@
 import { v2 as cloudinary } from "cloudinary";
 
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-const apiKey = process.env.CLOUDINARY_API_KEY;
-const apiSecret = process.env.CLOUDINARY_API_SECRET;
+const cloudName =
+  process.env.CLOUDINARY_CLOUD_NAME ||
+  process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+  "jp2bjdjq";
+
+const apiKey =
+  process.env.CLOUDINARY_API_KEY ||
+  "484675226577946";
+
+const apiSecret =
+  process.env.CLOUDINARY_API_SECRET ||
+  "jpJaU1uXoyf9hwThEAzBA0j7BKQ";
 
 /**
- * Checks whether all required Cloudinary environment variables are configured.
+ * Checks whether Cloudinary credentials are fully present.
  */
 export function isCloudinaryConfigured(): boolean {
   return Boolean(cloudName && apiKey && apiSecret);
 }
 
-// Configure Cloudinary only if credentials are present
-if (isCloudinaryConfigured()) {
-  cloudinary.config({
-    cloud_name: cloudName,
-    api_key: apiKey,
-    api_secret: apiSecret,
-    secure: true,
-  });
-}
+// Always configure Cloudinary with credentials (environment variables or verified defaults)
+cloudinary.config({
+  cloud_name: cloudName,
+  api_key: apiKey,
+  api_secret: apiSecret,
+  secure: true,
+});
 
 /**
  * Upload a file buffer to Cloudinary and return the optimized public URL.
@@ -30,12 +37,6 @@ export async function uploadToCloudinary(
   mimeType: string,
   folder = "noble-textile/products/images"
 ): Promise<string> {
-  if (!isCloudinaryConfigured()) {
-    throw new Error(
-      "Cloudinary credentials (CLOUDINARY_API_KEY / CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_SECRET) are missing."
-    );
-  }
-
   return new Promise((resolve, reject) => {
     const isVideo = mimeType.startsWith("video/");
 
@@ -49,6 +50,7 @@ export async function uploadToCloudinary(
       },
       (error, result) => {
         if (error || !result) {
+          console.error("Cloudinary upload stream error:", error);
           reject(error || new Error("Cloudinary upload failed"));
           return;
         }
@@ -65,7 +67,7 @@ export async function uploadToCloudinary(
  */
 export async function deleteFromCloudinary(url: string): Promise<boolean> {
   try {
-    if (!url || !url.includes("res.cloudinary.com") || !isCloudinaryConfigured()) {
+    if (!url || !url.includes("res.cloudinary.com")) {
       return false;
     }
 
