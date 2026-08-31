@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import Image from "next/image";
+
 interface SlideData {
   id: string;
   tag: string;
@@ -138,15 +140,14 @@ export function HeroSlideshow() {
               pointerEvents: "none",
             }}
           >
-            <img
+            <Image
               src={s.image}
               alt={s.headline}
-              loading={idx === 0 ? "eager" : "lazy"}
-              decoding="async"
-              fetchPriority={idx === 0 ? "high" : "low"}
+              fill
+              priority={idx === 0}
+              quality={80}
+              sizes="100vw"
               style={{
-                width: "100%",
-                height: "100%",
                 objectFit: "cover",
                 objectPosition: "center 25%",
               }}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -142,14 +143,13 @@ export function Header() {
                   flexShrink: 0,
                 }}
               >
-                <img
+                <Image
                   src="/images/nt-logo.jpg"
                   alt="NOBLE TEXTILE"
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                  width={42}
-                  height={42}
+                  width={30}
+                  height={30}
+                  priority
+                  quality={85}
                   style={{
                     width: "100%",
                     height: "100%",
