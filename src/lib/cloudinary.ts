@@ -1,12 +1,25 @@
 import { v2 as cloudinary } from "cloudinary";
 
-// Configure Cloudinary with environment variables
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+const apiKey = process.env.CLOUDINARY_API_KEY;
+const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+/**
+ * Checks whether all required Cloudinary environment variables are configured.
+ */
+export function isCloudinaryConfigured(): boolean {
+  return Boolean(cloudName && apiKey && apiSecret);
+}
+
+// Configure Cloudinary only if credentials are present
+if (isCloudinaryConfigured()) {
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    secure: true,
+  });
+}
 
 /**
  * Upload a file buffer to Cloudinary and return the optimized public URL.
@@ -17,6 +30,12 @@ export async function uploadToCloudinary(
   mimeType: string,
   folder = "noble-textile/products/images"
 ): Promise<string> {
+  if (!isCloudinaryConfigured()) {
+    throw new Error(
+      "Cloudinary credentials (CLOUDINARY_API_KEY / CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_SECRET) are missing."
+    );
+  }
+
   return new Promise((resolve, reject) => {
     const isVideo = mimeType.startsWith("video/");
 
@@ -46,7 +65,9 @@ export async function uploadToCloudinary(
  */
 export async function deleteFromCloudinary(url: string): Promise<boolean> {
   try {
-    if (!url || !url.includes("res.cloudinary.com")) return false;
+    if (!url || !url.includes("res.cloudinary.com") || !isCloudinaryConfigured()) {
+      return false;
+    }
 
     const urlParts = url.split("/");
     const uploadIndex = urlParts.findIndex((p) => p === "upload");

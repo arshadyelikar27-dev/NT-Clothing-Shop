@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession, canManageProducts } from "@/lib/auth";
 import { deleteFromSupabaseStorage } from "@/lib/supabase-storage";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
+
+async function deleteMediaUrl(url: string | null | undefined): Promise<boolean> {
+  if (!url) return false;
+  if (url.includes("res.cloudinary.com")) {
+    return deleteFromCloudinary(url);
+  }
+  return deleteFromSupabaseStorage(url);
+}
 
 export async function DELETE(
   request: NextRequest,
@@ -28,14 +37,14 @@ export async function DELETE(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // 1. Delete all associated images from Supabase Storage
+    // 1. Delete all associated images from Cloudinary or Supabase Storage
     const deletePromises: Promise<boolean>[] = [];
 
     // Main product images
     if (product.images && product.images.length > 0) {
       product.images.forEach((img) => {
         if (img.url) {
-          deletePromises.push(deleteFromSupabaseStorage(img.url));
+          deletePromises.push(deleteMediaUrl(img.url));
         }
       });
     }
@@ -44,19 +53,17 @@ export async function DELETE(
     if (product.variants && product.variants.length > 0) {
       product.variants.forEach((variant) => {
         if (variant.imageUrl) {
-          deletePromises.push(deleteFromSupabaseStorage(variant.imageUrl));
+          deletePromises.push(deleteMediaUrl(variant.imageUrl));
         }
       });
     }
 
     // Product Video
     if (product.videoUrl) {
-      deletePromises.push(deleteFromSupabaseStorage(product.videoUrl));
+      deletePromises.push(deleteMediaUrl(product.videoUrl));
     }
 
     // Execute all storage deletion requests in parallel
-    // We don't await and fail the whole request if one image fails to delete, 
-    // but we log it via the helper function.
     await Promise.allSettled(deletePromises);
 
     // 2. Delete product from database

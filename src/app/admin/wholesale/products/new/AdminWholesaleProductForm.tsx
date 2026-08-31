@@ -74,34 +74,52 @@ export function AdminWholesaleProductForm({ categories }: { categories: Category
     setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("price", price);
-      formData.append("categoryId", categoryId);
-      formData.append("description", description);
-      formData.append("isWholesale", "true"); // IMPORTANT: Flags it as wholesale
-      if (videoUrl) formData.append("videoUrl", videoUrl);
-      
-      formData.append("wholesaleTiers", JSON.stringify(wholesaleTiers));
-
-      // Append Variants
-      if (sizes.length > 0) formData.append("sizes", JSON.stringify(sizes));
-      
-      const colorNames = colors.map(c => c.name);
-      if (colorNames.length > 0) formData.append("colorNames", JSON.stringify(colorNames));
-      colors.forEach((c, i) => {
-        if (c.file) {
-          formData.append(`colorImage_${i}`, c.file);
+      const uploadViaApi = async (file: File): Promise<string> => {
+        const fd = new FormData();
+        fd.append("file", file);
+        const r = await fetch("/api/admin/upload", { method: "POST", body: fd });
+        if (!r.ok) {
+          const errData = await r.json().catch(() => ({}));
+          throw new Error(errData.error || `Upload failed (${r.status})`);
         }
-      });
-      if (imageFront) formData.append("imageFront", imageFront);
-      if (imageRight) formData.append("imageRight", imageRight);
-      if (imageLeft) formData.append("imageLeft", imageLeft);
-      if (imageBack) formData.append("imageBack", imageBack);
+        const { url } = await r.json();
+        return url;
+      };
+
+      const imageFrontUrl = imageFront ? await uploadViaApi(imageFront) : null;
+      const imageRightUrl = imageRight ? await uploadViaApi(imageRight) : null;
+      const imageLeftUrl = imageLeft ? await uploadViaApi(imageLeft) : null;
+      const imageBackUrl = imageBack ? await uploadViaApi(imageBack) : null;
+
+      const uploadedColors = [];
+      for (let i = 0; i < colors.length; i++) {
+        const c = colors[i];
+        if (c.file && c.name) {
+          const url = await uploadViaApi(c.file);
+          uploadedColors.push({ name: c.name, imageUrl: url });
+        }
+      }
+
+      const payload = {
+        name,
+        price,
+        categoryId,
+        description,
+        isWholesale: true,
+        wholesaleTiers,
+        videoUrl: videoUrl || null,
+        sizes,
+        colors: uploadedColors,
+        imageFrontUrl,
+        imageRightUrl,
+        imageLeftUrl,
+        imageBackUrl,
+      };
 
       const res = await fetch("/api/admin/products", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -111,8 +129,8 @@ export function AdminWholesaleProductForm({ categories }: { categories: Category
       } else {
         setError(data.error || "Failed to create product");
       }
-    } catch {
-      setError("Connection error");
+    } catch (err: any) {
+      setError(err?.message || "Upload failed. Please check storage credentials.");
     } finally {
       setIsSubmitting(false);
     }

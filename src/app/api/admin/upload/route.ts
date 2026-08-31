@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession, canManageProducts } from "@/lib/auth";
-import { uploadToCloudinary } from "@/lib/cloudinary";
+import { uploadToCloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
+import { uploadBufferToSupabase, isSupabaseStorageConfigured } from "@/lib/supabase-storage";
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert file to Buffer for Cloudinary
+    // Convert file to Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -45,8 +46,48 @@ export async function POST(request: NextRequest) {
       ? "noble-textile/products/videos"
       : "noble-textile/products/images";
 
-    // Upload to Cloudinary — auto WebP/AVIF conversion + global CDN
-    const url = await uploadToCloudinary(buffer, file.type, folder);
+    let url: string | null = null;
+    let uploadError: any = null;
+
+    // 1. Try Cloudinary first if configured
+    if (isCloudinaryConfigured()) {
+      try {
+        url = await uploadToCloudinary(buffer, file.type, folder);
+      } catch (err: any) {
+        console.warn("Cloudinary upload failed, attempting fallback to Supabase Storage:", err?.message);
+        uploadError = err;
+      }
+    }
+
+    // 2. Fallback to Supabase Storage if Cloudinary is not configured or failed
+    if (!url && isSupabaseStorageConfigured()) {
+      try {
+        url = await uploadBufferToSupabase(buffer, file.type, "nt-shop-media", "products");
+      } catch (err: any) {
+        console.error("Supabase Storage fallback also failed:", err?.message);
+        uploadError = err;
+      }
+    }
+
+    // 3. If no storage provider was able to upload
+    if (!url) {
+      if (!isCloudinaryConfigured() && !isSupabaseStorageConfigured()) {
+        return NextResponse.json(
+          {
+            error:
+              "Media storage is not configured. Please add CLOUDINARY_API_KEY, CLOUDINARY_CLOUD_NAME, and CLOUDINARY_API_SECRET (or Supabase Storage credentials) to your Vercel Project Environment Variables.",
+          },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json(
+        {
+          error: uploadError?.message || "Upload failed across configured storage providers.",
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ url });
   } catch (error: any) {
