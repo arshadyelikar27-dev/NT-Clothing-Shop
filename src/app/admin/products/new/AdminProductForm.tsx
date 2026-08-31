@@ -272,7 +272,7 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
                       cursor: "pointer",
                     }}
                   >
-                    🎁 Combo / Pack (4 in 1000)
+                    🎁 Combo / Pack
                   </button>
                   <button
                     type="button"
