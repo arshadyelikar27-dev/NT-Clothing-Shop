@@ -6,28 +6,19 @@ import { ProductCard } from "@/components/product/ProductCard";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
-import { cache } from "react";
+import { getCachedCategoryBySlug } from "@/lib/cached-queries";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ sort?: string; page?: string }>;
 }
 
-const getCategoryBySlug = cache(async (slug: string) => {
-  return prisma.category.findUnique({
-    where: { slug, isActive: true },
-    include: {
-      children: true,
-      parent: true,
-    },
-  });
-});
 
 export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = await getCategoryBySlug(slug);
+  const category = await getCachedCategoryBySlug(slug);
 
   if (!category) return { title: "Category Not Found" };
 
@@ -47,7 +38,7 @@ export default async function CategoryPage({
   const sParams = await searchParams;
   const sort = sParams.sort || "newest";
 
-  const category = await getCategoryBySlug(slug);
+  const category = await getCachedCategoryBySlug(slug);
 
   if (!category) notFound();
 
@@ -65,7 +56,7 @@ export default async function CategoryPage({
   }
 
   // Include current category ID, its subcategory IDs, and parent ID if subcategory has no direct items
-  const categoryIds = [category.id, ...(category.children?.map((c) => c.id) || [])];
+  const categoryIds = [category.id, ...(category.children?.map((c: { id: string }) => c.id) || [])];
   if (category.parentId) {
     categoryIds.push(category.parentId);
   }

@@ -1,9 +1,12 @@
 export const revalidate = 60;
 
 import Link from "next/link";
-import { prisma } from "@/lib/db";
 import { ProductCard } from "@/components/product/ProductCard";
 import { HeroSlideshow } from "@/components/home/HeroSlideshow";
+import {
+  getCachedCategoriesWithProducts,
+  getCachedDiscoverCollection,
+} from "@/lib/cached-queries";
 import {
   MapPin,
   Phone,
@@ -14,43 +17,17 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-// Fetch categories and their published products
-async function getCategoriesWithProducts() {
-  return prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: "asc" },
-    include: {
-      products: {
-        where: { isPublished: true, isArchived: false },
-        take: 8,
-        include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },
-        orderBy: { createdAt: "desc" }
-      }
-    }
-  });
-}
-
-// Fetch 12 recently-updated products as the "Discover" collection
-async function getDiscoverCollection() {
-  return prisma.product.findMany({
-    where: { isPublished: true, isArchived: false },
-    take: 12,
-    include: { images: { orderBy: { sortOrder: "asc" }, take: 1 }, category: true },
-    orderBy: { updatedAt: "desc" },
-  });
-}
-
 export default async function HomePage() {
-  let categoriesWithProducts: Awaited<ReturnType<typeof getCategoriesWithProducts>> = [];
-  let discoverProducts: Awaited<ReturnType<typeof getDiscoverCollection>> = [];
+  let categoriesWithProducts: Awaited<ReturnType<typeof getCachedCategoriesWithProducts>> = [];
+  let discoverProducts: Awaited<ReturnType<typeof getCachedDiscoverCollection>> = [];
 
   try {
     [categoriesWithProducts, discoverProducts] = await Promise.all([
-      getCategoriesWithProducts(),
-      getDiscoverCollection(),
+      getCachedCategoriesWithProducts(),
+      getCachedDiscoverCollection(),
     ]);
   } catch {
-    // DB unreachable during build — render shell, data loads at runtime
+    // Render shell if DB error
   }
 
   return (

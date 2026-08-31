@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { ProductCard } from "@/components/product/ProductCard";
 import { SortSelect } from "@/components/ui/SortSelect";
+import { getCachedCategories } from "@/lib/cached-queries";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -92,10 +93,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         take: limit,
       }),
       prisma.product.count({ where: where as never }),
-      prisma.category.findMany({
-        where: { isActive: true },
-        orderBy: { sortOrder: "asc" },
-      }),
+      getCachedCategories(),
     ]);
   } catch {
     // DB unreachable during build — render shell, data loads at runtime

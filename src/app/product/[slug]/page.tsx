@@ -1,38 +1,22 @@
 export const revalidate = 60;
 
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { cache } from "react";
 import { ProductDetailClient } from "./ProductDetailClient";
+import {
+  getCachedProductBySlug,
+  getCachedRelatedProducts,
+} from "@/lib/cached-queries";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// React cache() to deduplicate fetching between generateMetadata and ProductPage
-const getProductBySlug = cache(async (slug: string) => {
-  return prisma.product.findUnique({
-    where: { slug, isPublished: true, isArchived: false },
-    include: {
-      images: { orderBy: { sortOrder: "asc" } },
-      category: true,
-      variants: { where: { isActive: true } },
-      reviews: {
-        where: { isApproved: true },
-        include: { user: { select: { name: true } } },
-        orderBy: { createdAt: "desc" },
-        take: 10,
-      },
-    },
-  });
-});
-
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const product = await getCachedProductBySlug(slug);
 
   if (!product) return { title: "Product Not Found" };
 
@@ -47,21 +31,12 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const product = await getCachedProductBySlug(slug);
 
   if (!product) notFound();
 
-  // Related products (cached via ISR)
-  const related = await prisma.product.findMany({
-    where: {
-      categoryId: product.categoryId,
-      id: { not: product.id },
-      isPublished: true,
-      isArchived: false,
-    },
-    include: { images: { orderBy: { sortOrder: "asc" } } },
-    take: 4,
-  });
+  // Related products from cache
+  const related = await getCachedRelatedProducts(product.categoryId, product.id);
 
   return (
     <ProductDetailClient

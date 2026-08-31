@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag, revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSession, canManageProducts } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
@@ -100,6 +101,9 @@ export async function POST(request: NextRequest) {
         }),
       },
     });
+
+    revalidatePath("/", "layout");
+    revalidatePath("/shop");
 
     return NextResponse.json({ success: true, product }, { status: 201 });
   } catch (error) {
