@@ -21,7 +21,6 @@ import {
 import { useCartStore, useUIStore } from "@/lib/store";
 import { formatPrice, getDiscountPercentage, getUnitLabel } from "@/lib/utils";
 import { ProductCard } from "@/components/product/ProductCard";
-import { ReviewSection } from "@/components/product/ReviewSection";
 import { BackButton } from "@/components/ui/BackButton";
 
 interface ProductImage {
@@ -403,16 +402,6 @@ export function ProductDetailClient({
 
               <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "8px" }}>
                 <span style={{ fontSize: "12px", color: "#8A8279" }}>SKU: {product.sku}</span>
-                {product.reviews.length > 0 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px" }}>
-                    <div style={{ display: "flex", color: "#B8860B" }}>
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={12} fill="#B8860B" />
-                      ))}
-                    </div>
-                    <span style={{ color: "#8A8279" }}>({product.reviews.length} reviews)</span>
-                  </div>
-                )}
               </div>
 
               {/* Pricing Section */}

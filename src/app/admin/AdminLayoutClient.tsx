@@ -14,7 +14,6 @@ import {
   Store,
   LogOut,
   Building2,
-  Star,
   MessageSquare,
   Truck,
   Menu,
@@ -29,7 +28,6 @@ const navItems = [
   { href: "/admin/inventory", label: "Inventory", icon: <Sliders size={18} /> },
   { href: "/admin/customers", label: "Customers", icon: <Users size={18} /> },
   { href: "/admin/wholesale", label: "Wholesale", icon: <Building2 size={18} /> },
-  { href: "/admin/reviews", label: "Reviews", icon: <Star size={18} /> },
   { href: "/admin/bulk-enquiries", label: "Bulk Enquiries", icon: <MessageSquare size={18} /> },
   { href: "/admin/shipping", label: "Shipping", icon: <Truck size={18} /> },
   { href: "/admin/settings", label: "Store Settings", icon: <Settings size={18} /> },
@@ -46,7 +44,60 @@ export default function AdminLayoutClient({
   const pathname = usePathname();
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#F3EFEA" }}>
+    <div className="admin-root-container">
+      {/* Dynamic Style block to guarantee flawless sidebar positioning and spacing */}
+      <style>{`
+        .admin-root-container {
+          display: flex;
+          min-height: 100vh;
+          background-color: #F3EFEA;
+        }
+        .admin-sidebar {
+          width: 260px;
+          background-color: #1A1918;
+          color: #E4DDD3;
+          display: flex;
+          flex-direction: column;
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          z-index: 50;
+          transition: transform 0.25s ease-in-out;
+        }
+        .admin-main-wrapper {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+          margin-left: 260px;
+          width: calc(100% - 260px);
+          min-height: 100vh;
+        }
+        .admin-content-view {
+          flex: 1;
+          padding: 32px 36px;
+          overflow-y: auto;
+          min-height: 0;
+        }
+
+        @media (max-width: 768px) {
+          .admin-sidebar {
+            transform: translateX(-100%);
+          }
+          .admin-sidebar.open {
+            transform: translateX(0);
+          }
+          .admin-main-wrapper {
+            margin-left: 0;
+            width: 100%;
+          }
+          .admin-content-view {
+            padding: 20px 16px;
+          }
+        }
+      `}</style>
+
       {/* ════ MOBILE OVERLAY ════ */}
       {isSidebarOpen && (
         <div
@@ -56,19 +107,7 @@ export default function AdminLayoutClient({
       )}
 
       {/* ════ SIDEBAR ════ */}
-      <aside
-        style={{
-          width: "260px",
-          backgroundColor: "#1A1918",
-          color: "#E4DDD3",
-          display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-        }}
-        className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 md:relative md:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
+      <aside className={`admin-sidebar ${isSidebarOpen ? "open" : ""}`}>
         {/* Brand Header */}
         <div style={{ padding: "24px 20px", borderBottom: "1px solid #2D2B29", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
@@ -83,6 +122,7 @@ export default function AdminLayoutClient({
           <button
             onClick={() => setIsSidebarOpen(false)}
             className="md:hidden text-[#8A8279]"
+            style={{ background: "none", border: "none", cursor: "pointer" }}
           >
             <X size={24} />
           </button>
@@ -107,7 +147,7 @@ export default function AdminLayoutClient({
                   color: isActive ? "white" : "#E4DDD3",
                   backgroundColor: isActive ? "#2D2B29" : "transparent",
                   textDecoration: "none",
-                  borderRadius: "2px",
+                  borderRadius: "4px",
                   transition: "background-color 0.15s",
                 }}
               >
@@ -143,7 +183,7 @@ export default function AdminLayoutClient({
       </aside>
 
       {/* ════ MAIN ADMIN CONTENT ════ */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+      <div className="admin-main-wrapper">
         {/* Top Header */}
         <header
           style={{
@@ -153,8 +193,8 @@ export default function AdminLayoutClient({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            padding: "0 32px",
           }}
-          className="px-4 md:px-7"
         >
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button
@@ -183,31 +223,17 @@ export default function AdminLayoutClient({
                 gap: "6px",
                 padding: "6px 12px",
                 border: "1px solid #E4DDD3",
+                borderRadius: "4px",
               }}
               className="hidden sm:flex"
             >
               <Store size={13} /> View Live Storefront
             </Link>
-             <Link
-              href="/"
-              target="_blank"
-              style={{
-                color: "#1A1918",
-                textDecoration: "none",
-                display: "flex",
-                alignItems: "center",
-                padding: "6px",
-                border: "1px solid #E4DDD3",
-              }}
-              className="sm:hidden"
-            >
-              <Store size={16} />
-            </Link>
           </div>
         </header>
 
         {/* Main Body View */}
-        <main style={{ flex: 1, overflowY: "auto", minHeight: 0 }} className="p-4 md:p-7">
+        <main className="admin-content-view">
           {children}
         </main>
       </div>
