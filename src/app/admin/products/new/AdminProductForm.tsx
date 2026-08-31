@@ -533,82 +533,94 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "20px" }} className="sm:grid-cols-2 lg:grid-cols-4">
             {/* Front View */}
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
+              <span style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
                 Front View *
+              </span>
+              <label htmlFor="imageFrontInput" style={{ cursor: "pointer", display: "block" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                  {imageFront ? (
+                    <img src={URL.createObjectURL(imageFront)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <span style={{ fontSize: "12px", color: "#8A8279", textAlign: "center", padding: "8px" }}>+ Add Image<br/><small>(Front View)</small></span>
+                  )}
+                </div>
               </label>
-              <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {imageFront ? (
-                  <img src={URL.createObjectURL(imageFront)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : (
-                  <span style={{ fontSize: "12px", color: "#8A8279" }}>No image</span>
-                )}
-              </div>
               <input
+                id="imageFrontInput"
                 type="file"
                 accept="image/*"
                 required
                 onChange={(e) => setImageFront(e.target.files ? e.target.files[0] : null)}
-                style={{ width: "100%", fontSize: "12px" }}
+                style={{ display: "none" }}
               />
             </div>
 
             {/* Right View */}
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
+              <span style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
                 Right Angle View
+              </span>
+              <label htmlFor="imageRightInput" style={{ cursor: "pointer", display: "block" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                  {imageRight ? (
+                    <img src={URL.createObjectURL(imageRight)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <span style={{ fontSize: "12px", color: "#8A8279", textAlign: "center", padding: "8px" }}>+ Add Image<br/><small>(Right View)</small></span>
+                  )}
+                </div>
               </label>
-              <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {imageRight ? (
-                  <img src={URL.createObjectURL(imageRight)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : (
-                  <span style={{ fontSize: "12px", color: "#8A8279" }}>No image</span>
-                )}
-              </div>
               <input
+                id="imageRightInput"
                 type="file"
                 accept="image/*"
                 onChange={(e) => setImageRight(e.target.files ? e.target.files[0] : null)}
-                style={{ width: "100%", fontSize: "12px" }}
+                style={{ display: "none" }}
               />
             </div>
 
             {/* Left View */}
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
+              <span style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
                 Left Angle View
+              </span>
+              <label htmlFor="imageLeftInput" style={{ cursor: "pointer", display: "block" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                  {imageLeft ? (
+                    <img src={URL.createObjectURL(imageLeft)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <span style={{ fontSize: "12px", color: "#8A8279", textAlign: "center", padding: "8px" }}>+ Add Image<br/><small>(Left View)</small></span>
+                  )}
+                </div>
               </label>
-              <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {imageLeft ? (
-                  <img src={URL.createObjectURL(imageLeft)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : (
-                  <span style={{ fontSize: "12px", color: "#8A8279" }}>No image</span>
-                )}
-              </div>
               <input
+                id="imageLeftInput"
                 type="file"
                 accept="image/*"
                 onChange={(e) => setImageLeft(e.target.files ? e.target.files[0] : null)}
-                style={{ width: "100%", fontSize: "12px" }}
+                style={{ display: "none" }}
               />
             </div>
 
             {/* Back View */}
             <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
+              <span style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
                 Back View
+              </span>
+              <label htmlFor="imageBackInput" style={{ cursor: "pointer", display: "block" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                  {imageBack ? (
+                    <img src={URL.createObjectURL(imageBack)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <span style={{ fontSize: "12px", color: "#8A8279", textAlign: "center", padding: "8px" }}>+ Add Image<br/><small>(Back View)</small></span>
+                  )}
+                </div>
               </label>
-              <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {imageBack ? (
-                  <img src={URL.createObjectURL(imageBack)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : (
-                  <span style={{ fontSize: "12px", color: "#8A8279" }}>No image</span>
-                )}
-              </div>
               <input
+                id="imageBackInput"
                 type="file"
                 accept="image/*"
                 onChange={(e) => setImageBack(e.target.files ? e.target.files[0] : null)}
-                style={{ width: "100%", fontSize: "12px" }}
+                style={{ display: "none" }}
               />
             </div>
           </div>
