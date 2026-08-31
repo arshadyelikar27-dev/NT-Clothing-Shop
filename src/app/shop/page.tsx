@@ -1,4 +1,4 @@
-
+export const revalidate = 60;
 
 import { prisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";

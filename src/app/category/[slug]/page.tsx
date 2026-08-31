@@ -1,22 +1,33 @@
+export const revalidate = 60;
+
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/product/ProductCard";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
+import { cache } from "react";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ sort?: string; page?: string }>;
 }
 
+const getCategoryBySlug = cache(async (slug: string) => {
+  return prisma.category.findUnique({
+    where: { slug, isActive: true },
+    include: {
+      children: true,
+      parent: true,
+    },
+  });
+});
+
 export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = await prisma.category.findUnique({
-    where: { slug },
-  });
+  const category = await getCategoryBySlug(slug);
 
   if (!category) return { title: "Category Not Found" };
 
@@ -36,13 +47,7 @@ export default async function CategoryPage({
   const sParams = await searchParams;
   const sort = sParams.sort || "newest";
 
-  const category = await prisma.category.findUnique({
-    where: { slug, isActive: true },
-    include: {
-      children: true,
-      parent: true,
-    },
-  });
+  const category = await getCategoryBySlug(slug);
 
   if (!category) notFound();
 

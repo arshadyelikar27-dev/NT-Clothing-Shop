@@ -27,11 +27,15 @@ const STATIC_NAV = [
   { href: "/bulk-enquiry", label: "Bulk Orders" },
 ];
 
+// Module-level client cache to prevent redundant fetches on route change
+let cachedCategoriesData: CategoryItem[] | null = null;
+let cachedUserData: { name: string; email: string; role: string } | null = null;
+
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
-  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
+  const [categories, setCategories] = useState<CategoryItem[]>(cachedCategoriesData || []);
+  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(cachedUserData);
   const { isMobileMenuOpen, setMobileMenu, setSearchOpen } = useUIStore();
   const cartItemCount = useCartStore((s) => s.items.length);
   const toggleCart = useCartStore((s) => s.toggleCart);
@@ -43,27 +47,33 @@ export function Header() {
         const res = await fetch("/api/auth/session");
         if (res.ok) {
           const data = await res.json();
-          setUser(data.user || null);
+          cachedUserData = data.user || null;
+          setUser(cachedUserData);
         }
       } catch {
         setUser(null);
       }
     }
-    loadUser();
+    if (!cachedUserData) {
+      loadUser();
+    }
 
     // Listen for auth state changes from other components (like checkout login)
     window.addEventListener("auth-change", loadUser);
     return () => window.removeEventListener("auth-change", loadUser);
   }, []);
 
-  // Load dynamic categories
+  // Load dynamic categories (instant from memory if already loaded)
   useEffect(() => {
+    if (cachedCategoriesData && cachedCategoriesData.length > 0) return;
+
     async function loadCategories() {
       try {
         const res = await fetch("/api/categories");
         if (res.ok) {
           const data = await res.json();
-          setCategories(data.categories || []);
+          cachedCategoriesData = data.categories || [];
+          setCategories(cachedCategoriesData || []);
         }
       } catch {
         // Use empty list if API fails
