@@ -30,18 +30,21 @@ export default async function HomePage() {
     // Render shell if DB error
   }
 
+  // Strictly locked to the 3 current categories — no new category sections will ever be added
+  const HOMEPAGE_CATEGORY_SLUGS = ["sarees", "dress-materials", "readymade-shirts"];
+  const homepageCategories = HOMEPAGE_CATEGORY_SLUGS
+    .map((slug) => categoriesWithProducts.find((cat) => cat.slug === slug))
+    .filter((cat): cat is NonNullable<typeof cat> => Boolean(cat && cat.products.length > 0));
+
   return (
     <>
       {/* ═══════════════ SECTION 1: HERO SLIDESHOW ═══════════════ */}
       <HeroSlideshow />
 
-      {/* ═══════════════ FEATURED CATEGORY SECTIONS (MAX 4) ═══════════════ */}
+      {/* ═══════════════ FIXED CATEGORY SECTIONS (STRICTLY 3) ═══════════════ */}
       <div style={{ padding: "20px 0" }}>
-        {categoriesWithProducts
-          .filter((category) => category.products.length > 0)
-          .slice(0, 4)
-          .map((category, index) => {
-            const isEven = index % 2 === 0;
+        {homepageCategories.map((category, index) => {
+          const isEven = index % 2 === 0;
 
             return (
               <section
@@ -189,7 +192,7 @@ export default async function HomePage() {
           </div>
 
           <div className="product-grid">
-            {discoverProducts.map((product) => (
+            {discoverProducts.slice(0, 9).map((product) => (
               <div key={product.id} style={{ position: "relative" }}>
                 {/* Wrap ProductCard in a dark-theme safe container if needed, or pass a prop. ProductCard is already relatively styling-agnostic but uses white backgrounds. That's fine, it provides contrast against the dark section background. */}
                 <ProductCard

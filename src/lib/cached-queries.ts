@@ -39,18 +39,18 @@ export const getCachedCategoriesWithProducts = unstable_cache(
   { revalidate: 300, tags: ["products", "categories"] }
 );
 
-// ─── 3. Homepage Discover Collection (12 items) ───
+// ─── 3. Homepage Discover Collection (9 items - latest products) ───
 export const getCachedDiscoverCollection = unstable_cache(
   async () => {
     return prisma.product.findMany({
       where: { isPublished: true, isArchived: false },
-      take: 12,
+      take: 9,
       include: { images: { orderBy: { sortOrder: "asc" }, take: 1 }, category: true },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { createdAt: "desc" },
     });
   },
   ["homepage-discover-collection"],
-  { revalidate: 300, tags: ["products"] }
+  { revalidate: 60, tags: ["products"] }
 );
 
 // ─── 4. Single Product by Slug (Product Detail Page) ───
