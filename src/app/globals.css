@@ -516,3 +516,52 @@ main#main-content > div:not(.hero-full-bleed) {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ═══════════════ HERO SLIDESHOW: SCREEN RATIO DETECTION ═══════════════ */
+.hero-slider-wrap {
+  position: relative;
+  width: 100%;
+  background-color: #1A1918;
+  overflow: hidden;
+}
+
+/* ─── Desktop / Landscape Widescreen (16:9 ratio) ─── */
+@media (min-width: 769px) and (orientation: landscape) {
+  .hero-slider-wrap {
+    height: min(85vh, calc(100vw * 9 / 16));
+    min-height: 520px;
+    max-height: 850px;
+  }
+  .hero-gradient-overlay {
+    background: linear-gradient(90deg, rgba(10,9,8,0.88) 0%, rgba(10,9,8,0.68) 40%, rgba(10,9,8,0.2) 75%, rgba(10,9,8,0.0) 100%);
+  }
+  .hero-text-container {
+    justify-content: center;
+    padding-top: 60px;
+  }
+  .hero-img-cover {
+    object-position: center center !important;
+  }
+}
+
+/* ─── Smartphones / Vertical Portrait Screens (Screen Ratio Detect) ─── */
+@media (max-width: 768px), (orientation: portrait), (max-aspect-ratio: 1/1) {
+  .hero-slider-wrap {
+    height: 80svh; /* Fills vertical smartphone screen */
+    min-height: 550px;
+    max-height: 800px;
+  }
+  .hero-gradient-overlay {
+    /* Bottom-to-top gradient: bottom is dark for readable text, top reveals the fashion wear */
+    background: linear-gradient(to top, rgba(10,9,8,0.96) 0%, rgba(10,9,8,0.75) 45%, rgba(10,9,8,0.2) 75%, rgba(10,9,8,0.05) 100%) !important;
+  }
+  .hero-text-container {
+    justify-content: flex-end !important;
+    padding-bottom: 50px !important;
+    padding-top: 0 !important;
+  }
+  .hero-img-cover {
+    object-position: 65% 25% !important; /* Centers on kurti/saree attire in vertical format */
+  }
+}
+

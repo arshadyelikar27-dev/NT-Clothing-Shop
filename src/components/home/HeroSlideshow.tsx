@@ -54,17 +54,7 @@ export function HeroSlideshow() {
   const slide = SLIDES[current];
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "min(100vh, calc(100vw * 9 / 16))",
-        minHeight: "500px",
-        maxHeight: "900px",
-        backgroundColor: "#1A1918",
-        overflow: "hidden",
-      }}
-    >
+    <div className="hero-slider-wrap">
       {/* ─── Background Images ─── */}
       {SLIDES.map((s, idx) => (
         <div
@@ -84,18 +74,18 @@ export function HeroSlideshow() {
             priority={idx === 0}
             quality={85}
             sizes="100vw"
-            style={{ objectFit: "cover", objectPosition: "center center" }}
+            className="hero-img-cover"
+            style={{ objectFit: "cover" }}
           />
         </div>
       ))}
 
       {/* ─── Gradient Overlay ─── */}
       <div
+        className="hero-gradient-overlay"
         style={{
           position: "absolute",
           inset: 0,
-          background:
-            "linear-gradient(90deg, rgba(10,9,8,0.88) 0%, rgba(10,9,8,0.72) 35%, rgba(10,9,8,0.3) 65%, rgba(10,9,8,0.0) 100%)",
           zIndex: 2,
           pointerEvents: "none",
         }}
@@ -103,15 +93,13 @@ export function HeroSlideshow() {
 
       {/* ─── Text Content ─── */}
       <div
-        className="container-main"
+        className="container-main hero-text-container"
         style={{
           position: "relative",
           zIndex: 3,
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          paddingTop: "60px",
         }}
       >
         <div style={{ maxWidth: "560px", padding: "40px 0" }}>

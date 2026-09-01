@@ -242,50 +242,57 @@ export default async function HomePage() {
           >
             {[
               {
-                icon: <Package size={24} />,
+                icon: <Package size={26} />,
                 title: "Carefully Selected",
-                desc: "Every fabric is inspected for quality, hand-feel, and colour before it reaches you.",
+                desc: "Every fabric is hand-inspected for quality, weave texture, and colour.",
               },
               {
-                icon: <Shield size={24} />,
+                icon: <Shield size={26} />,
                 title: "Quality Focused",
-                desc: "We work directly with mills and weavers to bring you textiles that last.",
+                desc: "Directly sourced from master weavers and mills to ensure long life.",
               },
               {
-                icon: <MapPin size={24} />,
+                icon: <MapPin size={26} />,
                 title: "Local Store + Online",
-                desc: "Visit us in Hatte Nagar, Latur or shop from anywhere in India.",
+                desc: "Visit our store in Latur or shop online from anywhere in India.",
               },
               {
-                icon: <CreditCard size={24} />,
+                icon: <CreditCard size={26} />,
                 title: "Easy Online Payment",
-                desc: "Pay securely online — the shop owner will guide you through the payment process after your order.",
+                desc: "Pay securely online with personal guidance after your order.",
               },
               {
-                icon: <Truck size={24} />,
+                icon: <Truck size={26} />,
                 title: "Reliable Delivery",
-                desc: "Tracked shipping across India.",
+                desc: "Safe, tracked shipping across India directly to your doorstep.",
               },
               {
-                icon: <Phone size={24} />,
-                title: "Easy Support",
-                desc: "Call or WhatsApp us anytime. We're here to help.",
+                icon: <Phone size={26} />,
+                title: "Dedicated Support",
+                desc: "Call or WhatsApp us anytime — we are always here to assist.",
               },
             ].map((item, i) => (
               <div
                 key={i}
                 style={{
                   backgroundColor: "#FAF7F2",
-                  padding: "32px 24px",
+                  padding: "28px 18px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  height: "100%",
                   textAlign: "center",
                 }}
               >
                 <div
                   style={{
                     color: "#9E3B2B",
-                    marginBottom: "16px",
+                    height: "36px",
                     display: "flex",
+                    alignItems: "center",
                     justifyContent: "center",
+                    marginBottom: "14px",
                   }}
                 >
                   {item.icon}
@@ -296,6 +303,12 @@ export default async function HomePage() {
                     fontSize: "14px",
                     fontWeight: 600,
                     color: "#1A1918",
+                    minHeight: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    lineHeight: "1.3",
                     marginBottom: "8px",
                   }}
                 >
@@ -303,10 +316,12 @@ export default async function HomePage() {
                 </h3>
                 <p
                   style={{
-                    fontSize: "13px",
-                    lineHeight: 1.6,
+                    fontSize: "12px",
+                    lineHeight: "1.55",
                     color: "#8A8279",
                     fontFamily: "var(--font-sans)",
+                    margin: 0,
+                    textAlign: "center",
                   }}
                 >
                   {item.desc}
