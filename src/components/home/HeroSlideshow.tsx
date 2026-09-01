@@ -8,35 +8,35 @@ import Image from "next/image";
 const SLIDES = [
   {
     id: "sarees",
-    headline: "Handwoven Silk & Premium Drapery.",
+    headline: "Lustrous Silk & Royal Zari Sarees.",
     subtext:
-      "Pure Banarasi zari, lustrous Paithani borders, and heritage sarees handpicked directly from master artisan clusters.",
+      "Exquisite lilac Banarasi silk, rich golden zari borders, and festive drapery handpicked directly from master artisan clusters.",
     cta: { text: "Shop Sarees", href: "/category/sarees" },
     image: "/images/hero/hero-sarees.jpg",
   },
   {
-    id: "fabrics",
-    headline: "Finest Cottons & Running Yardage.",
+    id: "dress-materials",
+    headline: "Floral Dress Materials & Designer Suits.",
     subtext:
-      "Counted 60s Cambric, breathable pure linens, and rich shirtings cut to your exact meterage.",
-    cta: { text: "Shop by Meter", href: "/category/fabrics" },
-    image: "/images/hero/hero-fabrics.jpg",
-  },
-  {
-    id: "kurtis",
-    headline: "Designer Kurtis & Unstitched Sets.",
-    subtext:
-      "Handcrafted block-print kurtis, chikankari embroidery, and daily ethnic luxury designed for effortless comfort.",
-    cta: { text: "Shop Kurtis", href: "/category/kurtis" },
+      "Graceful floral prints, delicate embroidered necklines, and matching organza dupattas crafted for effortless ethnic elegance.",
+    cta: { text: "Shop Dress Materials", href: "/category/dress-materials" },
     image: "/images/hero/hero-kurtis.jpg",
   },
   {
-    id: "linens",
-    headline: "Natural Linens & Formal Menswear.",
+    id: "menswear",
+    headline: "Crisp Formal Shirts & Men's Wear.",
     subtext:
-      "Structured Oxford shirtings, premium suiting fabrics, and breathable European linen weaves crafted for all seasons.",
-    cta: { text: "Shop Men's Wear", href: "/category/mens-wear" },
+      "Impeccable tailored fits, premium cotton shirtings, and structured formal wear crafted for all-day comfort and distinction.",
+    cta: { text: "Shop Men's Wear", href: "/category/readymade-shirts" },
     image: "/images/hero/hero-linens.jpg",
+  },
+  {
+    id: "fabrics",
+    headline: "Pure Linens & Premium Cotton Yardage.",
+    subtext:
+      "Authentic breathable textures, earth-toned weaves, and wholesale running fabrics cut to your exact meterage.",
+    cta: { text: "Shop Fabrics", href: "/category/fabrics" },
+    image: "/images/hero/hero-fabrics.jpg",
   },
 ];
 

@@ -560,7 +560,7 @@ main#main-content > div:not(.hero-full-bleed) {
     padding-top: 0 !important;
   }
   .hero-img-cover {
-    object-position: 65% 25% !important; /* Centers on kurti/saree attire in vertical format */
+    object-position: 50% 20% !important; /* Centers model/subject in vertical mobile format */
   }
 }
 
