@@ -3,9 +3,10 @@ export const revalidate = 60;
 import Link from "next/link";
 import { ProductCard } from "@/components/product/ProductCard";
 import { HeroSlideshow } from "@/components/home/HeroSlideshow";
-import { getCachedDiscoverCollection } from "@/lib/cached-queries";
-import { CategoryPills } from "@/components/home/CategoryPills";
-import { BentoBoxCollections } from "@/components/home/BentoBoxCollections";
+import {
+  getCachedCategoriesWithProducts,
+  getCachedDiscoverCollection,
+} from "@/lib/cached-queries";
 import {
   MapPin,
   Phone,
@@ -17,10 +18,14 @@ import {
 } from "lucide-react";
 
 export default async function HomePage() {
+  let categoriesWithProducts: Awaited<ReturnType<typeof getCachedCategoriesWithProducts>> = [];
   let discoverProducts: Awaited<ReturnType<typeof getCachedDiscoverCollection>> = [];
 
   try {
-    discoverProducts = await getCachedDiscoverCollection();
+    [categoriesWithProducts, discoverProducts] = await Promise.all([
+      getCachedCategoriesWithProducts(),
+      getCachedDiscoverCollection(),
+    ]);
   } catch {
     // Render shell if DB error
   }
@@ -30,11 +35,94 @@ export default async function HomePage() {
       {/* ═══════════════ SECTION 1: HERO SLIDESHOW ═══════════════ */}
       <HeroSlideshow />
 
-      {/* ═══════════════ NEW CATEGORY NAVIGATION ═══════════════ */}
-      <CategoryPills />
+      {/* ═══════════════ DYNAMIC CATEGORY SECTIONS ═══════════════ */}
+      <div style={{ padding: "40px 0" }}>
+        {categoriesWithProducts.map((category, index) => {
+          if (category.products.length === 0) return null; // Skip empty categories
+          
+          const isEven = index % 2 === 0;
+          
+          return (
+            <section 
+              key={category.id} 
+              className="section-spacing"
+              style={{ backgroundColor: isEven ? "white" : "#FAF7F2" }}
+            >
+              <div className="container-main">
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-end",
+                    marginBottom: "36px",
+                  }}
+                >
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        letterSpacing: "0.12em",
+                        textTransform: "uppercase",
+                        color: "#9E3B2B",
+                        marginBottom: "8px",
+                        fontFamily: "var(--font-sans)",
+                      }}
+                    >
+                      {category.name} Collection
+                    </p>
+                    <h2
+                      style={{
+                        fontFamily: "var(--font-serif)",
+                        fontSize: "clamp(22px, 2.5vw, 28px)",
+                        fontWeight: 500,
+                        color: "#1A1918",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      {category.name}
+                    </h2>
+                  </div>
+                  <Link
+                    href={`/category/${category.slug}`}
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      color: "#1A1918",
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      fontFamily: "var(--font-sans)",
+                    }}
+                  >
+                    View All {category.name} <ArrowRight size={14} />
+                  </Link>
+                </div>
 
-      {/* ═══════════════ BENTO BOX COLLECTIONS ═══════════════ */}
-      <BentoBoxCollections />
+                <div className="product-grid">
+                  {category.products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      slug={product.slug}
+                      price={product.price}
+                      image={
+                        product.images[0]?.url ||
+                        "/images/products/premium-cotton-fabric.jpg"
+                      }
+                      fabric={product.fabric}
+                      unitType={product.unitType}
+                      stock={product.stock}
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        })}
+      </div>
 
       {/* ═══════════════ DISCOVER / MIXED COLLECTION ═══════════════ */}
       <section className="section-spacing" style={{ backgroundColor: "#1A1918", color: "white" }}>
