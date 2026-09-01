@@ -2,19 +2,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { getCachedCategories } from "@/lib/cached-queries";
 
-function getCategoryImage(categoryName: string, categoryId: string, dbImage: string | null): string {
-  // Try to use a tag based on the category name for better relevance
-  let tag = "fashion,model";
+function getCategoryImage(categoryName: string, dbImage: string | null): string {
+  if (dbImage) return dbImage;
+  
   const name = categoryName.toLowerCase();
+  if (name.includes("silk") && name.includes("saree")) return "/images/categories/model_silk_saree.jpg";
+  if (name.includes("saree")) return "/images/categories/model_saree.jpg";
+  if (name.includes("kurti") || name.includes("top")) return "/images/categories/model_kurti.jpg";
+  if (name.includes("men") || name.includes("shirt")) return "/images/categories/model_menswear.jpg";
+  if (name.includes("lehenga") || name.includes("festive")) return "/images/categories/model_lehenga.jpg";
   
-  if (name.includes("saree")) tag = "saree,indian";
-  else if (name.includes("kurti") || name.includes("kurtas") || name.includes("top")) tag = "kurti,indian";
-  else if (name.includes("lehenga") || name.includes("festive")) tag = "lehenga,indian";
-  else if (name.includes("men") || name.includes("shirt")) tag = "menswear,shirt";
-  else if (name.includes("fabric") || name.includes("material")) tag = "fabric,textile";
-  
-  // Return a unique image URL for each category based on its ID
-  return `https://loremflickr.com/400/400/${tag}?random=${categoryId}`;
+  return "/images/categories/model_fabric.jpg";
 }
 
 export async function CategoryPills() {
@@ -37,7 +35,6 @@ export async function CategoryPills() {
           Shop by Category
         </h2>
 
-        {/* Removed hide-scrollbar and added padding so the last item isn't cut off */}
         <div
           style={{
             display: "flex",
@@ -77,7 +74,7 @@ export async function CategoryPills() {
                 className="hover:scale-105 transition-transform"
               >
                 <Image
-                  src={getCategoryImage(category.name, category.id, category.image)}
+                  src={getCategoryImage(category.name, category.image)}
                   alt={category.name}
                   fill
                   style={{ objectFit: "cover" }}
