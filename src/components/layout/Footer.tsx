@@ -73,7 +73,7 @@ export function Footer() {
               }}
             >
               <a
-                href="https://wa.me/917821059350"
+                href="https://wa.me/919764313958"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -223,7 +223,7 @@ export function Footer() {
             }}
           >
             <a
-              href="https://wa.me/917821059350"
+              href="https://wa.me/919764313958"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="WhatsApp"

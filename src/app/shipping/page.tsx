@@ -54,7 +54,7 @@ export default function ShippingPage() {
             5. Inquiries & Support
           </h2>
           <p>
-            For any shipping inquiries or urgent local pickups in Latur, please call <strong>+91 78210 59350</strong> or email <strong>contact@nobletextile.com</strong>.
+            For any shipping inquiries or urgent local pickups in Latur, please call <strong>+91 97643 13958</strong> or email <strong>contact@nobletextile.com</strong>.
           </p>
         </div>
       </div>

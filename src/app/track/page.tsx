@@ -256,7 +256,7 @@ export default function TrackOrderPage() {
                     </div>
                     <div>
                       <p style={{ fontSize: "12px", color: "#8A8279", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>For Inquiry Contact Owner</p>
-                      <p style={{ fontSize: "18px", fontWeight: 700, color: "#1A1918" }}>+91 78210 59350</p>
+                      <p style={{ fontSize: "18px", fontWeight: 700, color: "#1A1918" }}>+91 97643 13958</p>
                     </div>
                   </div>
 
@@ -436,7 +436,7 @@ export default function TrackOrderPage() {
                 Need help with your order?
               </p>
               <a
-                href={`https://wa.me/917821059350?text=Hi%2C%20I%20need%20help%20with%20order%20${order.orderNumber}`}
+                href={`https://wa.me/919764313958?text=Hi%2C%20I%20need%20help%20with%20order%20${order.orderNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{

@@ -35,7 +35,7 @@ export default function TermsPage() {
             3. Order Placement & Cancellation
           </h2>
           <p style={{ marginBottom: "20px" }}>
-            Orders may be cancelled before cutting and dispatch by calling our store at +91 78210 59350. Once cut or handed to courier partners, cancellations are subject to our standard return policy.
+            Orders may be cancelled before cutting and dispatch by calling our store at +91 97643 13958. Once cut or handed to courier partners, cancellations are subject to our standard return policy.
           </p>
 
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "20px", marginBottom: "12px", color: "#1A1918" }}>

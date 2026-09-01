@@ -429,13 +429,13 @@ export default async function HomePage() {
                     style={{ color: "#9E3B2B", flexShrink: 0 }}
                   />
                   <a
-                    href="tel:+917821059350"
+                    href="tel:+919764313958"
                     style={{
                       color: "inherit",
                       textDecoration: "none",
                     }}
                   >
-                    +91 78210 59350
+                    +91 97643 13958
                   </a>
                 </div>
               </div>
@@ -450,7 +450,7 @@ export default async function HomePage() {
                   <MapPin size={16} />
                   Get Directions
                 </a>
-                <a href="tel:+917821059350" className="btn btn-secondary">
+                <a href="tel:+919764313958" className="btn btn-secondary">
                   <Phone size={16} />
                   Call Store
                 </a>

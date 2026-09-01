@@ -823,7 +823,7 @@ export function ProductDetailClient({
               onClick={() => {
                 const productUrl = window.location.href;
                 const message = encodeURIComponent(`Hi NOBLE TEXTILE, I'm interested in "${product.name}" for ${formatPrice(currentPrice)}. Link: ${productUrl}`);
-                window.open(`https://wa.me/917821059350?text=${message}`, '_blank');
+                window.open(`https://wa.me/919764313958?text=${message}`, '_blank');
               }}
               style={{
                 width: "100%",

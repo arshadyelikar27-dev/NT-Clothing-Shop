@@ -12,10 +12,10 @@ export function AdminSettingsForm({
   const router = useRouter();
   const [form, setForm] = useState({
     store_name: initialSettings.store_name || "NOBLE TEXTILE",
-    store_phone: initialSettings.store_phone || "+917821059350",
+    store_phone: initialSettings.store_phone || "+919764313958",
     store_email: initialSettings.store_email || "contact@nobletextile.com",
     store_address: initialSettings.store_address || "Hatte Nagar, Latur, Maharashtra 413512, India",
-    store_whatsapp: initialSettings.store_whatsapp || "917821059350",
+    store_whatsapp: initialSettings.store_whatsapp || "919764313958",
     free_shipping_threshold:
       initialSettings.shipping_free_threshold || initialSettings.free_shipping_threshold || "999",
     standard_shipping_charge:

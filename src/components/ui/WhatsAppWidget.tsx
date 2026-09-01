@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export function WhatsAppWidget() {
   // Pre-filled message and phone number
-  const phoneNumber = "917821059350";
+  const phoneNumber = "919764313958";
   const message = encodeURIComponent("Hi NOBLE TEXTILE, I need some help from your online store.");
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 

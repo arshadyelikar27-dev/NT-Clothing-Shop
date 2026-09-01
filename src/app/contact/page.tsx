@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Contact & Visit Store in Latur — NOBLE TEXTILE",
   description:
-    "Visit NOBLE TEXTILE in Hatte Nagar, Latur, Maharashtra 413512. Call +91 78210 59350 or chat with us on WhatsApp.",
+    "Visit NOBLE TEXTILE in Hatte Nagar, Latur, Maharashtra 413512. Call +91 97643 13958 or chat with us on WhatsApp.",
 };
 
 export default function ContactPage() {
@@ -97,7 +97,7 @@ export default function ContactPage() {
                     Call store staff or place custom inquiries:
                   </p>
                   <a
-                    href="tel:+917821059350"
+                    href="tel:+919764313958"
                     style={{
                       fontSize: "16px",
                       fontWeight: 600,
@@ -107,10 +107,10 @@ export default function ContactPage() {
                       marginBottom: "12px",
                     }}
                   >
-                    +91 78210 59350
+                    +91 97643 13958
                   </a>
                   <a
-                    href="https://wa.me/917821059350?text=Hi%20Noble%20Textile%2C%20I%20have%20an%20inquiry"
+                    href="https://wa.me/919764313958?text=Hi%20Noble%20Textile%2C%20I%20have%20an%20inquiry"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-secondary btn-sm"

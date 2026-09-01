@@ -268,7 +268,7 @@ export function ProductCard({
                     e.stopPropagation();
                     const productUrl = `${window.location.origin}/product/${slug}`;
                     const message = encodeURIComponent(`Hi NOBLE TEXTILE, I'm interested in "${name}" for ${formatPrice(price)}. Link: ${productUrl}`);
-                    window.open(`https://wa.me/917821059350?text=${message}`, '_blank');
+                    window.open(`https://wa.me/919764313958?text=${message}`, '_blank');
                   }}
                   style={{
                     backgroundColor: "#25D366", // WhatsApp color

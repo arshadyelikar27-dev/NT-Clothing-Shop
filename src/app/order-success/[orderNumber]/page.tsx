@@ -251,7 +251,7 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
                 Hatte Nagar, Latur, Maharashtra 413512, India
               </p>
               <p style={{ fontSize: "12px", color: "#8A8279" }}>
-                Phone: +91 78210 59350 • contact@nobletextile.com
+                Phone: +91 97643 13958 • contact@nobletextile.com
               </p>
             </div>
 
@@ -406,7 +406,7 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
           {/* Footer note */}
           <div style={{ borderTop: "1px solid #E4DDD3", paddingTop: "16px", marginTop: "32px", fontSize: "11px", color: "#8A8279", textAlign: "center" }}>
             <p>This is a computer-generated tax invoice issued by NOBLE TEXTILE (Latur, Maharashtra).</p>
-            <p>For order queries, contact us at +91 78210 59350 or email contact@nobletextile.com</p>
+            <p>For order queries, contact us at +91 97643 13958 or email contact@nobletextile.com</p>
           </div>
         </div>
       </div>
