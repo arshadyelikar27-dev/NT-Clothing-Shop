@@ -12,7 +12,7 @@ const SLIDES = [
     subtext:
       "Exquisite lilac Banarasi silk, rich golden zari borders, and festive drapery handpicked directly from master artisan clusters.",
     cta: { text: "Shop Sarees", href: "/category/sarees" },
-    image: "/images/hero/hero-sarees.jpg",
+    image: "/images/hero/hero-sarees-v2.jpg",
   },
   {
     id: "dress-materials",
@@ -20,7 +20,7 @@ const SLIDES = [
     subtext:
       "Graceful floral prints, delicate embroidered necklines, and matching organza dupattas crafted for effortless ethnic elegance.",
     cta: { text: "Shop Dress Materials", href: "/category/dress-materials" },
-    image: "/images/hero/hero-kurtis.jpg",
+    image: "/images/hero/hero-kurtis-v2.jpg",
   },
   {
     id: "menswear",
@@ -28,7 +28,7 @@ const SLIDES = [
     subtext:
       "Impeccable tailored fits, premium cotton shirtings, and structured formal wear crafted for all-day comfort and distinction.",
     cta: { text: "Shop Men's Wear", href: "/category/readymade-shirts" },
-    image: "/images/hero/hero-linens.jpg",
+    image: "/images/hero/hero-linens-v2.jpg",
   },
   {
     id: "fabrics",
@@ -36,7 +36,7 @@ const SLIDES = [
     subtext:
       "Authentic breathable textures, earth-toned weaves, and wholesale running fabrics cut to your exact meterage.",
     cta: { text: "Shop Fabrics", href: "/category/fabrics" },
-    image: "/images/hero/hero-fabrics.jpg",
+    image: "/images/hero/hero-fabrics-v2.jpg",
   },
 ];
 
