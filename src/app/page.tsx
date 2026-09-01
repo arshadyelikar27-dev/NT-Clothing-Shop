@@ -42,9 +42,8 @@ export default async function HomePage() {
       <HeroSlideshow />
 
       {/* ═══════════════ FIXED CATEGORY SECTIONS (STRICTLY 3) ═══════════════ */}
-      <div style={{ padding: "20px 0" }}>
-        {homepageCategories.map((category, index) => {
-          const isEven = index % 2 === 0;
+      {homepageCategories.map((category, index) => {
+        const isEven = index % 2 === 0;
 
             return (
               <section
@@ -126,7 +125,6 @@ export default async function HomePage() {
               </section>
             );
           })}
-      </div>
 
       {/* ═══════════════ DISCOVER / MIXED COLLECTION ═══════════════ */}
       <section className="section-spacing" style={{ backgroundColor: "#1A1918", color: "white" }}>

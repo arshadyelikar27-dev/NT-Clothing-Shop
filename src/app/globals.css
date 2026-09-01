@@ -525,15 +525,15 @@ main#main-content > div:not(.hero-full-bleed) {
   overflow: hidden;
 }
 
-/* ─── Desktop / Landscape Widescreen (16:9 ratio) ─── */
-@media (min-width: 769px) and (orientation: landscape) {
+/* ─── Desktop / Landscape Widescreen (100% Full Screen, Zero White Gap) ─── */
+@media (min-width: 769px) {
   .hero-slider-wrap {
-    height: min(85vh, calc(100vw * 9 / 16));
-    min-height: 520px;
-    max-height: 850px;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 600px;
   }
   .hero-gradient-overlay {
-    background: linear-gradient(90deg, rgba(10,9,8,0.88) 0%, rgba(10,9,8,0.68) 40%, rgba(10,9,8,0.2) 75%, rgba(10,9,8,0.0) 100%);
+    background: linear-gradient(90deg, rgba(10,9,8,0.88) 0%, rgba(10,9,8,0.65) 40%, rgba(10,9,8,0.2) 75%, rgba(10,9,8,0.0) 100%);
   }
   .hero-text-container {
     justify-content: center;
@@ -544,12 +544,11 @@ main#main-content > div:not(.hero-full-bleed) {
   }
 }
 
-/* ─── Smartphones / Vertical Portrait Screens (Screen Ratio Detect) ─── */
+/* ─── Smartphones / Vertical Portrait Screens (Full Mobile Screen) ─── */
 @media (max-width: 768px), (orientation: portrait), (max-aspect-ratio: 1/1) {
   .hero-slider-wrap {
-    height: 80svh; /* Fills vertical smartphone screen */
-    min-height: 550px;
-    max-height: 800px;
+    height: 100svh; /* Fills vertical smartphone screen completely */
+    min-height: 560px;
   }
   .hero-gradient-overlay {
     /* Bottom-to-top gradient: bottom is dark for readable text, top reveals the fashion wear */
