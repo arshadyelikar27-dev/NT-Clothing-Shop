@@ -525,12 +525,13 @@ main#main-content > div:not(.hero-full-bleed) {
   overflow: hidden;
 }
 
-/* ─── Desktop / Landscape Widescreen (100% Full Screen, Zero White Gap) ─── */
+/* ─── Desktop / Landscape Widescreen ─── */
 @media (min-width: 769px) {
   .hero-slider-wrap {
-    height: 100vh;
-    height: 100dvh;
-    min-height: 600px;
+    /* Limit to 16:9 natural height so image never gets cropped top/bottom */
+    height: min(100vh, 56.25vw);
+    height: min(100dvh, 56.25vw);
+    min-height: 500px;
   }
   .hero-gradient-overlay {
     background: linear-gradient(90deg, rgba(10,9,8,0.88) 0%, rgba(10,9,8,0.65) 40%, rgba(10,9,8,0.2) 75%, rgba(10,9,8,0.0) 100%);
@@ -539,28 +540,21 @@ main#main-content > div:not(.hero-full-bleed) {
     justify-content: center;
     padding-top: 60px;
   }
-  .hero-img-cover {
-    object-position: center center !important;
-  }
 }
 
-/* ─── Smartphones / Vertical Portrait Screens (Full Mobile Screen) ─── */
+/* ─── Smartphones / Vertical Portrait Screens ─── */
 @media (max-width: 768px), (orientation: portrait), (max-aspect-ratio: 1/1) {
   .hero-slider-wrap {
-    height: 100svh; /* Fills vertical smartphone screen completely */
-    min-height: 560px;
+    height: 100svh;
+    min-height: 500px;
   }
   .hero-gradient-overlay {
-    /* Bottom-to-top gradient: bottom is dark for readable text, top reveals the fashion wear */
-    background: linear-gradient(to top, rgba(10,9,8,0.96) 0%, rgba(10,9,8,0.75) 45%, rgba(10,9,8,0.2) 75%, rgba(10,9,8,0.05) 100%) !important;
+    background: linear-gradient(to top, rgba(10,9,8,0.92) 0%, rgba(10,9,8,0.6) 40%, rgba(10,9,8,0.1) 75%, rgba(10,9,8,0.0) 100%) !important;
   }
   .hero-text-container {
     justify-content: flex-end !important;
     padding-bottom: 50px !important;
     padding-top: 0 !important;
-  }
-  .hero-img-cover {
-    object-position: 50% 20% !important; /* Centers model/subject in vertical mobile format */
   }
 }
 
