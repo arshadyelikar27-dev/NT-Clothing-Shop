@@ -26,7 +26,7 @@ export async function verifyPassword(
   return bcrypt.compare(password, hashedPassword);
 }
 
-export async function createToken(payload: SessionPayload): Promise<string> {
+async function createToken(payload: SessionPayload): Promise<string> {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -34,7 +34,7 @@ export async function createToken(payload: SessionPayload): Promise<string> {
     .sign(JWT_SECRET);
 }
 
-export async function verifyToken(
+async function verifyToken(
   token: string
 ): Promise<SessionPayload | null> {
   try {
@@ -73,10 +73,6 @@ export function isAdmin(role: string): boolean {
   return ["ADMIN", "SUPER_ADMIN", "ORDER_MANAGER", "PRODUCT_MANAGER"].includes(
     role
   );
-}
-
-export function isSuperAdmin(role: string): boolean {
-  return role === "SUPER_ADMIN";
 }
 
 export function canManageProducts(role: string): boolean {

@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
   // Tree-shake lucide-react properly — reduces JS bundle size
   experimental: {
     optimizePackageImports: ["lucide-react"],
+    // Cache client-side router data for instant back/forward & revisits
+    staleTimes: {
+      dynamic: 30,  // cache dynamic pages for 30s on client
+      static: 180,  // cache static pages for 3 min on client
+    },
   },
 
   images: {

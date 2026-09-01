@@ -91,7 +91,15 @@ export default function AdminLayoutClient({
             width: 100%;
           }
           .admin-content-view {
-            padding: 20px 16px;
+            padding: 16px 14px;
+          }
+          .admin-top-header {
+            padding: 0 14px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .admin-content-view {
+            padding: 12px 10px;
           }
         }
       `}</style>
@@ -184,6 +192,7 @@ export default function AdminLayoutClient({
       <div className="admin-main-wrapper">
         {/* Top Header */}
         <header
+          className="admin-top-header"
           style={{
             height: "60px",
             backgroundColor: "white",
@@ -191,23 +200,25 @@ export default function AdminLayoutClient({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "0 32px",
+            padding: "0 24px",
+            gap: "12px",
+            minWidth: 0,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="md:hidden"
-              style={{ background: "none", border: "none", padding: "4px", cursor: "pointer" }}
+              style={{ background: "none", border: "none", padding: "4px", cursor: "pointer", flexShrink: 0 }}
             >
               <Menu size={24} color="#1A1918" />
             </button>
-            <span style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918" }}>
+            <span style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               Admin Portal
             </span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
             <Link
               href="/"
               target="_blank"
@@ -222,10 +233,10 @@ export default function AdminLayoutClient({
                 padding: "6px 12px",
                 border: "1px solid #E4DDD3",
                 borderRadius: "4px",
+                whiteSpace: "nowrap",
               }}
-              className="hidden sm:flex"
             >
-              <Store size={13} /> View Live Storefront
+              <Store size={13} /> <span className="hidden sm:inline">View Live Storefront</span><span className="sm:hidden">Store</span>
             </Link>
           </div>
         </header>

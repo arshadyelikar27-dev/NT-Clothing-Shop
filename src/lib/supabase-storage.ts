@@ -15,7 +15,7 @@ export function isSupabaseStorageConfigured(): boolean {
 }
 
 // Initialize the Supabase client
-export const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 /**
  * Upload a Buffer to Supabase Storage and return the public URL.
@@ -69,22 +69,6 @@ export async function uploadBufferToSupabase(
     .getPublicUrl(filePath);
 
   return publicUrlData.publicUrl;
-}
-
-/**
- * Upload a File object to Supabase Storage and return the public URL.
- * @param file - The File/Blob to upload
- * @param bucket - The Supabase Storage bucket name (default: "nt-shop-media")
- * @param folder - Folder path inside the bucket (default: "products")
- */
-export async function uploadToSupabaseStorage(
-  file: File,
-  bucket = "nt-shop-media",
-  folder = "products"
-): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  return uploadBufferToSupabase(buffer, file.type, bucket, folder);
 }
 
 /**

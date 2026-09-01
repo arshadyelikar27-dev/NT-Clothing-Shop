@@ -89,6 +89,7 @@ export function ProductCard({
       >
         <Link
           href={`/product/${slug}`}
+          prefetch={true}
           style={{ textDecoration: "none", color: "inherit", display: "block" }}
         >
           {/* Image Container */}

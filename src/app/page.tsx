@@ -74,13 +74,13 @@ export default async function HomePage() {
                     <h2
                       style={{
                         fontFamily: "var(--font-serif)",
-                        fontSize: "clamp(24px, 3vw, 32px)",
+                        fontSize: "clamp(22px, 2.5vw, 28px)",
                         fontWeight: 500,
                         color: "#1A1918",
                         marginBottom: "8px",
                       }}
                     >
-                      {category.description || `Explore our ${category.name}`}
+                      {category.name}
                     </h2>
                   </div>
                   <Link
@@ -254,8 +254,8 @@ export default async function HomePage() {
               },
               {
                 icon: <CreditCard size={24} />,
-                title: "Multiple Payment Options",
-                desc: "Pay via UPI, cards, net banking, wallets, or cash on delivery.",
+                title: "Easy Online Payment",
+                desc: "Pay securely online — the shop owner will guide you through the payment process after your order.",
               },
               {
                 icon: <Truck size={24} />,

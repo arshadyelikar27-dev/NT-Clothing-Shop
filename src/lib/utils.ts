@@ -1,9 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+
 
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat("en-IN", {
@@ -14,14 +12,7 @@ export function formatPrice(price: number): string {
   }).format(price);
 }
 
-export function formatPriceDecimal(price: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(price);
-}
+
 
 export function slugify(text: string): string {
   return text
@@ -43,10 +34,7 @@ export function getDiscountPercentage(price: number, compareAtPrice: number): nu
   return Math.round(((compareAtPrice - price) / compareAtPrice) * 100);
 }
 
-export function truncate(str: string, length: number): string {
-  if (str.length <= length) return str;
-  return str.slice(0, length) + "...";
-}
+
 
 export function getUnitLabel(unitType: string, quantity: number): string {
   switch (unitType) {

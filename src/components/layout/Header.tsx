@@ -238,6 +238,9 @@ export function Header() {
                         borderRadius: "16px",
                         boxShadow: "0 20px 48px rgba(0,0,0,0.16)",
                         minWidth: "270px",
+                        maxHeight: "70vh",
+                        overflowY: "auto",
+                        overscrollBehavior: "contain",
                         padding: "8px",
                         animation: "fadeIn 0.2s ease-out",
                       }}
@@ -246,6 +249,7 @@ export function Header() {
                         <div key={cat.id}>
                           <Link
                             href={`/category/${cat.slug}`}
+                            prefetch={true}
                             onClick={() => setMegaMenuOpen(false)}
                             style={{
                               display: "flex",
@@ -326,7 +330,7 @@ export function Header() {
               gap: "8px",
             }}
           >
-            {/* Search Button */}
+            {/* Search Button — Hidden on mobile, visible on desktop */}
             <button
               onClick={() => setSearchOpen(true)}
               aria-label="Search Catalog"
@@ -337,13 +341,12 @@ export function Header() {
                 backgroundColor: "rgba(0,0,0,0.04)",
                 border: "none",
                 cursor: "pointer",
-                display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#1A1918",
                 transition: "all 0.2s ease",
               }}
-              className="hover:bg-black/10 active:scale-95 sm:w-[38px] sm:h-[38px]"
+              className="hidden md:flex hover:bg-black/10 active:scale-95 sm:w-[38px] sm:h-[38px]"
             >
               <Search size={18} />
             </button>

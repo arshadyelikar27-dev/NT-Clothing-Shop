@@ -16,7 +16,6 @@ const SHOP_LINKS = [
 
 const SUPPORT_LINKS = [
   { href: "/shipping", label: "Shipping Information" },
-  { href: "/returns", label: "Returns & Exchanges" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
   { href: "/contact", label: "Contact Us" },

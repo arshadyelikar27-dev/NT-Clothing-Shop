@@ -5,7 +5,7 @@ import { persist } from "zustand/middleware";
 
 // ─── Cart Store ───
 
-export interface CartItemData {
+interface CartItemData {
   productId: string;
   variantId?: string;
   name: string;
