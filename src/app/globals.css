@@ -545,8 +545,9 @@ main#main-content > div:not(.hero-full-bleed) {
 /* ─── Smartphones / Vertical Portrait Screens ─── */
 @media (max-width: 768px), (orientation: portrait), (max-aspect-ratio: 1/1) {
   .hero-slider-wrap {
-    height: 100svh;
-    min-height: 500px;
+    height: 75svh;
+    min-height: 420px;
+    max-height: 600px;
   }
   .hero-gradient-overlay {
     background: linear-gradient(to top, rgba(10,9,8,0.92) 0%, rgba(10,9,8,0.6) 40%, rgba(10,9,8,0.1) 75%, rgba(10,9,8,0.0) 100%) !important;
@@ -555,6 +556,9 @@ main#main-content > div:not(.hero-full-bleed) {
     justify-content: flex-end !important;
     padding-bottom: 50px !important;
     padding-top: 0 !important;
+  }
+  .hero-img-cover {
+    object-position: top center !important;
   }
 }
 

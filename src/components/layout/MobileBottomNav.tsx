@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ShoppingBag, Store, User } from "lucide-react";
-import { useCartStore } from "@/lib/store";
+import { Home, Search, ShoppingBag, Store, User } from "lucide-react";
+import { useCartStore, useUIStore } from "@/lib/store";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const cartItemCount = useCartStore((s) => s.items.length);
+  const { setSearchOpen } = useUIStore();
 
   const isHome = pathname === "/";
   const isShop = pathname.startsWith("/shop") || pathname.startsWith("/category");
@@ -35,6 +36,16 @@ export function MobileBottomNav() {
         <Store size={20} strokeWidth={isShop ? 2.5 : 2} />
         <span>Shop</span>
       </Link>
+
+      {/* Search */}
+      <button
+        type="button"
+        onClick={() => setSearchOpen(true)}
+        className="mobile-tab"
+      >
+        <Search size={20} strokeWidth={2} />
+        <span>Search</span>
+      </button>
 
       {/* Bag / Cart */}
       <Link
