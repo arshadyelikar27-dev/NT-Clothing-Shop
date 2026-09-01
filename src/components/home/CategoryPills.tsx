@@ -2,6 +2,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { getCachedCategories } from "@/lib/cached-queries";
 
+function getCategoryImage(categoryName: string, categoryId: string, dbImage: string | null): string {
+  // Try to use a tag based on the category name for better relevance
+  let tag = "fashion,model";
+  const name = categoryName.toLowerCase();
+  
+  if (name.includes("saree")) tag = "saree,indian";
+  else if (name.includes("kurti") || name.includes("kurtas") || name.includes("top")) tag = "kurti,indian";
+  else if (name.includes("lehenga") || name.includes("festive")) tag = "lehenga,indian";
+  else if (name.includes("men") || name.includes("shirt")) tag = "menswear,shirt";
+  else if (name.includes("fabric") || name.includes("material")) tag = "fabric,textile";
+  
+  // Return a unique image URL for each category based on its ID
+  return `https://loremflickr.com/400/400/${tag}?random=${categoryId}`;
+}
+
 export async function CategoryPills() {
   const categories = await getCachedCategories();
 
@@ -22,16 +37,16 @@ export async function CategoryPills() {
           Shop by Category
         </h2>
 
+        {/* Removed hide-scrollbar and added padding so the last item isn't cut off */}
         <div
           style={{
             display: "flex",
             gap: "24px",
             overflowX: "auto",
-            scrollbarWidth: "none", // Firefox
-            msOverflowStyle: "none", // IE
+            WebkitOverflowScrolling: "touch",
             paddingBottom: "16px",
+            paddingRight: "24px",
           }}
-          className="hide-scrollbar" // ensure hide-scrollbar utility exists in global CSS
         >
           {categories.map((category) => (
             <Link
@@ -44,37 +59,39 @@ export async function CategoryPills() {
                 gap: "12px",
                 textDecoration: "none",
                 minWidth: "100px",
+                flexShrink: 0,
               }}
             >
               <div
                 style={{
-                  width: "90px",
-                  height: "90px",
+                  width: "100px",
+                  height: "100px",
                   borderRadius: "50%",
                   overflow: "hidden",
                   backgroundColor: "#E4DDD3",
-                  border: "2px solid white",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                  border: "3px solid white",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                   position: "relative",
                   transition: "transform 0.2s ease",
                 }}
                 className="hover:scale-105 transition-transform"
               >
                 <Image
-                  src={category.image || "/images/products/premium-cotton-fabric.jpg"}
+                  src={getCategoryImage(category.name, category.id, category.image)}
                   alt={category.name}
                   fill
                   style={{ objectFit: "cover" }}
-                  sizes="90px"
+                  sizes="100px"
                 />
               </div>
               <span
                 style={{
-                  fontSize: "14px",
-                  fontWeight: 500,
+                  fontSize: "13px",
+                  fontWeight: 600,
                   color: "#1A1918",
                   fontFamily: "var(--font-sans)",
                   textAlign: "center",
+                  lineHeight: "1.2",
                 }}
               >
                 {category.name}
