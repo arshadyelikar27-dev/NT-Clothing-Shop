@@ -17,6 +17,7 @@ import {
   Info,
   ChevronRight,
   ZoomIn,
+  Download,
 } from "lucide-react";
 import { useCartStore, useUIStore } from "@/lib/store";
 import { formatPrice, getDiscountPercentage, getUnitLabel } from "@/lib/utils";
@@ -167,6 +168,37 @@ export function ProductDetailClient({
     router.push("/checkout");
   };
 
+  const handleDownloadMedia = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent zooming
+    e.preventDefault();
+    try {
+      const isVideo = displayImage === "video" && product.videoUrl;
+      const mediaUrl = isVideo ? product.videoUrl! : primaryImage;
+      const extension = isVideo ? "mp4" : "jpg";
+      const filename = `${product.slug}-${isVideo ? "video" : "image"}.${extension}`;
+
+      showNotification("Starting download...", "info");
+
+      const response = await fetch(mediaUrl);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Download failed:", err);
+      // Fallback: open in new tab
+      const isVideo = displayImage === "video" && product.videoUrl;
+      const mediaUrl = isVideo ? product.videoUrl! : primaryImage;
+      window.open(mediaUrl, "_blank");
+    }
+  };
+
 
 
   const handleCheckPincode = (e: React.FormEvent) => {
@@ -305,6 +337,34 @@ export function ProductDetailClient({
                 >
                   {!inStock && <span className="badge badge-out">Out of stock</span>}
                 </div>
+
+                {/* Download Button (Top Right) */}
+                <button
+                  onClick={handleDownloadMedia}
+                  aria-label="Download Media"
+                  title="Download Image/Video"
+                  style={{
+                    position: "absolute",
+                    top: "16px",
+                    right: "16px",
+                    backgroundColor: "rgba(250,247,242,0.9)",
+                    border: "1px solid #E4DDD3",
+                    borderRadius: "50%",
+                    width: "36px",
+                    height: "36px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    color: "#1A1918",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    transition: "transform 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                >
+                  <Download size={18} />
+                </button>
 
                 {displayImage !== "video" && (
                   <div
@@ -759,28 +819,33 @@ export function ProductDetailClient({
             </div>
 
             {/* Direct WhatsApp Store Chat */}
-            <a
-              href={`https://wa.me/917821059350?text=Hi%20Noble%20Textile%2C%20I%20am%20interested%20in%20${encodeURIComponent(product.name)}%20(SKU%3A%20${product.sku})%20from%20your%20online%20store.`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => {
+                const productUrl = window.location.href;
+                const message = encodeURIComponent(`Hi NOBLE TEXTILE, I'm interested in "${product.name}" for ${formatPrice(currentPrice)}. Link: ${productUrl}`);
+                window.open(`https://wa.me/917821059350?text=${message}`, '_blank');
+              }}
               style={{
+                width: "100%",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "8px",
                 padding: "12px 16px",
-                backgroundColor: "#F3EFEA",
-                border: "1px solid #E4DDD3",
-                color: "#1A1918",
-                textDecoration: "none",
+                backgroundColor: "#25D366",
+                border: "none",
+                color: "white",
                 fontSize: "13px",
                 fontWeight: 600,
                 marginBottom: "28px",
+                cursor: "pointer",
                 transition: "background-color 0.15s",
               }}
+              className="hover:bg-[#128C7E]"
             >
-              <span>💬 Ask Latur Store Staff on WhatsApp (+91 78210 59350)</span>
-            </a>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+              <span>Inquire on WhatsApp</span>
+            </button>
 
             {/* ════ PIN code delivery estimator ════ */}
             <div

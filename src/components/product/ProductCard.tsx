@@ -264,6 +264,32 @@ export function ProductCard({
 
                 <button
                   type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const productUrl = `${window.location.origin}/product/${slug}`;
+                    const message = encodeURIComponent(`Hi NOBLE TEXTILE, I'm interested in "${name}" for ${formatPrice(price)}. Link: ${productUrl}`);
+                    window.open(`https://wa.me/917821059350?text=${message}`, '_blank');
+                  }}
+                  style={{
+                    backgroundColor: "#25D366", // WhatsApp color
+                    color: "white",
+                    border: "none",
+                    width: "36px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s",
+                  }}
+                  className="hover:bg-[#128C7E]"
+                  title="Inquire on WhatsApp"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                </button>
+
+                <button
+                  type="button"
                   onClick={handleQuickView}
                   style={{
                     backgroundColor: "#FAF7F2",

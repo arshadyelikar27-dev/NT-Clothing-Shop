@@ -26,6 +26,19 @@ export async function generateMetadata({
       product.seoDescription ||
       product.shortDescription ||
       product.description.slice(0, 160),
+    openGraph: {
+      title: product.name,
+      description: product.shortDescription || product.description.slice(0, 160),
+      url: `/product/${product.slug}`,
+      images: product.images?.[0] ? [
+        {
+          url: product.images[0].url,
+          width: 800,
+          height: 800,
+          alt: product.name,
+        }
+      ] : [],
+    }
   };
 }
 

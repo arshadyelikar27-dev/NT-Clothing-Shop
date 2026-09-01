@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { ClientOverlays } from "@/components/layout/ClientOverlays";
+import { WhatsAppWidget } from "@/components/ui/WhatsAppWidget";
 
 export function StoreLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -29,6 +30,7 @@ export function StoreLayoutWrapper({ children }: { children: React.ReactNode }) 
       <Footer />
       <ClientOverlays />
       <MobileBottomNav />
+      <WhatsAppWidget />
     </>
   );
 }
