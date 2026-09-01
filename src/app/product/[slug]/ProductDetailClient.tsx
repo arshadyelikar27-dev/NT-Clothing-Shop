@@ -78,6 +78,7 @@ interface Product {
   category: Category;
   images: ProductImage[];
   variants: ProductVariant[];
+  videoUrl?: string | null;
   reviews: Review[];
 }
 
@@ -245,7 +246,7 @@ export function ProductDetailClient({
           {/* ════ LEFT: Image Gallery ════ */}
           <div>
             <div style={{ display: "flex", gap: "16px", flexDirection: "column" }} className="md:flex-row-reverse">
-              {/* Main Image */}
+              {/* Main Image or Video */}
               <div
                 style={{
                   flex: 1,
@@ -253,25 +254,43 @@ export function ProductDetailClient({
                   backgroundColor: "#F3EFEA",
                   border: "1px solid #E4DDD3",
                   overflow: "hidden",
-                  cursor: isZoomed ? "zoom-out" : "zoom-in",
+                  cursor: displayImage === "video" ? "default" : (isZoomed ? "zoom-out" : "zoom-in"),
                 }}
                 className="aspect-product"
-                onClick={() => setIsZoomed(!isZoomed)}
+                onClick={() => {
+                  if (displayImage !== "video") setIsZoomed(!isZoomed);
+                }}
               >
-                <img
-                  src={primaryImage}
-                  alt={product.name}
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    transform: isZoomed ? "scale(1.5)" : "scale(1)",
-                    transition: "transform 0.3s ease",
-                  }}
-                />
+                {displayImage === "video" && product.videoUrl ? (
+                  <video
+                    src={product.videoUrl}
+                    controls
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <img
+                    src={primaryImage}
+                    alt={product.name}
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      transform: isZoomed ? "scale(1.5)" : "scale(1)",
+                      transition: "transform 0.3s ease",
+                    }}
+                  />
+                )}
 
                 {/* Badge Overlay */}
                 <div
@@ -284,30 +303,31 @@ export function ProductDetailClient({
                     gap: "6px",
                   }}
                 >
-
                   {!inStock && <span className="badge badge-out">Out of stock</span>}
                 </div>
 
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "12px",
-                    right: "12px",
-                    backgroundColor: "rgba(250,247,242,0.85)",
-                    padding: "6px 10px",
-                    fontSize: "11px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    color: "#1A1918",
-                  }}
-                >
-                  <ZoomIn size={12} /> {isZoomed ? "Click to reset" : "Click to zoom"}
-                </div>
+                {displayImage !== "video" && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "12px",
+                      right: "12px",
+                      backgroundColor: "rgba(250,247,242,0.85)",
+                      padding: "6px 10px",
+                      fontSize: "11px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      color: "#1A1918",
+                    }}
+                  >
+                    <ZoomIn size={12} /> {isZoomed ? "Click to reset" : "Click to zoom"}
+                  </div>
+                )}
               </div>
 
               {/* Thumbnails */}
-              {product.images.length > 1 && (
+              {(product.images.length > 1 || product.videoUrl) && (
                 <div
                   style={{
                     display: "flex",
@@ -324,7 +344,7 @@ export function ProductDetailClient({
                         width: "70px",
                         height: "85px",
                         padding: 0,
-                        border: selectedImageIndex === idx ? "2px solid #9E3B2B" : "1px solid #E4DDD3",
+                        border: displayImage !== "video" && selectedImageIndex === idx ? "2px solid #9E3B2B" : "1px solid #E4DDD3",
                         backgroundColor: "#F3EFEA",
                         cursor: "pointer",
                         overflow: "hidden",
@@ -340,6 +360,39 @@ export function ProductDetailClient({
                       />
                     </button>
                   ))}
+                  {product.videoUrl && (
+                    <button
+                      onClick={() => {
+                        setDisplayImage("video");
+                        setIsZoomed(false);
+                      }}
+                      style={{
+                        width: "70px",
+                        height: "85px",
+                        padding: 0,
+                        border: displayImage === "video" ? "2px solid #9E3B2B" : "1px solid #E4DDD3",
+                        backgroundColor: "#F3EFEA",
+                        cursor: "pointer",
+                        overflow: "hidden",
+                        flexShrink: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        position: "relative"
+                      }}
+                    >
+                      <img
+                        src={product.images[0]?.url || "/images/products/premium-cotton-fabric.jpg"}
+                        alt="Video Thumbnail"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }}
+                      />
+                      <div style={{ position: "absolute", backgroundColor: "rgba(0,0,0,0.6)", borderRadius: "50%", padding: "6px" }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                      </div>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
