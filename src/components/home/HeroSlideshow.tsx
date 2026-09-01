@@ -12,7 +12,7 @@ const SLIDES = [
     subtext:
       "Exquisite lilac Banarasi silk, rich golden zari borders, and festive drapery handpicked directly from master artisan clusters.",
     cta: { text: "Shop Sarees", href: "/category/sarees" },
-    image: "/images/hero/hero-sarees-v3.jpg",
+    image: "/images/hero/1.png",
     bg: "#C8B09A", // warm beige matching the saree slide background
   },
   {
@@ -21,7 +21,7 @@ const SLIDES = [
     subtext:
       "Graceful floral prints, delicate embroidered necklines, and matching organza dupattas crafted for effortless ethnic elegance.",
     cta: { text: "Shop Dress Materials", href: "/category/dress-materials" },
-    image: "/images/hero/hero-kurtis-v3.jpg",
+    image: "/images/hero/2.png",
     bg: "#C4A98A", // warm tan matching the suit slide background
   },
   {
@@ -30,7 +30,7 @@ const SLIDES = [
     subtext:
       "Impeccable tailored fits, premium cotton shirtings, and structured formal wear crafted for all-day comfort and distinction.",
     cta: { text: "Shop Men's Wear", href: "/category/readymade-shirts" },
-    image: "/images/hero/hero-linens-v3.jpg",
+    image: "/images/hero/3.png",
     bg: "#D8D8D8", // light grey matching the menswear slide background
   },
   {
@@ -39,7 +39,7 @@ const SLIDES = [
     subtext:
       "Authentic breathable textures, earth-toned weaves, and wholesale running fabrics cut to your exact meterage.",
     cta: { text: "Shop Fabrics", href: "/category/fabrics" },
-    image: "/images/hero/hero-fabrics-v3.jpg",
+    image: "/images/hero/4.png",
     bg: "#D9D0C2", // warm cream matching the fabrics slide background
   },
 ];
@@ -79,7 +79,7 @@ export function HeroSlideshow() {
             quality={95}
             sizes="100vw"
             className="hero-img-cover"
-            style={{ objectFit: "contain", objectPosition: "center center" }}
+            style={{ objectFit: "cover", objectPosition: "center center" }}
           />
         </div>
       ))}
