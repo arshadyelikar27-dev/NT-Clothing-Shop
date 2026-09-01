@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, MapPin, Mail, ArrowRight } from "lucide-react";
+import { Phone, MapPin, Mail, ArrowRight, Instagram, MessageCircle } from "lucide-react";
 
 const SHOP_LINKS = [
   { href: "/shop", label: "All Collection" },
@@ -219,13 +219,29 @@ export function Footer() {
             style={{
               display: "flex",
               gap: "20px",
-              fontSize: "11px",
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              fontWeight: 500,
+              alignItems: "center",
             }}
           >
-            <span>Secure Payments</span>
+            <a
+              href="https://wa.me/917821059350"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              style={{ color: "#8A8279", transition: "color 0.2s" }}
+              className="hover:text-white"
+            >
+              <MessageCircle size={18} />
+            </a>
+            <a
+              href="https://www.instagram.com/noble_textile_latur?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw=="
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              style={{ color: "#8A8279", transition: "color 0.2s" }}
+              className="hover:text-white"
+            >
+              <Instagram size={18} />
+            </a>
           </div>
         </div>
       </div>
