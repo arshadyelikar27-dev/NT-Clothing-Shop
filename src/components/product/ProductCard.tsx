@@ -225,13 +225,12 @@ export function ProductCard({
             {/* Hover Actions Bar */}
             {!outOfStock && (
               <div
-                className="opacity-0 group-hover:opacity-100"
+                className="hidden md:flex opacity-0 group-hover:opacity-100"
                 style={{
                   position: "absolute",
                   bottom: "8px",
                   left: "8px",
                   right: "8px",
-                  display: "flex",
                   gap: "6px",
                   transition: "opacity 0.25s ease, transform 0.25s ease",
                   zIndex: 2,
