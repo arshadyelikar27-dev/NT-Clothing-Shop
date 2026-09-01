@@ -129,68 +129,85 @@ export async function POST(request: NextRequest) {
     const calculatedTotal = Math.round(calculatedSubtotal - discountAmount + shippingCharge);
     const orderNumber = generateOrderNumber();
 
-    // 6. Create Order in Database
-    const order = await prisma.order.create({
-      data: {
-        orderNumber,
-        userId,
-        addressId: savedAddress.id,
-        status: "PENDING",
-        subtotal: calculatedSubtotal,
-        discount: discountAmount,
-        shippingCharge,
-        tax: Math.round(calculatedSubtotal * 0.05), // GST 5% included breakdown
-        total: calculatedTotal,
-        paymentMethod: "OFFLINE",
-        deliveryMethod: deliveryMethod || "STANDARD",
-        notes: notes?.trim() || null,
-        estimatedDelivery: "7-10 Days",
-        items: {
-          create: validatedItems.map((i) => ({
-            productId: i.productId,
-            variantId: i.variantId,
-            name: i.name,
-            sku: i.sku,
-            price: i.price,
-            quantity: i.quantity,
-            unitType: i.unitType,
-            total: i.total,
-          })),
-        },
-        payment: {
-          create: {
-            method: paymentMethod,
-            status: "PENDING",
-            amount: calculatedTotal,
-            currency: "INR",
-          },
-        },
-        timeline: {
-          create: [
-            {
-              status: "PENDING",
-              message: "Order placed, awaiting manual confirmation by store owner.",
-            },
-          ],
-        },
-      },
-      include: {
-        items: true,
-        address: true,
-      },
-    });
+    // 6. Create Order + Deduct Stock in a SINGLE TRANSACTION (prevents overselling race conditions)
+    const order = await prisma.$transaction(async (tx) => {
+      // Verify stock availability inside transaction
+      for (const item of validatedItems) {
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
+          select: { stock: true, name: true },
+        });
+        const needed = item.unitType === "PER_METER" ? Math.ceil(item.quantity) : item.quantity;
+        if (!product || product.stock < needed) {
+          throw new Error(`"${product?.name || item.name}" is out of stock or has insufficient quantity.`);
+        }
+      }
 
-    // 7. Deduct Inventory
-    for (const item of validatedItems) {
-      await prisma.product.update({
-        where: { id: item.productId },
+      // Create the order
+      const created = await tx.order.create({
         data: {
-          stock: {
-            decrement: item.unitType === "PER_METER" ? Math.ceil(item.quantity) : item.quantity,
+          orderNumber,
+          userId,
+          addressId: savedAddress.id,
+          status: "PENDING",
+          subtotal: calculatedSubtotal,
+          discount: discountAmount,
+          shippingCharge,
+          tax: Math.round(calculatedSubtotal * 0.05), // GST 5% included breakdown
+          total: calculatedTotal,
+          paymentMethod: "OFFLINE",
+          deliveryMethod: deliveryMethod || "STANDARD",
+          notes: notes?.trim() || null,
+          estimatedDelivery: "7-10 Days",
+          items: {
+            create: validatedItems.map((i) => ({
+              productId: i.productId,
+              variantId: i.variantId,
+              name: i.name,
+              sku: i.sku,
+              price: i.price,
+              quantity: i.quantity,
+              unitType: i.unitType,
+              total: i.total,
+            })),
           },
+          payment: {
+            create: {
+              method: paymentMethod,
+              status: "PENDING",
+              amount: calculatedTotal,
+              currency: "INR",
+            },
+          },
+          timeline: {
+            create: [
+              {
+                status: "PENDING",
+                message: "Order placed, awaiting manual confirmation by store owner.",
+              },
+            ],
+          },
+        },
+        include: {
+          items: true,
+          address: true,
         },
       });
-    }
+
+      // Deduct inventory inside same transaction
+      for (const item of validatedItems) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: {
+              decrement: item.unitType === "PER_METER" ? Math.ceil(item.quantity) : item.quantity,
+            },
+          },
+        });
+      }
+
+      return created;
+    });
 
     return NextResponse.json({
       success: true,

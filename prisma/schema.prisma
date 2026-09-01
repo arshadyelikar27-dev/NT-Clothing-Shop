@@ -22,7 +22,6 @@ model User {
   cart             Cart?
   orders           Order[]
   reviews          Review[]
-  wholesaleProfile WholesaleProfile?
 
   @@index([phone])
   @@index([role])
@@ -107,7 +106,6 @@ model Product {
   images            ProductImage[]
   variants          ProductVariant[]
   reviews           Review[]
-  wholesalePrices   WholesalePriceTier[]
 
   @@index([slug])
   @@index([categoryId])
@@ -291,59 +289,3 @@ model HomepageContent {
   updatedAt DateTime @updatedAt
 }
 
-// ─── Wholesale System ───
-
-model WholesaleProfile {
-  id                   String    @id @default(cuid())
-  userId               String    @unique
-  businessName         String
-  shopName             String?
-  gstNumber            String?
-  businessAddress      String
-  whatsapp             String
-  interestedCategories String?
-  status               String    @default("PENDING")
-  adminNote            String?
-  reviewedAt           DateTime?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([status])
-  @@index([userId])
-}
-
-model WholesalePriceTier {
-  id        String   @id @default(cuid())
-  productId String
-  minQty    Int
-  maxQty    Int?
-  price     Float
-  label     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([productId])
-}
-
-// ─── Bulk Order Enquiry ───
-
-model BulkOrderEnquiry {
-  id           String   @id @default(cuid())
-  productName  String?
-  productId    String?
-  quantity     String
-  size         String?
-  color        String?
-  businessName String
-  whatsapp     String
-  gstNumber    String?
-  location     String
-  message      String?
-  isRead       Boolean  @default(false)
-  createdAt    DateTime @default(now())
-
-  @@index([isRead])
-  @@index([createdAt])
-}

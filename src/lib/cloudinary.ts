@@ -3,15 +3,11 @@ import { v2 as cloudinary } from "cloudinary";
 const cloudName =
   process.env.CLOUDINARY_CLOUD_NAME ||
   process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
-  "jp2bjdjq";
+  "";
 
-const apiKey =
-  process.env.CLOUDINARY_API_KEY ||
-  "484675226577946";
+const apiKey = process.env.CLOUDINARY_API_KEY || "";
 
-const apiSecret =
-  process.env.CLOUDINARY_API_SECRET ||
-  "jpJaU1uXoyf9hwThEAzBA0j7BKQ";
+const apiSecret = process.env.CLOUDINARY_API_SECRET || "";
 
 /**
  * Checks whether Cloudinary credentials are fully present.
