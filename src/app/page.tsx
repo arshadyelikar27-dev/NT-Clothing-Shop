@@ -35,93 +35,168 @@ export default async function HomePage() {
       {/* ═══════════════ SECTION 1: HERO SLIDESHOW ═══════════════ */}
       <HeroSlideshow />
 
-      {/* ═══════════════ DYNAMIC CATEGORY SECTIONS ═══════════════ */}
-      <div style={{ padding: "40px 0" }}>
-        {categoriesWithProducts.map((category, index) => {
-          if (category.products.length === 0) return null; // Skip empty categories
-          
-          const isEven = index % 2 === 0;
-          
-          return (
-            <section 
-              key={category.id} 
-              className="section-spacing"
-              style={{ backgroundColor: isEven ? "white" : "#FAF7F2" }}
-            >
-              <div className="container-main">
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-end",
-                    marginBottom: "36px",
-                  }}
-                >
-                  <div>
-                    <p
+      {/* ═══════════════ FEATURED CATEGORY SECTIONS (MAX 4) ═══════════════ */}
+      <div style={{ padding: "20px 0" }}>
+        {categoriesWithProducts
+          .filter((category) => category.products.length > 0)
+          .slice(0, 4)
+          .map((category, index) => {
+            const isEven = index % 2 === 0;
+
+            return (
+              <section
+                key={category.id}
+                className="section-spacing"
+                style={{ backgroundColor: isEven ? "white" : "#FAF7F2" }}
+              >
+                <div className="container-main">
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-end",
+                      marginBottom: "36px",
+                    }}
+                  >
+                    <div>
+                      <p
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          letterSpacing: "0.12em",
+                          textTransform: "uppercase",
+                          color: "#9E3B2B",
+                          marginBottom: "8px",
+                          fontFamily: "var(--font-sans)",
+                        }}
+                      >
+                        Featured Collection
+                      </p>
+                      <h2
+                        style={{
+                          fontFamily: "var(--font-serif)",
+                          fontSize: "clamp(22px, 2.5vw, 28px)",
+                          fontWeight: 500,
+                          color: "#1A1918",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        {category.name}
+                      </h2>
+                    </div>
+                    <Link
+                      href={`/category/${category.slug}`}
                       style={{
-                        fontSize: "12px",
-                        fontWeight: 600,
-                        letterSpacing: "0.12em",
-                        textTransform: "uppercase",
-                        color: "#9E3B2B",
-                        marginBottom: "8px",
+                        fontSize: "13px",
+                        fontWeight: 500,
+                        color: "#1A1918",
+                        textDecoration: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
                         fontFamily: "var(--font-sans)",
                       }}
                     >
-                      {category.name} Collection
-                    </p>
-                    <h2
-                      style={{
-                        fontFamily: "var(--font-serif)",
-                        fontSize: "clamp(22px, 2.5vw, 28px)",
-                        fontWeight: 500,
-                        color: "#1A1918",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      {category.name}
-                    </h2>
+                      View All {category.name} <ArrowRight size={14} />
+                    </Link>
                   </div>
-                  <Link
-                    href={`/category/${category.slug}`}
-                    style={{
-                      fontSize: "13px",
-                      fontWeight: 500,
-                      color: "#1A1918",
-                      textDecoration: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      fontFamily: "var(--font-sans)",
-                    }}
-                  >
-                    View All {category.name} <ArrowRight size={14} />
-                  </Link>
-                </div>
 
-                <div className="product-grid">
-                  {category.products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      slug={product.slug}
-                      price={product.price}
-                      image={
-                        product.images[0]?.url ||
-                        "/images/products/premium-cotton-fabric.jpg"
-                      }
-                      fabric={product.fabric}
-                      unitType={product.unitType}
-                      stock={product.stock}
-                    />
-                  ))}
+                  <div className="product-grid">
+                    {category.products.slice(0, 4).map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        id={product.id}
+                        name={product.name}
+                        slug={product.slug}
+                        price={product.price}
+                        image={
+                          product.images[0]?.url ||
+                          "/images/products/premium-cotton-fabric.jpg"
+                        }
+                        fabric={product.fabric}
+                        unitType={product.unitType}
+                        stock={product.stock}
+                      />
+                    ))}
+                  </div>
                 </div>
+              </section>
+            );
+          })}
+
+        {/* ─── Explore All Collections Bridge ─── */}
+        <div style={{ padding: "30px 0 20px" }}>
+          <div className="container-main">
+            <div
+              style={{
+                backgroundColor: "#F3EFEA",
+                border: "1px solid #E4DDD3",
+                borderRadius: "12px",
+                padding: "28px 32px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "20px",
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    color: "#9E3B2B",
+                    marginBottom: "4px",
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  Complete Wholesale Catalog
+                </p>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "clamp(18px, 2vw, 22px)",
+                    fontWeight: 500,
+                    color: "#1A1918",
+                    margin: 0,
+                  }}
+                >
+                  Looking for More Categories & Fabrics?
+                </h3>
+                <p
+                  style={{
+                    fontSize: "14px",
+                    color: "#666",
+                    margin: "4px 0 0",
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  Explore all Sarees, Kurtis, Dress Materials, Linens &amp; Shirtings in our shop.
+                </p>
               </div>
-            </section>
-          );
-        })}
+              <Link
+                href="/shop"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  backgroundColor: "#1A1918",
+                  color: "white",
+                  padding: "12px 24px",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                Browse All Collections <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ═══════════════ DISCOVER / MIXED COLLECTION ═══════════════ */}
