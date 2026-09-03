@@ -7,9 +7,10 @@ import RealtimeRefresher from "@/components/admin/RealtimeRefresher";
 
 export const dynamic = "force-dynamic";
 
-export default async function CustomerManagePage({ params }: { params: { id: string } }) {
+export default async function CustomerManagePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const customer = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       orders: {
         orderBy: { createdAt: "desc" },
