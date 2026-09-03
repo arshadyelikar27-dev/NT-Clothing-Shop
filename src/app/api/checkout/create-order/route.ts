@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
     const {
       customer,
       address,
+      addressId,
       items,
       paymentMethod,
       deliveryMethod,
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
 
 
 
-    if (!address?.house || !address?.street || !address?.city || !address?.state || !address?.pinCode) {
+    if (!addressId && (!address?.house || !address?.street || !address?.city || !address?.state || !address?.pinCode)) {
       return NextResponse.json(
         { error: "Complete shipping address with PIN code is required" },
         { status: 400 }
@@ -52,23 +53,28 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Save/Resolve Address
-    const savedAddress = await prisma.address.create({
-      data: {
-        userId,
-        fullName: user.name.trim(),
-        phone: user.phone.trim(),
-        altPhone: customer?.altPhone?.trim() || null,
-        house: address.house.trim(),
-        street: address.street.trim(),
-        area: address.area?.trim() || address.street.trim(),
-        city: address.city.trim(),
-        state: address.state.trim(),
-        pinCode: address.pinCode.trim(),
-        landmark: address.landmark?.trim() || null,
-        type: address.type || "HOME",
-        isDefault: false,
-      },
-    });
+    let finalAddressId = addressId;
+
+    if (!finalAddressId) {
+      const savedAddress = await prisma.address.create({
+        data: {
+          userId,
+          fullName: user.name.trim(),
+          phone: user.phone.trim(),
+          altPhone: customer?.altPhone?.trim() || null,
+          house: address.house.trim(),
+          street: address.street.trim(),
+          area: address.area?.trim() || address.street.trim(),
+          city: address.city.trim(),
+          state: address.state.trim(),
+          pinCode: address.pinCode.trim(),
+          landmark: address.landmark?.trim() || null,
+          type: address.type || "HOME",
+          isDefault: false,
+        },
+      });
+      finalAddressId = savedAddress.id;
+    }
 
     // 3. Re-verify all item prices server-side
     let calculatedSubtotal = 0;
@@ -154,7 +160,7 @@ export async function POST(request: NextRequest) {
         data: {
           orderNumber,
           userId,
-          addressId: savedAddress.id,
+          addressId: finalAddressId,
           status: "PENDING",
           subtotal: calculatedSubtotal,
           discount: discountAmount,

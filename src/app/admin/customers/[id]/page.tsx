@@ -14,6 +14,7 @@ export default async function CustomerManagePage({ params }: { params: Promise<{
     include: {
       orders: {
         orderBy: { createdAt: "desc" },
+        include: { items: true },
       },
       addresses: true,
     },
@@ -79,6 +80,7 @@ export default async function CustomerManagePage({ params }: { params: Promise<{
                   <tr style={{ backgroundColor: "#F3EFEA", borderBottom: "1px solid #E4DDD3", textAlign: "left", color: "#1A1918" }}>
                     <th style={{ padding: "12px 16px", fontWeight: 600 }}>Order #</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600 }}>Date</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600 }}>Products</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Total</th>
                   </tr>
                 </thead>
@@ -90,6 +92,15 @@ export default async function CustomerManagePage({ params }: { params: Promise<{
                       </td>
                       <td style={{ padding: "14px 16px", color: "#8A8279" }}>
                         {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td style={{ padding: "14px 16px", color: "#5A5249", fontSize: "12px" }}>
+                        <ul style={{ margin: 0, paddingLeft: "16px" }}>
+                          {order.items.map((item) => (
+                            <li key={item.id}>
+                              {item.name} ({item.quantity} {item.unitType === "PER_METER" ? "m" : "pcs"})
+                            </li>
+                          ))}
+                        </ul>
                       </td>
                       <td style={{ padding: "14px 16px", textAlign: "right", fontWeight: 600, color: "#1A1918" }}>
                         {formatPrice(order.total)}

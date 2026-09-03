@@ -28,6 +28,7 @@ interface AuthenticatedUser {
   name: string;
   phone: string;
   role: string;
+  addresses?: any[];
 }
 
 
@@ -76,6 +77,8 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState("");
   const storePhone = "919307771777"; // Example store number, can be changed later.
 
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+
   // Check authenticated session
   const checkSession = async () => {
     try {
@@ -89,6 +92,9 @@ export default function CheckoutPage() {
             name: data.user.name || prev.name,
             phone: data.user.phone || prev.phone,
           }));
+          if (data.user.addresses && data.user.addresses.length > 0) {
+            setSelectedAddressId(data.user.addresses[0].id);
+          }
         } else {
           setAuthUser(null);
         }
@@ -129,12 +135,16 @@ export default function CheckoutPage() {
           name: data.user.name,
           phone: data.user.phone,
           role: data.user.role,
+          addresses: data.user.addresses || [],
         });
         setCustomer((prev) => ({
           ...prev,
           name: data.user.name,
           phone: data.user.phone || prev.phone,
         }));
+        if (data.user.addresses && data.user.addresses.length > 0) {
+          setSelectedAddressId(data.user.addresses[0].id);
+        }
         window.dispatchEvent(new Event("auth-change"));
       } else {
         setAuthError(data.error || "Invalid mobile number or password");
@@ -180,12 +190,16 @@ export default function CheckoutPage() {
           name: data.user.name,
           phone: data.user.phone,
           role: data.user.role,
+          addresses: data.user.addresses || [],
         });
         setCustomer((prev) => ({
           ...prev,
           name: data.user.name,
           phone: data.user.phone || prev.phone,
         }));
+        if (data.user.addresses && data.user.addresses.length > 0) {
+          setSelectedAddressId(data.user.addresses[0].id);
+        }
         window.dispatchEvent(new Event("auth-change"));
       } else {
         setAuthError(data.error || "Registration failed");
@@ -223,6 +237,7 @@ export default function CheckoutPage() {
 
   // Validation
   const validateAddress = () => {
+    if (selectedAddressId) return ""; // valid if selected
     if (!address.house.trim()) return "Please enter Flat / House / Building name";
     if (!address.street.trim()) return "Please enter Street or Road name";
     if (!address.city.trim()) return "Please enter City";
@@ -252,7 +267,8 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer,
-          address,
+          address: selectedAddressId ? undefined : address,
+          addressId: selectedAddressId,
           items,
           paymentMethod: "COD",
           deliveryMethod: "STANDARD",
@@ -694,7 +710,48 @@ export default function CheckoutPage() {
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }} className="sm:grid-cols-3">
+                      
+                      {/* Saved Addresses Section */}
+                      {authUser?.addresses && authUser.addresses.length > 0 && (
+                        <div style={{ marginBottom: "16px" }}>
+                          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "8px" }}>
+                            Select Saved Address
+                          </label>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                            {authUser.addresses.map((savedAddr: any) => (
+                              <div
+                                key={savedAddr.id}
+                                onClick={() => setSelectedAddressId(savedAddr.id)}
+                                style={{
+                                  border: selectedAddressId === savedAddr.id ? "2px solid #2C6E3F" : "1px solid #E4DDD3",
+                                  padding: "12px",
+                                  borderRadius: "4px",
+                                  cursor: "pointer",
+                                  backgroundColor: selectedAddressId === savedAddr.id ? "#F2F9F3" : "white"
+                                }}
+                              >
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                                  <span style={{ fontWeight: 600, fontSize: "14px" }}>{savedAddr.type}</span>
+                                  {selectedAddressId === savedAddr.id && <CheckCircle2 size={16} color="#2C6E3F" />}
+                                </div>
+                                <p style={{ fontSize: "13px", color: "#5A5249", margin: "2px 0" }}>{savedAddr.house}, {savedAddr.street}</p>
+                                <p style={{ fontSize: "13px", color: "#5A5249", margin: "2px 0" }}>{savedAddr.city}, {savedAddr.state} - {savedAddr.pinCode}</p>
+                              </div>
+                            ))}
+                            <button 
+                              type="button" 
+                              onClick={() => setSelectedAddressId(null)}
+                              style={{ textAlign: "left", fontSize: "13px", color: "#9E3B2B", fontWeight: 500, background: "none", border: "none", cursor: "pointer", padding: "8px 0" }}
+                            >
+                              + Add New Address
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {!selectedAddressId && (
+                        <>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }} className="sm:grid-cols-3">
                         <div>
                           <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
                             PIN Code *
@@ -799,6 +856,8 @@ export default function CheckoutPage() {
                           ))}
                         </div>
                       </div>
+                      </>
+                    )}
 
                       <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
                         <button onClick={handlePlaceOrder} disabled={isSubmitting} className="btn btn-accent" style={{ padding: "12px 24px" }}>
