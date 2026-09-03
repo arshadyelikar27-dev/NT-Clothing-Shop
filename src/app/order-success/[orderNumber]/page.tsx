@@ -109,112 +109,6 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
           </div>
         </div>
 
-        {/* ════ Order Timeline Tracker ════ */}
-        <div
-          style={{
-            backgroundColor: "white",
-            border: "1px solid #E4DDD3",
-            padding: "28px 24px",
-            marginBottom: "32px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "18px", margin: 0 }}>
-              Order Status & Timeline
-            </h2>
-            <RefreshStatusButton />
-          </div>
-
-          <div style={{ position: "relative", paddingLeft: "24px" }}>
-            {/* Timeline track line */}
-            <div
-              style={{
-                position: "absolute",
-                left: "7px",
-                top: "10px",
-                bottom: "10px",
-                width: "2px",
-                backgroundColor: "#E4DDD3",
-              }}
-            />
-
-            {order.timeline.map((item, index) => {
-              const isLast = index === order.timeline.length - 1;
-              const isDelivered = item.status === "DELIVERED";
-              const isPaid = item.status === "PAYMENT_RECEIVED" || item.status === "PAID";
-              // Green for all completed steps; amber for current last step if not delivered
-              const dotColor = isDelivered ? "#2C6E3F" : isPaid ? "#B8860B" : isLast ? "#9E3B2B" : "#2C6E3F";
-              return (
-                <div key={item.id} style={{ position: "relative", marginBottom: "20px" }}>
-                  {/* Node dot */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: "-24px",
-                      top: "3px",
-                      width: "16px",
-                      height: "16px",
-                      borderRadius: "50%",
-                      backgroundColor: dotColor,
-                      border: "3px solid white",
-                      boxShadow: "0 0 0 1px #E4DDD3",
-                    }}
-                  />
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                    <p style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918" }}>
-                      {item.status.replace(/_/g, " ")}
-                    </p>
-                    <span style={{ fontSize: "12px", color: "#8A8279" }}>
-                      {new Date(item.createdAt).toLocaleString("en-IN", {
-                        timeZone: "Asia/Kolkata",
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#8A8279", marginTop: "2px" }}>
-                    {item.message}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Show estimated delivery only if order is still in transit */}
-          {(() => {
-            const finalStatuses = ["DELIVERED", "COMPLETED", "CANCELLED", "RETURNED", "REFUNDED"];
-            const paymentStatuses = ["PAYMENT_RECEIVED", "PAID"];
-            const isDelivered = finalStatuses.includes(order.status);
-            const isPaidStatus = paymentStatuses.includes(order.status);
-            const hasDeliveredInTimeline = order.timeline.some(t => t.status === "DELIVERED");
-
-            if (isDelivered || hasDeliveredInTimeline) {
-              return (
-                <div style={{ backgroundColor: "#F0FDF4", padding: "12px 16px", border: "1px solid #86EFAC", display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "#2C6E3F", fontWeight: 600 }}>
-                  <CheckCircle2 size={16} color="#2C6E3F" />
-                  <span>✅ Order Successfully Delivered!</span>
-                </div>
-              );
-            }
-            if (isPaidStatus) {
-              return (
-                <div style={{ backgroundColor: "#FFF7ED", padding: "12px 16px", border: "1px solid #FED7AA", display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "#92400E" }}>
-                  <Clock size={16} color="#92400E" />
-                  <span>Payment received — Order will be dispatched soon.</span>
-                </div>
-              );
-            }
-            return (
-              <div style={{ backgroundColor: "#FAF7F2", padding: "12px 16px", border: "1px solid #E4DDD3", display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "#1A1918" }}>
-                <Clock size={16} color="#9E3B2B" />
-                <span>Estimated Delivery: <strong>7–10 Days</strong></span>
-              </div>
-            );
-          })()}
-        </div>
 
         {/* ════ Order Breakdown & Tax Invoice View ════ */}
         <div
@@ -305,25 +199,6 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
               </p>
               <p style={{ fontWeight: 500 }}>
                 Shop Owner
-              </p>
-              <p style={{ color: "#8A8279" }}>
-                Payment Status:{" "}
-                <strong
-                  style={{
-                    color:
-                      order.payment?.status === "PAID" ||
-                      order.status === "PAYMENT_RECEIVED" ||
-                      order.timeline.some(t => t.status === "PAYMENT_RECEIVED" || t.status === "PAID")
-                        ? "#2C6E3F"
-                        : "#B8860B",
-                  }}
-                >
-                  {order.payment?.status === "PAID" ||
-                  order.status === "PAYMENT_RECEIVED" ||
-                  order.timeline.some(t => t.status === "PAYMENT_RECEIVED")
-                    ? "PAID ✅"
-                    : order.payment?.status || "PENDING"}
-                </strong>
               </p>
               <p style={{ color: "#8A8279" }}>
                 Delivery: {order.deliveryMethod === "EXPRESS" ? "Express Priority" : "Standard Surface"}

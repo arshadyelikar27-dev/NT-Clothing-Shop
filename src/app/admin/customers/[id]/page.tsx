@@ -79,7 +79,6 @@ export default async function CustomerManagePage({ params }: { params: Promise<{
                   <tr style={{ backgroundColor: "#F3EFEA", borderBottom: "1px solid #E4DDD3", textAlign: "left", color: "#1A1918" }}>
                     <th style={{ padding: "12px 16px", fontWeight: 600 }}>Order #</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600 }}>Date</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600 }}>Status</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Total</th>
                   </tr>
                 </thead>
@@ -91,30 +90,6 @@ export default async function CustomerManagePage({ params }: { params: Promise<{
                       </td>
                       <td style={{ padding: "14px 16px", color: "#8A8279" }}>
                         {new Date(order.createdAt).toLocaleDateString()}
-                      </td>
-                      <td style={{ padding: "14px 16px" }}>
-                        <span
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: 600,
-                            padding: "4px 8px",
-                            borderRadius: "4px",
-                            backgroundColor:
-                              order.status === "DELIVERED"
-                                ? "#E8F5E9"
-                                : order.status === "CONFIRMED"
-                                ? "#E3F2FD"
-                                : "#FFF3E0",
-                            color:
-                              order.status === "DELIVERED"
-                                ? "#2C6E3F"
-                                : order.status === "CONFIRMED"
-                                ? "#1565C0"
-                                : "#B8860B",
-                          }}
-                        >
-                          {order.status.replace(/_/g, " ")}
-                        </span>
                       </td>
                       <td style={{ padding: "14px 16px", textAlign: "right", fontWeight: 600, color: "#1A1918" }}>
                         {formatPrice(order.total)}

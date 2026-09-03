@@ -187,27 +187,6 @@ export default async function AccountPage() {
                       <span style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918" }}>
                         #{order.orderNumber}
                       </span>
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          fontWeight: 600,
-                          padding: "2px 8px",
-                          backgroundColor:
-                            order.status === "DELIVERED"
-                              ? "#E8F5E9"
-                              : order.status === "CONFIRMED"
-                              ? "#E3F2FD"
-                              : "#FFF3E0",
-                          color:
-                            order.status === "DELIVERED"
-                              ? "#2C6E3F"
-                              : order.status === "CONFIRMED"
-                              ? "#1565C0"
-                              : "#B8860B",
-                        }}
-                      >
-                        {order.status.replace(/_/g, " ")}
-                      </span>
                     </div>
                     <p style={{ fontSize: "12px", color: "#8A8279" }}>
                       {new Date(order.createdAt).toLocaleDateString("en-IN", {

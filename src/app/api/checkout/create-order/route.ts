@@ -177,22 +177,6 @@ export async function POST(request: NextRequest) {
               total: i.total,
             })),
           },
-          payment: {
-            create: {
-              method: paymentMethod,
-              status: "PENDING",
-              amount: calculatedTotal,
-              currency: "INR",
-            },
-          },
-          timeline: {
-            create: [
-              {
-                status: "PENDING",
-                message: "Order placed, awaiting manual confirmation by store owner.",
-              },
-            ],
-          },
         },
         include: {
           items: true,

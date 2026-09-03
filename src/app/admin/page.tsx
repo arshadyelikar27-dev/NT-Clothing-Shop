@@ -183,7 +183,6 @@ export default async function AdminOverviewPage() {
                   <tr style={{ borderBottom: "1px solid #E4DDD3", textAlign: "left", color: "#8A8279" }}>
                     <th style={{ padding: "8px 0" }}>Order #</th>
                     <th style={{ padding: "8px" }}>Customer</th>
-                    <th style={{ padding: "8px" }}>Status</th>
                     <th style={{ padding: "8px", textAlign: "right" }}>Total</th>
                   </tr>
                 </thead>
@@ -192,29 +191,6 @@ export default async function AdminOverviewPage() {
                     <tr key={order.id} style={{ borderBottom: "1px solid #F3EFEA" }}>
                       <td style={{ padding: "12px 0", fontWeight: 600 }}>#{order.orderNumber}</td>
                       <td style={{ padding: "12px 8px" }}>{order.user.name}</td>
-                      <td style={{ padding: "12px 8px" }}>
-                        <span
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: 600,
-                            padding: "2px 8px",
-                            backgroundColor:
-                              order.status === "DELIVERED"
-                                ? "#E8F5E9"
-                                : order.status === "CONFIRMED"
-                                ? "#E3F2FD"
-                                : "#FFF3E0",
-                            color:
-                              order.status === "DELIVERED"
-                                ? "#2C6E3F"
-                                : order.status === "CONFIRMED"
-                                ? "#1565C0"
-                                : "#B8860B",
-                          }}
-                        >
-                          {order.status.replace(/_/g, " ")}
-                        </span>
-                      </td>
                       <td style={{ padding: "12px 8px", textAlign: "right", fontWeight: 600 }}>
                         {formatPrice(order.total)}
                       </td>
