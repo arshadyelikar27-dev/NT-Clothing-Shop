@@ -38,6 +38,7 @@ export default async function AdminCustomersPage() {
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Orders Placed</th>
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Lifetime Spend</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Joined</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -61,6 +62,23 @@ export default async function AdminCustomersPage() {
                       month: "short",
                       year: "numeric",
                     })}
+                  </td>
+                  <td style={{ padding: "14px 16px", textAlign: "right" }}>
+                    <a
+                      href={`/admin/customers/${c.id}`}
+                      style={{
+                        padding: "6px 12px",
+                        backgroundColor: "#1A1918",
+                        color: "white",
+                        borderRadius: "4px",
+                        textDecoration: "none",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        display: "inline-block",
+                      }}
+                    >
+                      Manage
+                    </a>
                   </td>
                 </tr>
               );

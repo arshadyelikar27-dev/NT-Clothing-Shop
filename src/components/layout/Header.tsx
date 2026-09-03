@@ -3,15 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import {
-  Search,
-  User,
-  ShoppingBag,
-  Menu,
-  X,
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react";
+import { Menu, Search, ShoppingBag, X, User, LogOut, ChevronDown, ChevronRight } from "lucide-react";
+import { getCategoriesAction } from "@/app/actions/categories";
 import { useCartStore, useUIStore } from "@/lib/store";
 
 interface CategoryItem {
@@ -67,12 +60,9 @@ export function Header() {
 
     async function loadCategories() {
       try {
-        const res = await fetch("/api/categories");
-        if (res.ok) {
-          const data = await res.json();
-          cachedCategoriesData = data.categories || [];
-          setCategories(cachedCategoriesData || []);
-        }
+        const categories = await getCategoriesAction();
+        cachedCategoriesData = categories || [];
+        setCategories(cachedCategoriesData || []);
       } catch {
         // Use empty list if API fails
       }

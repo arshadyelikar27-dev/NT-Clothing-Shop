@@ -11,7 +11,11 @@ import {
   Package,
   ArrowRight,
   Plus,
+  CreditCard,
+  Truck,
+  RefreshCw,
 } from "lucide-react";
+import RealtimeRefresher from "@/components/admin/RealtimeRefresher";
 import { formatPrice } from "@/lib/utils";
 
 export default async function AdminOverviewPage() {
@@ -54,6 +58,7 @@ export default async function AdminOverviewPage() {
 
   return (
     <div>
+      <RealtimeRefresher events={["new-order", "inventory-update"]} />
       {/* Page Title & Actions */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
         <div>
@@ -68,9 +73,6 @@ export default async function AdminOverviewPage() {
         <div style={{ display: "flex", gap: "10px" }}>
           <Link href="/admin/products/new" className="btn btn-primary btn-sm" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
             <Plus size={14} /> Add Product
-          </Link>
-          <Link href="/admin/orders" className="btn btn-secondary btn-sm">
-            Manage Orders
           </Link>
         </div>
       </div>
@@ -168,9 +170,6 @@ export default async function AdminOverviewPage() {
             <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "18px", color: "#1A1918" }}>
               Recent Orders
             </h2>
-            <Link href="/admin/orders" style={{ fontSize: "12px", fontWeight: 600, color: "#9E3B2B", textDecoration: "none" }}>
-              View All Orders →
-            </Link>
           </div>
 
           {recentOrders.length === 0 ? (
@@ -178,59 +177,52 @@ export default async function AdminOverviewPage() {
               No orders placed yet.
             </p>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid #E4DDD3", textAlign: "left", color: "#8A8279" }}>
-                  <th style={{ padding: "8px 0" }}>Order #</th>
-                  <th style={{ padding: "8px" }}>Customer</th>
-                  <th style={{ padding: "8px" }}>Status</th>
-                  <th style={{ padding: "8px", textAlign: "right" }}>Total</th>
-                  <th style={{ padding: "8px", textAlign: "right" }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map((order) => (
-                  <tr key={order.id} style={{ borderBottom: "1px solid #F3EFEA" }}>
-                    <td style={{ padding: "12px 0", fontWeight: 600 }}>#{order.orderNumber}</td>
-                    <td style={{ padding: "12px 8px" }}>{order.user.name}</td>
-                    <td style={{ padding: "12px 8px" }}>
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          fontWeight: 600,
-                          padding: "2px 8px",
-                          backgroundColor:
-                            order.status === "DELIVERED"
-                              ? "#E8F5E9"
-                              : order.status === "CONFIRMED"
-                              ? "#E3F2FD"
-                              : "#FFF3E0",
-                          color:
-                            order.status === "DELIVERED"
-                              ? "#2C6E3F"
-                              : order.status === "CONFIRMED"
-                              ? "#1565C0"
-                              : "#B8860B",
-                        }}
-                      >
-                        {order.status.replace(/_/g, " ")}
-                      </span>
-                    </td>
-                    <td style={{ padding: "12px 8px", textAlign: "right", fontWeight: 600 }}>
-                      {formatPrice(order.total)}
-                    </td>
-                    <td style={{ padding: "12px 0", textAlign: "right" }}>
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        style={{ fontSize: "12px", color: "#9E3B2B", fontWeight: 600, textDecoration: "none" }}
-                      >
-                        Manage
-                      </Link>
-                    </td>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", minWidth: "500px" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid #E4DDD3", textAlign: "left", color: "#8A8279" }}>
+                    <th style={{ padding: "8px 0" }}>Order #</th>
+                    <th style={{ padding: "8px" }}>Customer</th>
+                    <th style={{ padding: "8px" }}>Status</th>
+                    <th style={{ padding: "8px", textAlign: "right" }}>Total</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {recentOrders.map((order) => (
+                    <tr key={order.id} style={{ borderBottom: "1px solid #F3EFEA" }}>
+                      <td style={{ padding: "12px 0", fontWeight: 600 }}>#{order.orderNumber}</td>
+                      <td style={{ padding: "12px 8px" }}>{order.user.name}</td>
+                      <td style={{ padding: "12px 8px" }}>
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: 600,
+                            padding: "2px 8px",
+                            backgroundColor:
+                              order.status === "DELIVERED"
+                                ? "#E8F5E9"
+                                : order.status === "CONFIRMED"
+                                ? "#E3F2FD"
+                                : "#FFF3E0",
+                            color:
+                              order.status === "DELIVERED"
+                                ? "#2C6E3F"
+                                : order.status === "CONFIRMED"
+                                ? "#1565C0"
+                                : "#B8860B",
+                          }}
+                        >
+                          {order.status.replace(/_/g, " ")}
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 8px", textAlign: "right", fontWeight: 600 }}>
+                        {formatPrice(order.total)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 

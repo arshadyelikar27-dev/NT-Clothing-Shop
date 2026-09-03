@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 import { Sliders, AlertTriangle } from "lucide-react";
 import { AdminStockAdjuster } from "./AdminStockAdjuster";
+import RealtimeRefresher from "@/components/admin/RealtimeRefresher";
 
 export default async function AdminInventoryPage() {
   const products = await prisma.product.findMany({
@@ -17,6 +18,7 @@ export default async function AdminInventoryPage() {
 
   return (
     <div>
+      <RealtimeRefresher events={["inventory-update"]} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
           <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "24px", color: "#1A1918" }}>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Truck, Save, RefreshCw, Info, CheckCircle2, AlertCircle } from "lucide-react";
+import { getShippingSettingsAction, saveShippingSettingsAction } from "@/app/actions/shipping";
 
 interface ShippingSettings {
   shipping_base_charge: string;
@@ -12,6 +13,7 @@ interface ShippingSettings {
   cod_max_amount: string;
   cod_serviceable_pincodes: string;
 }
+
 
 export default function AdminShippingPage() {
   const [settings, setSettings] = useState<ShippingSettings>({
@@ -32,9 +34,10 @@ export default function AdminShippingPage() {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/shipping");
-      const data = await res.json();
-      if (!("error" in data)) setSettings(data);
+      const data = await getShippingSettingsAction();
+      setSettings(data as any);
+    } catch {
+      // ignore
     } finally {
       setLoading(false);
     }
@@ -45,18 +48,10 @@ export default function AdminShippingPage() {
     setSaving(true);
     setMessage(null);
     try {
-      const res = await fetch("/api/admin/shipping", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
-      });
-      if (res.ok) {
-        setMessage({ type: "success", text: "Shipping settings saved successfully!" });
-      } else {
-        setMessage({ type: "error", text: "Failed to save settings." });
-      }
+      await saveShippingSettingsAction(settings);
+      setMessage({ type: "success", text: "Shipping settings saved successfully!" });
     } catch {
-      setMessage({ type: "error", text: "Network error. Please try again." });
+      setMessage({ type: "error", text: "Failed to save settings." });
     } finally {
       setSaving(false);
     }

@@ -30,11 +30,7 @@ interface AuthenticatedUser {
   role: string;
 }
 
-declare global {
-  interface Window {
-    Razorpay?: unknown;
-  }
-}
+
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -43,7 +39,8 @@ export default function CheckoutPage() {
 
   const [authUser, setAuthUser] = useState<AuthenticatedUser | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [orderCreated, setOrderCreated] = useState(false);
+  const [orderConfirmedData, setOrderConfirmedData] = useState<any>(null);
+  const [orderedItems, setOrderedItems] = useState<any[]>([]);
 
   // Inline Auth Form state (if not logged in)
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
@@ -53,7 +50,6 @@ export default function CheckoutPage() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState("");
 
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -77,13 +73,8 @@ export default function CheckoutPage() {
     type: "HOME",
   });
 
-  // Step 3: Delivery Method
-  const [deliveryMethod, setDeliveryMethod] = useState<"STANDARD" | "EXPRESS">("STANDARD");
-
-  // Step 4: Payment Method
-  const [paymentMethod, setPaymentMethod] = useState<"RAZORPAY" | "COD">("RAZORPAY");
-
   const [notes, setNotes] = useState("");
+  const storePhone = "919307771777"; // Example store number, can be changed later.
 
   // Check authenticated session
   const checkSession = async () => {
@@ -227,22 +218,11 @@ export default function CheckoutPage() {
   };
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  let shippingCharge = subtotal === 0 ? 0 : 79;
-  if (deliveryMethod === "EXPRESS") {
-    shippingCharge += 70;
-  }
-  const codCharge = 0;
+  const shippingCharge = subtotal === 0 ? 0 : 79;
   const finalTotal = subtotal + shippingCharge;
 
   // Validation
-  const validateStep1 = () => {
-    if (!customer.name.trim()) return "Please enter your full name";
-    if (!customer.phone.trim() || customer.phone.replace(/\D/g, "").length < 10)
-      return "Please enter a valid 10-digit mobile number";
-    return "";
-  };
-
-  const validateStep2 = () => {
+  const validateAddress = () => {
     if (!address.house.trim()) return "Please enter Flat / House / Building name";
     if (!address.street.trim()) return "Please enter Street or Road name";
     if (!address.city.trim()) return "Please enter City";
@@ -251,35 +231,20 @@ export default function CheckoutPage() {
     return "";
   };
 
-  const handleNext = () => {
-    setErrorMessage("");
-    if (step === 1) {
-      const err = validateStep1();
-      if (err) {
-        setErrorMessage(err);
-        return;
-      }
-      setStep(2);
-    } else if (step === 2) {
-      const err = validateStep2();
-      if (err) {
-        setErrorMessage(err);
-        return;
-      }
-      setStep(3);
-    } else if (step === 3) {
-      handlePlaceOrder();
-    }
-  };
-
   const handlePlaceOrder = async () => {
     if (!authUser) {
       setErrorMessage("Please sign in or register to place your order.");
       return;
     }
 
-    setErrorMessage("");
+    const err = validateAddress();
+    if (err) {
+      setErrorMessage(err);
+      return;
+    }
+
     setIsSubmitting(true);
+    setErrorMessage("");
 
     try {
       const res = await fetch("/api/checkout/create-order", {
@@ -289,38 +254,109 @@ export default function CheckoutPage() {
           customer,
           address,
           items,
-          paymentMethod,
-          deliveryMethod,
+          paymentMethod: "COD",
+          deliveryMethod: "STANDARD",
           notes,
         }),
       });
 
       const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        setErrorMessage(data.error || "Failed to place order. Please try again.");
-        setIsSubmitting(false);
-        return;
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create order");
       }
 
       // Manual Order Confirmation Flow
-      setOrderCreated(true);
+      setOrderConfirmedData(data);
+      setOrderedItems([...items]); // Save items before clearing cart
       clearCart();
-      showNotification("Order submitted successfully!", "success");
-      router.push(`/track?order=${data.orderNumber}`);
-    } catch (err) {
+      showNotification("Order saved! Please contact us via WhatsApp to complete.", "success");
+    } catch (err: any) {
       console.error("Checkout submission failed", err);
-      setErrorMessage("Network error. Please try again.");
+      setErrorMessage(err.message || "Network error. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (orderCreated) {
+  const getWhatsAppLink = () => {
+    if (!orderConfirmedData) return "";
+    
+    let productDetails = orderedItems.map((item, index) => 
+      `${index + 1}. ${item.name} (${item.quantity} ${item.unitType === "PER_METER" ? "meters" : "pcs"}) - ${formatPrice(item.price * item.quantity)}`
+    ).join("\n");
+
+    const text = `Hello NOBLE TEXTILE,\n\nI want to buy the following order:\nOrder Number: *${orderConfirmedData.orderNumber}*\nTotal Amount: *${formatPrice(orderConfirmedData.totalAmount)}*\n\n*Products:*\n${productDetails}\n\nPlease confirm my order.`;
+    return `https://wa.me/${storePhone}?text=${encodeURIComponent(text)}`;
+  };
+
+  if (orderConfirmedData) {
     return (
-      <div style={{ backgroundColor: "#FAF7F2", minHeight: "70vh", display: "flex", flexDirection: "column", gap: "16px", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: "24px", height: "24px", border: "2px solid #9E3B2B", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-        <p style={{ fontSize: "14px", color: "#8A8279" }}>Redirecting to order tracking...</p>
+      <div style={{ backgroundColor: "#FAF7F2", minHeight: "100vh", paddingTop: "110px", paddingBottom: "80px", display: "flex", flexDirection: "column", alignItems: "center", padding: "110px 20px 80px" }}>
+        <div className="p-6 md:p-10" style={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #E4DDD3", maxWidth: "600px", width: "100%", textAlign: "center" }}>
+          <CheckCircle2 size={56} style={{ color: "#2C6E3F", margin: "0 auto 16px" }} />
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "28px", color: "#1A1918", marginBottom: "8px" }}>
+            Order Saved!
+          </h2>
+          <p style={{ fontSize: "15px", color: "#8A8279", marginBottom: "24px" }}>
+            Your order <strong>#{orderConfirmedData.orderNumber}</strong> has been saved. To complete your purchase and arrange payment, please contact us on WhatsApp or call us directly.
+          </p>
+          
+          <div style={{ backgroundColor: "#F3EFEA", padding: "20px", borderRadius: "4px", marginBottom: "32px", textAlign: "left" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "16px", borderBottom: "1px solid #E4DDD3", paddingBottom: "12px" }}>
+              <p style={{ fontSize: "16px", fontWeight: 600 }}>Order Summary</p>
+              <p style={{ fontSize: "14px", color: "#8A8279" }}>Customer: {customer.name}</p>
+            </div>
+            
+            {/* Ordered Items List */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
+              {orderedItems.map((item, idx) => (
+                <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    style={{ width: "48px", height: "60px", objectFit: "cover", backgroundColor: "#E4DDD3", borderRadius: "4px" }}
+                  />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: "14px", fontWeight: 500, color: "#1A1918", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {item.name}
+                    </p>
+                    <p style={{ fontSize: "13px", color: "#8A8279" }}>
+                      {item.quantity} {item.unitType === "PER_METER" ? "meters" : "pcs"} × {formatPrice(item.price)}
+                    </p>
+                  </div>
+                  <span style={{ fontSize: "14px", fontWeight: 600 }}>
+                    {formatPrice(item.price * item.quantity)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ borderTop: "1px solid #E4DDD3", paddingTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+               <p style={{ fontSize: "14px", fontWeight: 600 }}>Total Amount:</p>
+               <p style={{ fontSize: "18px", fontWeight: 700, color: "#9E3B2B" }}>{formatPrice(orderConfirmedData.totalAmount)}</p>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <a 
+              href={getWhatsAppLink()} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn"
+              style={{ backgroundColor: "#25D366", color: "white", padding: "16px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: 600, textDecoration: "none", borderRadius: "4px" }}
+            >
+              Contact on WhatsApp to Buy
+            </a>
+            
+            <a 
+              href={`tel:+${storePhone}`}
+              className="btn btn-secondary"
+              style={{ padding: "16px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: 600, textDecoration: "none" }}
+            >
+              Call {storePhone} To Buy
+            </a>
+          </div>
+        </div>
       </div>
     );
   }
@@ -623,45 +659,8 @@ export default function CheckoutPage() {
             </div>
           </div>
         ) : (
-          /* ════ LOGGED IN: MULTI-STEP CHECKOUT ════ */
+          /* ════ LOGGED IN: CHECKOUT ════ */
           <>
-            {/* Step Progress Bar */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
-                gap: "8px",
-                marginBottom: "36px",
-              }}
-            >
-              {[
-                { num: 1, label: "Contact" },
-                { num: 2, label: "Address" },
-                { num: 3, label: "Delivery" },
-                { num: 4, label: "Payment" },
-              ].map((s) => (
-                <div
-                  key={s.num}
-                  style={{
-                    borderTop: `3px solid ${step >= s.num ? "#9E3B2B" : "#E4DDD3"}`,
-                    paddingTop: "8px",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      color: step >= s.num ? "#9E3B2B" : "#8A8279",
-                    }}
-                  >
-                    Step {s.num}: {s.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
             {errorMessage && (
               <div
                 style={{
@@ -685,81 +684,13 @@ export default function CheckoutPage() {
               }}
               className="lg:grid-cols-[1.5fr_1fr]"
             >
-              {/* ════ LEFT: Multi-Step Forms ════ */}
+              {/* ════ LEFT: Forms ════ */}
               <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "32px 24px" }}>
-                {/* ────── STEP 1: CONTACT DETAILS ────── */}
-                {step === 1 && (
-                  <div>
-                    <h2
-                      style={{
-                        fontFamily: "var(--font-serif)",
-                        fontSize: "20px",
-                        fontWeight: 500,
-                        marginBottom: "20px",
-                      }}
-                    >
-                      1. Contact Information
-                    </h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                      <div>
-                        <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-                          Full Name *
-                        </label>
-                        <input
-                          type="text"
-                          className="input"
-                          placeholder="e.g. Ramesh Kulkarni"
-                          value={customer.name}
-                          onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
-                        />
-                      </div>
-
-                      <div>
-                          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-                            Mobile Number (10-digit) *
-                          </label>
-                          <input
-                            type="tel"
-                            className="input"
-                            placeholder="e.g. 9876543210"
-                            maxLength={10}
-                            value={customer.phone}
-                            onChange={(e) => setCustomer({ ...customer, phone: e.target.value.replace(/\D/g, "") })}
-                          />
-                      </div>
-
-                      <div>
-                        <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-                          Alternate Phone Number (Optional)
-                        </label>
-                        <input
-                          type="tel"
-                          className="input"
-                          placeholder="e.g. Landline or second mobile"
-                          value={customer.altPhone}
-                          onChange={(e) => setCustomer({ ...customer, altPhone: e.target.value })}
-                        />
-                      </div>
-
-                      <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
-                        <button onClick={handleNext} className="btn btn-primary">
-                          Continue to Shipping Address <ArrowRight size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ────── STEP 2: SHIPPING ADDRESS ────── */}
-                {step === 2 && (
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                       <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 500 }}>
-                        2. Shipping Address
+                        Shipping Address
                       </h2>
-                      <button onClick={() => setStep(1)} style={{ background: "none", border: "none", fontSize: "13px", color: "#9E3B2B", cursor: "pointer" }}>
-                        Edit Contact
-                      </button>
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -869,189 +800,13 @@ export default function CheckoutPage() {
                         </div>
                       </div>
 
-                      <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between" }}>
-                        <button onClick={() => setStep(1)} className="btn btn-secondary btn-sm">
-                          ← Back
-                        </button>
-                        <button onClick={handleNext} className="btn btn-primary">
-                          Continue to Delivery <ArrowRight size={16} />
+                      <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
+                        <button onClick={handlePlaceOrder} disabled={isSubmitting} className="btn btn-accent" style={{ padding: "12px 24px" }}>
+                          {isSubmitting ? "Processing..." : "Place Order"} <ArrowRight size={16} />
                         </button>
                       </div>
                     </div>
                   </div>
-                )}
-
-                {/* ────── STEP 3: DELIVERY METHOD ────── */}
-                {step === 3 && (
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 500 }}>
-                        3. Delivery Speed
-                      </h2>
-                      <button onClick={() => setStep(2)} style={{ background: "none", border: "none", fontSize: "13px", color: "#9E3B2B", cursor: "pointer" }}>
-                        Edit Address
-                      </button>
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                      <label
-                        onClick={() => setDeliveryMethod("STANDARD")}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          padding: "16px 20px",
-                          border: deliveryMethod === "STANDARD" ? "2px solid #9E3B2B" : "1px solid #E4DDD3",
-                          backgroundColor: deliveryMethod === "STANDARD" ? "#FAF7F2" : "white",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                          <input
-                            type="radio"
-                            checked={deliveryMethod === "STANDARD"}
-                            onChange={() => setDeliveryMethod("STANDARD")}
-                          />
-                          <div>
-                            <p style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918" }}>
-                              Standard Courier Delivery
-                            </p>
-                            <p style={{ fontSize: "12px", color: "#8A8279" }}>
-                              Estimated: 7-10 days
-                            </p>
-                          </div>
-                        </div>
-                        <span style={{ fontSize: "14px", fontWeight: 600 }}>
-                          ₹79
-                        </span>
-                      </label>
-                      {/* Order notes */}
-                      <div style={{ marginTop: "12px" }}>
-                        <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
-                          Order Notes or Cutting Instructions (Optional)
-                        </label>
-                        <textarea
-                          rows={2}
-                          className="input"
-                          placeholder="e.g. Please cut the 4m cotton fabric into two 2m pieces, or delivery instructions..."
-                          value={notes}
-                          onChange={(e) => setNotes(e.target.value)}
-                        />
-                      </div>
-
-                      <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between" }}>
-                        <button onClick={() => setStep(2)} className="btn btn-secondary btn-sm">
-                          ← Back
-                        </button>
-                        <button onClick={handlePlaceOrder} disabled={isSubmitting} className="btn btn-primary">
-                          {isSubmitting ? "Processing..." : "Confirm Order"} <ArrowRight size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ────── STEP 4: PAYMENT SELECTION ────── */}
-                {step === 4 && (
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "20px", fontWeight: 500 }}>
-                        4. Select Payment Method
-                      </h2>
-                      <button onClick={() => setStep(3)} style={{ background: "none", border: "none", fontSize: "13px", color: "#9E3B2B", cursor: "pointer" }}>
-                        Edit Delivery
-                      </button>
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
-                      {/* Razorpay Online */}
-                      <label
-                        onClick={() => setPaymentMethod("RAZORPAY")}
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          justifyContent: "space-between",
-                          padding: "16px 20px",
-                          border: paymentMethod === "RAZORPAY" ? "2px solid #9E3B2B" : "1px solid #E4DDD3",
-                          backgroundColor: paymentMethod === "RAZORPAY" ? "#FAF7F2" : "white",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                          <input
-                            type="radio"
-                            checked={paymentMethod === "RAZORPAY"}
-                            onChange={() => setPaymentMethod("RAZORPAY")}
-                            style={{ marginTop: "3px" }}
-                          />
-                          <div>
-                            <p style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918", marginBottom: "2px" }}>
-                              Online Payment (Razorpay Secure)
-                            </p>
-                            <p style={{ fontSize: "12px", color: "#8A8279" }}>
-                              UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, Net Banking & Wallets
-                            </p>
-                            <div style={{ display: "flex", gap: "8px", marginTop: "8px", fontSize: "11px", color: "#2C6E3F", fontWeight: 600 }}>
-                              <span>✓ Instant Confirmation</span>
-                              <span>✓ 100% Encrypted</span>
-                            </div>
-                          </div>
-                        </div>
-                        <span style={{ fontSize: "12px", color: "#2C6E3F", fontWeight: 600, backgroundColor: "#E8F5E9", padding: "2px 8px" }}>
-                          RECOMMENDED
-                        </span>
-                      </label>
-
-                      {/* Cash on Delivery */}
-                      <label
-                        onClick={() => setPaymentMethod("COD")}
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          justifyContent: "space-between",
-                          padding: "16px 20px",
-                          border: paymentMethod === "COD" ? "2px solid #9E3B2B" : "1px solid #E4DDD3",
-                          backgroundColor: paymentMethod === "COD" ? "#FAF7F2" : "white",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                          <input
-                            type="radio"
-                            checked={paymentMethod === "COD"}
-                            onChange={() => setPaymentMethod("COD")}
-                            style={{ marginTop: "3px" }}
-                          />
-                          <div>
-                            <p style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918", marginBottom: "2px" }}>
-                              Cash on Delivery (COD)
-                            </p>
-                            <p style={{ fontSize: "12px", color: "#8A8279" }}>
-                              Pay with cash when courier delivers to your doorstep. +₹50 COD handling fee.
-                            </p>
-                          </div>
-                        </div>
-                        <span style={{ fontSize: "13px", fontWeight: 600, color: "#1A1918" }}>
-                          +₹50
-                        </span>
-                      </label>
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <button onClick={() => setStep(3)} className="btn btn-secondary btn-sm">
-                        ← Back
-                      </button>
-                      <button
-                        onClick={handlePlaceOrder}
-                        disabled={isSubmitting}
-                        className="btn btn-accent"
-                        style={{ padding: "16px 32px", fontSize: "15px" }}
-                      >
-                        {isSubmitting ? "Processing Order..." : `Place Order • ${formatPrice(finalTotal)}`}
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* ════ RIGHT: Order Summary Sidebar ════ */}

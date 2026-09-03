@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Star, CheckCircle2, XCircle, EyeOff, Eye, Trash2, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { getReviewsAction, updateReviewAction, deleteReviewAction } from "@/app/actions/reviews";
 
 interface Review {
   id: string;
@@ -38,9 +39,10 @@ export default function AdminReviewsPage() {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/reviews");
-      const data = await res.json();
-      setReviews(data.reviews || []);
+      const data = await getReviewsAction();
+      setReviews(data as any);
+    } catch {
+      // ignore
     } finally {
       setLoading(false);
     }
@@ -50,15 +52,13 @@ export default function AdminReviewsPage() {
     setActionLoading(id + action);
     try {
       if (action === "delete") {
-        await fetch(`/api/admin/reviews/${id}`, { method: "DELETE" });
+        await deleteReviewAction(id);
       } else {
-        await fetch(`/api/admin/reviews/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action }),
-        });
+        await updateReviewAction(id, action);
       }
       await load();
+    } catch {
+      alert("Failed to perform action");
     } finally {
       setActionLoading(null);
     }

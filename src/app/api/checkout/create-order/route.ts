@@ -16,12 +16,7 @@ export async function POST(request: NextRequest) {
       notes,
     } = body;
 
-    if (!customer?.name || !customer?.phone) {
-      return NextResponse.json(
-        { error: "Customer name and mobile number are required" },
-        { status: 400 }
-      );
-    }
+
 
     if (!address?.house || !address?.street || !address?.city || !address?.state || !address?.pinCode) {
       return NextResponse.json(
@@ -45,13 +40,24 @@ export async function POST(request: NextRequest) {
 
     const userId = session.userId;
 
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.name || !user.phone) {
+      return NextResponse.json(
+        { error: "User profile is incomplete. Name and phone are required." },
+        { status: 400 }
+      );
+    }
+
     // 2. Save/Resolve Address
     const savedAddress = await prisma.address.create({
       data: {
         userId,
-        fullName: customer.name.trim(),
-        phone: customer.phone.trim(),
-        altPhone: customer.altPhone?.trim() || null,
+        fullName: user.name.trim(),
+        phone: user.phone.trim(),
+        altPhone: customer?.altPhone?.trim() || null,
         house: address.house.trim(),
         street: address.street.trim(),
         area: address.area?.trim() || address.street.trim(),
@@ -213,7 +219,7 @@ export async function POST(request: NextRequest) {
       success: true,
       orderNumber: order.orderNumber,
       orderId: order.id,
-      total: calculatedTotal,
+      totalAmount: calculatedTotal,
     });
   } catch (error) {
     console.error("Order creation error:", error);
