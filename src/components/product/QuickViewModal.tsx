@@ -12,7 +12,7 @@ interface Variant {
   type: string;
   value: string;
   price: number | null;
-  stock: number;
+  inStock: boolean;
   isActive: boolean;
 }
 
@@ -29,7 +29,7 @@ interface QuickViewProduct {
   slug: string;
   price: number;
   compareAtPrice: number | null;
-  stock: number;
+  inStock: boolean;
   fabric: string | null;
   description: string;
   shortDescription?: string | null;
@@ -126,13 +126,11 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
 
   const selectedVariant = findMatchingVariant();
   const effectivePrice = selectedVariant?.price ?? product.price;
-  const effectiveStock =
-    selectedVariant !== undefined
-      ? selectedVariant
-        ? selectedVariant.stock
-        : product.stock
-      : product.stock;
-  const outOfStock = effectiveStock <= 0;
+  const effectiveInStock =
+    selectedVariant !== null && selectedVariant !== undefined
+      ? selectedVariant.inStock
+      : product.inStock;
+  const outOfStock = !effectiveInStock;
 
   const images = product.images.length > 0 ? product.images : [{ id: "0", url: "/images/placeholder.jpg", alt: product.name, sortOrder: 0 }];
   const currentImage = images[imageIndex] || images[0];
@@ -347,7 +345,7 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                     {typeVariants.map((v) => {
                       const isSelected = selectedVariants[type] === v.value;
-                      const isOos = v.stock <= 0;
+                      const isOos = !v.inStock;
                       return (
                         <button
                           key={v.id}
@@ -398,7 +396,7 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity((q) => Math.min(effectiveStock || 99, q + 1))}
+                  onClick={() => setQuantity((q) => q + 1)}
                   style={{ padding: "8px 14px", background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#1A1918" }}
                 >
                   +
@@ -407,11 +405,9 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
             </div>
 
             {/* Stock status */}
-            <p style={{ fontSize: "13px", color: outOfStock ? "#B91C1C" : effectiveStock <= 5 ? "#B8860B" : "#2C6E3F", fontWeight: 500 }}>
+            <p style={{ fontSize: "13px", color: outOfStock ? "#B91C1C" : "#2C6E3F", fontWeight: 500 }}>
               {outOfStock
                 ? "Out of Stock"
-                : effectiveStock <= 5
-                ? `Only ${effectiveStock} left!`
                 : "In Stock"}
             </p>
 

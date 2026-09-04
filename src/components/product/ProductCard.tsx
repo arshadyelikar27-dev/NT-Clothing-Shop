@@ -19,7 +19,7 @@ interface ProductCardProps {
   shortDescription?: string | null;
   tags?: string | null;
   unitType: string;
-  stock: number;
+  inStock: boolean;
   isNew?: boolean;
   deliveryCharge?: number | null;
 }
@@ -36,11 +36,11 @@ export function ProductCard({
   shortDescription,
   tags,
   unitType,
-  stock,
+  inStock,
   isNew,
   deliveryCharge,
 }: ProductCardProps) {
-  const outOfStock = stock <= 0;
+  const outOfStock = !inStock;
   const [quickViewOpen, setQuickViewOpen] = useState(false);
 
   const discount =

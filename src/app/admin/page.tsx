@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // Cache for 1 hour, updated via revalidatePath
 
 import { prisma } from "@/lib/db";
 import Link from "next/link";
@@ -12,21 +12,14 @@ import {
 import RealtimeRefresher from "@/components/admin/RealtimeRefresher";
 
 export default async function AdminOverviewPage() {
-  // Fetch real database metrics (showcase mode — no orders)
   const [
     totalProductsCount,
     publishedProductsCount,
-    lowStockProducts,
     totalCategoriesCount,
     recentProducts,
   ] = await Promise.all([
     prisma.product.count({ where: { isArchived: false } }),
     prisma.product.count({ where: { isArchived: false, isPublished: true } }),
-    prisma.product.findMany({
-      where: { stock: { lte: 10 }, isArchived: false },
-      include: { category: true },
-      take: 6,
-    }),
     prisma.category.count({ where: { isActive: true } }),
     prisma.product.findMany({
       where: { isArchived: false },
@@ -82,15 +75,7 @@ export default async function AdminOverviewPage() {
           <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>Active categories</p>
         </div>
 
-        {/* Low Stock Alert */}
-        <div style={{ backgroundColor: lowStockProducts.length > 0 ? "#FEF3F2" : "white", border: `1px solid ${lowStockProducts.length > 0 ? "#FECACA" : "#E4DDD3"}`, padding: "20px", borderRadius: "8px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-            <p style={{ fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8A8279" }}>Low Stock</p>
-            <AlertTriangle size={18} color={lowStockProducts.length > 0 ? "#B91C1C" : "#8A8279"} />
-          </div>
-          <p style={{ fontSize: "28px", fontWeight: 700, color: lowStockProducts.length > 0 ? "#B91C1C" : "#1A1918" }}>{lowStockProducts.length}</p>
-          <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>Products ≤ 10 units</p>
-        </div>
+
 
         {/* Inquiry Channel */}
         <div style={{ backgroundColor: "#F0FDF4", border: "1px solid #BBF7D0", padding: "20px", borderRadius: "8px" }}>
@@ -110,40 +95,7 @@ export default async function AdminOverviewPage() {
         </div>
       </div>
 
-      {/* ════ Low Stock Alert ════ */}
-      {lowStockProducts.length > 0 && (
-        <div style={{ backgroundColor: "#FEF3F2", border: "1px solid #FECACA", borderRadius: "8px", padding: "20px", marginBottom: "28px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-            <AlertTriangle size={18} color="#B91C1C" />
-            <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#B91C1C" }}>Low Stock Alert</h2>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "10px" }}>
-            {lowStockProducts.map((product) => (
-              <Link
-                key={product.id}
-                href={`/admin/products/${product.id}/edit`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  padding: "10px 12px",
-                  backgroundColor: "white",
-                  border: "1px solid #FECACA",
-                  borderRadius: "6px",
-                  textDecoration: "none",
-                  color: "#1A1918",
-                }}
-              >
-                <Package size={14} color="#8A8279" />
-                <div>
-                  <p style={{ fontSize: "13px", fontWeight: 500 }}>{product.name}</p>
-                  <p style={{ fontSize: "11px", color: "#B91C1C", fontWeight: 600 }}>Stock: {product.stock}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* ════ Recent Products ════ */}
       <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", borderRadius: "8px", overflow: "hidden" }}>

@@ -95,10 +95,10 @@ export default async function AdminProductsPage() {
                   <span
                     style={{
                       fontWeight: 600,
-                      color: product.stock <= 10 ? "#B91C1C" : "#1A1918",
+                      color: !product.inStock ? "#B91C1C" : "#1A1918",
                     }}
                   >
-                    {product.stock} {product.unitType === "PER_METER" ? "m" : "pcs"}
+                    {product.inStock ? "In Stock" : "Out of Stock"}
                   </span>
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "right", fontWeight: 600 }}>

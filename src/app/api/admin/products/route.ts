@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         unitType,
         categoryId,
         videoUrl: uploadedVideoUrl || null,
-        stock: 100,
+        inStock: true,
         isFeatured: false,
         tags,
         deliveryCharge: isNaN(deliveryCharge as number) ? null : deliveryCharge,

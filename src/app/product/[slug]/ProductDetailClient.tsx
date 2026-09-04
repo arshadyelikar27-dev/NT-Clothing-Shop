@@ -29,7 +29,7 @@ interface ProductVariant {
   value: string;
   imageUrl?: string | null;
   price?: number | null;
-  stock: number;
+  inStock: boolean;
 }
 
 interface Category {
@@ -55,7 +55,7 @@ interface Product {
   minQuantity: number;
   maxQuantity: number;
   quantityStep: number;
-  stock: number;
+  inStock: boolean;
   deliveryCharge?: number | null;
   category: Category;
   images: ProductImage[];
@@ -72,7 +72,7 @@ interface ProductDetailClientProps {
     price: number;
     fabric?: string | null;
     unitType: string;
-    stock: number;
+    inStock: boolean;
     images: ProductImage[];
     deliveryCharge?: number | null;
   }>;
@@ -97,7 +97,7 @@ export function ProductDetailClient({
 
   const currentPrice = selectedColor?.price || selectedSize?.price || product.price;
   const totalPrice = currentPrice * quantity;
-  const inStock = product.stock > 0;
+  const inStock = product.inStock;
 
   const handleColorSelect = (color: ProductVariant) => {
     setSelectedColor(color);
@@ -734,8 +734,8 @@ export function ProductDetailClient({
                     >
                       Quantity ({product.unitType === "PER_SET" ? "Sets" : "Pieces"}):
                     </label>
-                    <span style={{ fontSize: "13px", color: product.stock > 0 ? "#2C6E3F" : "#B91C1C", fontWeight: 500 }}>
-                      {product.stock > 0 ? "In Stock" : "Out of stock"}
+                    <span style={{ fontSize: "13px", color: product.inStock ? "#2C6E3F" : "#B91C1C", fontWeight: 500 }}>
+                      {product.inStock ? "In Stock" : "Out of stock"}
                     </span>
                   </div>
 
@@ -752,8 +752,8 @@ export function ProductDetailClient({
                         {quantity}
                       </span>
                       <button
-                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                        disabled={quantity >= product.stock}
+                        onClick={() => setQuantity(quantity + 1)}
+                        disabled={!product.inStock}
                         style={{ padding: "8px 14px", background: "none", border: "none", cursor: "pointer" }}
                       >
                         +
@@ -1001,7 +1001,7 @@ export function ProductDetailClient({
                   image={rel.images[0]?.url || "/images/products/premium-cotton-fabric.jpg"}
                   fabric={rel.fabric}
                   unitType={rel.unitType}
-                  stock={rel.stock}
+                  inStock={rel.inStock}
                   deliveryCharge={rel.deliveryCharge}
                 />
               ))}

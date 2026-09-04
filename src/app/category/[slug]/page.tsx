@@ -180,7 +180,7 @@ export default async function CategoryPage({
                 image={product.images[0]?.url || "/images/products/premium-cotton-fabric.jpg"}
                 fabric={product.fabric}
                 unitType={product.unitType}
-                stock={product.stock}
+                inStock={product.inStock}
               />
             ))}
           </div>

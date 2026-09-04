@@ -117,7 +117,7 @@ export default async function HomePage() {
                         }
                         fabric={product.fabric}
                         unitType={product.unitType}
-                        stock={product.stock}
+                        inStock={product.inStock}
                       />
                     ))}
                   </div>
@@ -204,7 +204,7 @@ export default async function HomePage() {
                   }
                   fabric={product.fabric}
                   unitType={product.unitType}
-                  stock={product.stock}
+                  inStock={product.inStock}
                 />
               </div>
             ))}

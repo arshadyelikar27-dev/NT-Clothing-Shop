@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client";
 import { ProductCard } from "@/components/product/ProductCard";
 import { SortSelect } from "@/components/ui/SortSelect";
 import { getCachedCategories } from "@/lib/cached-queries";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -73,20 +74,33 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   let categories: Awaited<ReturnType<typeof prisma.category.findMany>> = [];
 
   try {
-    [products, total, categories] = await Promise.all([
-      prisma.product.findMany({
-        where: where as never,
-        include: {
-          images: { orderBy: { sortOrder: "asc" } },
-          category: true,
-        },
-        orderBy: orderBy as never,
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.product.count({ where: where as never }),
+    const getCachedProducts = unstable_cache(
+      async (w, o, s, t) => {
+        return Promise.all([
+          prisma.product.findMany({
+            where: w,
+            include: {
+              images: { orderBy: { sortOrder: "asc" } },
+              category: true,
+            },
+            orderBy: o,
+            skip: s,
+            take: t,
+          }),
+          prisma.product.count({ where: w }),
+        ]);
+      },
+      [`shop-products-${JSON.stringify(where)}-${JSON.stringify(orderBy)}-${page}-${limit}`],
+      { revalidate: 60, tags: ["products"] }
+    );
+
+    const [productsResult, categoriesResult] = await Promise.all([
+      getCachedProducts(where as any, orderBy as any, (page - 1) * limit, limit),
       getCachedCategories(),
     ]);
+    products = productsResult[0] as any;
+    total = productsResult[1];
+    categories = categoriesResult;
   } catch {
     // DB unreachable during build — render shell, data loads at runtime
   }
@@ -372,7 +386,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                       }
                       fabric={product.fabric}
                       unitType={product.unitType}
-                      stock={product.stock}
+                      inStock={product.stock > 0}
                       deliveryCharge={(product as any).deliveryCharge}
                     />
                   ))}
