@@ -3,73 +3,56 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import {
-  TrendingUp,
-  ShoppingBag,
-  Clock,
-  AlertTriangle,
-  Users,
   Package,
-  ArrowRight,
+  AlertTriangle,
   Plus,
-  CreditCard,
-  Truck,
-  RefreshCw,
+  TrendingUp,
+  Layers,
 } from "lucide-react";
 import RealtimeRefresher from "@/components/admin/RealtimeRefresher";
-import { formatPrice } from "@/lib/utils";
 
 export default async function AdminOverviewPage() {
-  // Fetch real database metrics
+  // Fetch real database metrics (showcase mode — no orders)
   const [
-    totalOrdersCount,
-    pendingOrdersCount,
-    paidOrders,
     totalProductsCount,
+    publishedProductsCount,
     lowStockProducts,
-    customersCount,
-    recentOrders,
+    totalCategoriesCount,
+    recentProducts,
   ] = await Promise.all([
-    prisma.order.count(),
-    prisma.order.count({
-      where: { status: { in: ["PENDING", "PAYMENT_PENDING", "PROCESSING", "CONFIRMED"] } },
-    }),
-    prisma.order.findMany({
-      select: { total: true },
-    }),
     prisma.product.count({ where: { isArchived: false } }),
+    prisma.product.count({ where: { isArchived: false, isPublished: true } }),
     prisma.product.findMany({
       where: { stock: { lte: 10 }, isArchived: false },
       include: { category: true },
       take: 6,
     }),
-    prisma.user.count({ where: { role: "CUSTOMER" } }),
-    prisma.order.findMany({
+    prisma.category.count({ where: { isActive: true } }),
+    prisma.product.findMany({
+      where: { isArchived: false },
       orderBy: { createdAt: "desc" },
-      take: 6,
+      take: 8,
       include: {
-        user: { select: { name: true, email: true } },
-        items: true,
+        images: { orderBy: { sortOrder: "asc" }, take: 1 },
+        category: true,
       },
     }),
   ]);
 
-  const totalRevenue = paidOrders.reduce((sum, o) => sum + o.total, 0);
-  const averageOrderValue = totalOrdersCount > 0 ? Math.round(totalRevenue / totalOrdersCount) : 0;
-
   return (
     <div>
-      <RealtimeRefresher events={["new-order", "inventory-update"]} />
+      <RealtimeRefresher events={["inventory-update"]} />
+
       {/* Page Title & Actions */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
         <div>
           <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "26px", fontWeight: 500, color: "#1A1918" }}>
-            Store Overview & Operations
+            Store Overview
           </h1>
           <p style={{ fontSize: "13px", color: "#8A8279" }}>
-            Real-time sales, order fulfillment, and inventory for NOBLE TEXTILE (Latur)
+            Catalog management for NOBLE TEXTILE (Hatte Nagar, Latur)
           </p>
         </div>
-
         <div style={{ display: "flex", gap: "10px" }}>
           <Link href="/admin/products/new" className="btn btn-primary btn-sm" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
             <Plus size={14} /> Add Product
@@ -77,183 +60,142 @@ export default async function AdminOverviewPage() {
         </div>
       </div>
 
-      {/* ════ KPI Metrics Cards ════ */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "16px",
-          marginBottom: "32px",
-        }}
-        className="md:grid-cols-3 lg:grid-cols-6"
-      >
-        {/* Total Revenue */}
-        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "18px" }}>
-          <span style={{ fontSize: "11px", color: "#8A8279", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
-            Total Revenue
-          </span>
-          <p style={{ fontSize: "22px", fontWeight: 700, color: "#1A1918", marginTop: "4px" }}>
-            {formatPrice(totalRevenue)}
-          </p>
-          <span style={{ fontSize: "11px", color: "#2C6E3F", fontWeight: 500 }}>
-            From {totalOrdersCount} orders
-          </span>
+      {/* ════ KPI Cards ════ */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "32px" }}>
+        {/* Total Products */}
+        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "20px", borderRadius: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+            <p style={{ fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8A8279" }}>Total Products</p>
+            <Package size={18} color="#9E3B2B" />
+          </div>
+          <p style={{ fontSize: "28px", fontWeight: 700, color: "#1A1918" }}>{totalProductsCount}</p>
+          <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>{publishedProductsCount} published</p>
         </div>
 
-        {/* Total Orders */}
-        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "18px" }}>
-          <span style={{ fontSize: "11px", color: "#8A8279", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
-            Total Orders
-          </span>
-          <p style={{ fontSize: "22px", fontWeight: 700, color: "#1A1918", marginTop: "4px" }}>
-            {totalOrdersCount}
-          </p>
-          <span style={{ fontSize: "11px", color: "#8A8279" }}>Lifetime volume</span>
+        {/* Categories */}
+        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "20px", borderRadius: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+            <p style={{ fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8A8279" }}>Categories</p>
+            <Layers size={18} color="#2C6E3F" />
+          </div>
+          <p style={{ fontSize: "28px", fontWeight: 700, color: "#1A1918" }}>{totalCategoriesCount}</p>
+          <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>Active categories</p>
         </div>
 
-        {/* Pending Orders */}
-        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "18px" }}>
-          <span style={{ fontSize: "11px", color: "#8A8279", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
-            Pending Orders
-          </span>
-          <p style={{ fontSize: "22px", fontWeight: 700, color: "#9E3B2B", marginTop: "4px" }}>
-            {pendingOrdersCount}
-          </p>
-          <span style={{ fontSize: "11px", color: "#9E3B2B", fontWeight: 500 }}>Needs fulfillment</span>
+        {/* Low Stock Alert */}
+        <div style={{ backgroundColor: lowStockProducts.length > 0 ? "#FEF3F2" : "white", border: `1px solid ${lowStockProducts.length > 0 ? "#FECACA" : "#E4DDD3"}`, padding: "20px", borderRadius: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+            <p style={{ fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8A8279" }}>Low Stock</p>
+            <AlertTriangle size={18} color={lowStockProducts.length > 0 ? "#B91C1C" : "#8A8279"} />
+          </div>
+          <p style={{ fontSize: "28px", fontWeight: 700, color: lowStockProducts.length > 0 ? "#B91C1C" : "#1A1918" }}>{lowStockProducts.length}</p>
+          <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>Products ≤ 10 units</p>
         </div>
 
-        {/* Average Order Value */}
-        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "18px" }}>
-          <span style={{ fontSize: "11px", color: "#8A8279", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
-            Avg. Order Value
-          </span>
-          <p style={{ fontSize: "22px", fontWeight: 700, color: "#1A1918", marginTop: "4px" }}>
-            {formatPrice(averageOrderValue)}
-          </p>
-          <span style={{ fontSize: "11px", color: "#8A8279" }}>Per basket</span>
-        </div>
-
-        {/* Active Products */}
-        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "18px" }}>
-          <span style={{ fontSize: "11px", color: "#8A8279", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
-            Live Products
-          </span>
-          <p style={{ fontSize: "22px", fontWeight: 700, color: "#1A1918", marginTop: "4px" }}>
-            {totalProductsCount}
-          </p>
-          <span style={{ fontSize: "11px", color: "#8A8279" }}>In catalog</span>
-        </div>
-
-        {/* Customers Count */}
-        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "18px" }}>
-          <span style={{ fontSize: "11px", color: "#8A8279", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
-            Registered Users
-          </span>
-          <p style={{ fontSize: "22px", fontWeight: 700, color: "#1A1918", marginTop: "4px" }}>
-            {customersCount}
-          </p>
-          <span style={{ fontSize: "11px", color: "#8A8279" }}>Customer CRM</span>
+        {/* Inquiry Channel */}
+        <div style={{ backgroundColor: "#F0FDF4", border: "1px solid #BBF7D0", padding: "20px", borderRadius: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+            <p style={{ fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8A8279" }}>Inquiry Channel</p>
+            <TrendingUp size={18} color="#2C6E3F" />
+          </div>
+          <p style={{ fontSize: "14px", fontWeight: 700, color: "#2C6E3F" }}>WhatsApp + Call</p>
+          <a
+            href="https://wa.me/919764313958"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: "12px", color: "#2C6E3F", textDecoration: "underline", marginTop: "4px", display: "block" }}
+          >
+            +91 97643 13958
+          </a>
         </div>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr",
-          gap: "28px",
-        }}
-        className="lg:grid-cols-[1.6fr_1fr]"
-      >
-        {/* ════ LEFT: Recent Orders Table ════ */}
-        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "18px", color: "#1A1918" }}>
-              Recent Orders
-            </h2>
+      {/* ════ Low Stock Alert ════ */}
+      {lowStockProducts.length > 0 && (
+        <div style={{ backgroundColor: "#FEF3F2", border: "1px solid #FECACA", borderRadius: "8px", padding: "20px", marginBottom: "28px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+            <AlertTriangle size={18} color="#B91C1C" />
+            <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#B91C1C" }}>Low Stock Alert</h2>
           </div>
-
-          {recentOrders.length === 0 ? (
-            <p style={{ fontSize: "13px", color: "#8A8279", padding: "24px 0", textAlign: "center" }}>
-              No orders placed yet.
-            </p>
-          ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", minWidth: "500px" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid #E4DDD3", textAlign: "left", color: "#8A8279" }}>
-                    <th style={{ padding: "8px 0" }}>Order #</th>
-                    <th style={{ padding: "8px" }}>Customer</th>
-                    <th style={{ padding: "8px", textAlign: "right" }}>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} style={{ borderBottom: "1px solid #F3EFEA" }}>
-                      <td style={{ padding: "12px 0", fontWeight: 600 }}>#{order.orderNumber}</td>
-                      <td style={{ padding: "12px 8px" }}>{order.user.name}</td>
-                      <td style={{ padding: "12px 8px", textAlign: "right", fontWeight: 600 }}>
-                        {formatPrice(order.total)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* ════ RIGHT: Low Stock Alerts ════ */}
-        <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", padding: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "18px", color: "#1A1918", display: "flex", alignItems: "center", gap: "6px" }}>
-              <AlertTriangle size={18} color="#B8860B" /> Low Stock Alerts
-            </h2>
-            <Link href="/admin/inventory" style={{ fontSize: "12px", fontWeight: 600, color: "#9E3B2B", textDecoration: "none" }}>
-              Manage Stock →
-            </Link>
-          </div>
-
-          {lowStockProducts.length === 0 ? (
-            <p style={{ fontSize: "13px", color: "#2C6E3F", padding: "24px 0", textAlign: "center" }}>
-              ✓ All products have healthy inventory levels.
-            </p>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {lowStockProducts.map((p) => (
-                <div
-                  key={p.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "10px 12px",
-                    backgroundColor: "#FAF7F2",
-                    border: "1px solid #E4DDD3",
-                  }}
-                >
-                  <div>
-                    <p style={{ fontSize: "13px", fontWeight: 500, color: "#1A1918" }}>{p.name}</p>
-                    <span style={{ fontSize: "11px", color: "#8A8279" }}>{p.category.name} • SKU: {p.sku}</span>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      color: p.stock <= 5 ? "#B91C1C" : "#B8860B",
-                      padding: "2px 8px",
-                      backgroundColor: "white",
-                      border: "1px solid #E4DDD3",
-                    }}
-                  >
-                    {p.stock} {p.unitType === "PER_METER" ? "meters" : "left"}
-                  </span>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "10px" }}>
+            {lowStockProducts.map((product) => (
+              <Link
+                key={product.id}
+                href={`/admin/products/${product.id}/edit`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "10px 12px",
+                  backgroundColor: "white",
+                  border: "1px solid #FECACA",
+                  borderRadius: "6px",
+                  textDecoration: "none",
+                  color: "#1A1918",
+                }}
+              >
+                <Package size={14} color="#8A8279" />
+                <div>
+                  <p style={{ fontSize: "13px", fontWeight: 500 }}>{product.name}</p>
+                  <p style={{ fontSize: "11px", color: "#B91C1C", fontWeight: 600 }}>Stock: {product.stock}</p>
                 </div>
-              ))}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ════ Recent Products ════ */}
+      <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", borderRadius: "8px", overflow: "hidden" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid #E4DDD3" }}>
+          <h2 style={{ fontSize: "14px", fontWeight: 600, color: "#1A1918" }}>Recent Products</h2>
+          <Link href="/admin/products" style={{ fontSize: "12px", color: "#9E3B2B", textDecoration: "none", fontWeight: 500 }}>
+            View All →
+          </Link>
+        </div>
+        <div>
+          {recentProducts.map((product, idx) => (
+            <div
+              key={product.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "14px",
+                padding: "14px 20px",
+                borderBottom: idx < recentProducts.length - 1 ? "1px solid #E4DDD3" : "none",
+              }}
+            >
+              {product.images[0]?.url ? (
+                <img
+                  src={product.images[0].url}
+                  alt={product.name}
+                  style={{ width: "44px", height: "56px", objectFit: "cover", borderRadius: "4px", border: "1px solid #E4DDD3", flexShrink: 0 }}
+                />
+              ) : (
+                <div style={{ width: "44px", height: "56px", backgroundColor: "#F3EFEA", borderRadius: "4px", flexShrink: 0 }} />
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "#1A1918", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {product.name}
+                </p>
+                <p style={{ fontSize: "11px", color: "#8A8279" }}>{product.category.name}</p>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <p style={{ fontSize: "13px", fontWeight: 700, color: "#1A1918" }}>₹{product.price.toLocaleString("en-IN")}</p>
+                <span style={{ fontSize: "10px", fontWeight: 600, padding: "2px 6px", borderRadius: "3px", backgroundColor: product.isPublished ? "#D1FAE5" : "#FEE2E2", color: product.isPublished ? "#065F46" : "#991B1B" }}>
+                  {product.isPublished ? "Published" : "Draft"}
+                </span>
+              </div>
+              <Link
+                href={`/admin/products/${product.id}/edit`}
+                style={{ fontSize: "12px", color: "#9E3B2B", textDecoration: "none", fontWeight: 500, flexShrink: 0 }}
+              >
+                Edit
+              </Link>
             </div>
-          )}
+          ))}
         </div>
       </div>
     </div>
   );
 }
-

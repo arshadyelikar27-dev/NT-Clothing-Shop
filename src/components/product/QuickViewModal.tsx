@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { X, ShoppingBag, ChevronLeft, ChevronRight, Star, ZoomIn } from "lucide-react";
-import { useCartStore, useUIStore } from "@/lib/store";
+import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { useUIStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
 
 interface Variant {
@@ -51,10 +51,8 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
   const [imageIndex, setImageIndex] = useState(0);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
-  const [adding, setAdding] = useState(false);
   const [zoomed, setZoomed] = useState(false);
 
-  const { addItem } = useCartStore();
   const { showNotification } = useUIStore();
 
   useEffect(() => {
@@ -144,32 +142,12 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
       ? Math.round(((product.compareAtPrice - effectivePrice) / product.compareAtPrice) * 100)
       : null;
 
-  const handleAddToCart = async () => {
-    // Validate variant selection
-    if (variantTypes.length > 0 && Object.keys(selectedVariants).length < variantTypes.length) {
-      showNotification("Please select all options before adding to cart", "error");
-      return;
-    }
-    if (outOfStock) {
-      showNotification("This item is out of stock", "error");
-      return;
-    }
-
-    setAdding(true);
-    addItem({
-      productId: product.id,
-      variantId: selectedVariant?.id,
-      name: product.name,
-      image: images[0]?.url || "",
-      price: effectivePrice,
-      quantity,
-      unitType: product.unitType,
-      sku: product.slug,
-      variantName: selectedVariant?.name,
-      maxStock: effectiveStock,
-    });
-    showNotification(`${product.name} added to bag`, "success");
-    setAdding(false);
+  const handleWhatsAppInquire = () => {
+    const productUrl = `${window.location.origin}/product/${product.slug}`;
+    const message = encodeURIComponent(
+      `Hi NOBLE TEXTILE,\nI'm interested in:\n📌 *${product.name}*\n💰 Price: ${formatPrice(effectivePrice)}${product.unitType === "PER_METER" ? "/m" : ""}\nQuantity: ${quantity}\n🔗 ${productUrl}\n\nPlease let me know availability.`
+    );
+    window.open(`https://wa.me/919764313958?text=${message}`, '_blank');
     onClose();
   };
 
@@ -439,29 +417,28 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
 
             {/* Actions */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px" }}>
+              {/* WhatsApp Inquiry */}
               <button
-                onClick={handleAddToCart}
-                disabled={outOfStock || adding}
+                onClick={handleWhatsAppInquire}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "8px",
                   padding: "14px",
-                  backgroundColor: outOfStock ? "#C0B8B0" : "#1A1918",
+                  backgroundColor: "#25D366",
                   color: "white",
                   border: "none",
                   borderRadius: "8px",
                   fontSize: "13px",
                   fontWeight: 600,
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                  cursor: outOfStock ? "not-allowed" : "pointer",
+                  letterSpacing: "0.04em",
+                  cursor: "pointer",
                   transition: "background 0.2s",
                 }}
               >
-                <ShoppingBag size={16} />
-                {outOfStock ? "Out of Stock" : adding ? "Adding..." : "Add to Bag"}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                Inquire on WhatsApp
               </button>
 
               <Link

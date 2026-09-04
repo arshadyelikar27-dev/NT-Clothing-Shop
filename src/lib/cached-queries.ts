@@ -63,18 +63,13 @@ export const getCachedProductBySlug = (slug: string) =>
           images: { orderBy: { sortOrder: "asc" } },
           category: true,
           variants: { where: { isActive: true } },
-          reviews: {
-            where: { isApproved: true },
-            include: { user: { select: { name: true } } },
-            orderBy: { createdAt: "desc" },
-            take: 10,
-          },
         },
       });
     },
     [`product-${slug}`],
     { revalidate: 300, tags: ["products", `product-${slug}`] }
   )();
+
 
 // ─── 5. Related Products for Product Detail Page ───
 export const getCachedRelatedProducts = (categoryId: string, excludeId: string) =>

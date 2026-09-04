@@ -14,7 +14,6 @@ export async function GET() {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: session.userId },
-    include: { addresses: true }
   });
 
   return NextResponse.json(
@@ -22,10 +21,9 @@ export async function GET() {
       user: {
         userId: session.userId,
         name: session.name,
-        email: session.email,
+        email: dbUser?.email || null,
         phone: dbUser?.phone || null,
         role: session.role,
-        addresses: dbUser?.addresses || [],
       },
     },
     { headers: { "Cache-Control": "private, max-age=30" } }

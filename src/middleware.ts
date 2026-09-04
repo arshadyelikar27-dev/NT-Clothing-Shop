@@ -13,11 +13,28 @@ export async function middleware(request: NextRequest) {
 
   // Only protect /admin routes
   if (pathname.startsWith("/admin")) {
+    // Allow /admin/login to be accessed without a session
+    if (pathname === "/admin/login") {
+      // If already logged in as admin, redirect to dashboard
+      const token = request.cookies.get(COOKIE_NAME)?.value;
+      if (token) {
+        try {
+          const { payload } = await jwtVerify(token, JWT_SECRET);
+          if (ADMIN_ROLES.includes(payload.role as string)) {
+            return NextResponse.redirect(new URL("/admin", request.url));
+          }
+        } catch {
+          // Invalid token — let them see the login page
+        }
+      }
+      return NextResponse.next();
+    }
+
     const token = request.cookies.get(COOKIE_NAME)?.value;
 
     if (!token) {
-      // Not logged in — redirect to login
-      return NextResponse.redirect(new URL("/login", request.url));
+      // Not logged in — redirect to admin login page
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
 
     try {
@@ -25,17 +42,15 @@ export async function middleware(request: NextRequest) {
       const role = payload.role as string;
 
       if (!ADMIN_ROLES.includes(role)) {
-        // Logged in but not an admin — redirect to homepage, NOT admin
+        // Logged in but not an admin — redirect to homepage
         return NextResponse.redirect(new URL("/", request.url));
       }
     } catch {
       // Invalid/expired token
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
   }
 
-  // For the root "/" — never redirect to admin even if admin is logged in
-  // The homepage is the storefront, always accessible
   return NextResponse.next();
 }
 

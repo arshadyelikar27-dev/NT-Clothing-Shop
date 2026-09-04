@@ -3,8 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { ShoppingBag, Eye } from "lucide-react";
-import { useCartStore, useUIStore } from "@/lib/store";
+import { Eye, Truck } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { QuickViewModal } from "./QuickViewModal";
 
@@ -22,6 +21,7 @@ interface ProductCardProps {
   unitType: string;
   stock: number;
   isNew?: boolean;
+  deliveryCharge?: number | null;
 }
 
 export function ProductCard({
@@ -38,10 +38,9 @@ export function ProductCard({
   unitType,
   stock,
   isNew,
+  deliveryCharge,
 }: ProductCardProps) {
-  const addItem = useCartStore((s) => s.addItem);
   const outOfStock = stock <= 0;
-  const { showNotification } = useUIStore();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
 
   const discount =
@@ -49,33 +48,15 @@ export function ProductCard({
       ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
       : null;
 
-  const handleQuickAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (outOfStock) return;
-
-    addItem({
-      productId: id,
-      name,
-      image,
-      price,
-      quantity: 1,
-      unitType,
-      sku: slug,
-      maxStock: stock,
-    });
-
-    showNotification(
-      `${name} added to cart`,
-      "success"
-    );
-  };
-
   const handleQuickView = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setQuickViewOpen(true);
   };
+
+  const freeDelivery = deliveryCharge === 0 || deliveryCharge === null || deliveryCharge === undefined ? false : false;
+  const showFreeDelivery = deliveryCharge === 0;
+  const showDeliveryCharge = deliveryCharge !== null && deliveryCharge !== undefined && deliveryCharge > 0;
 
   return (
     <>
@@ -236,12 +217,19 @@ export function ProductCard({
                   zIndex: 2,
                 }}
               >
+                {/* WhatsApp Inquiry */}
                 <button
                   type="button"
-                  onClick={handleQuickAdd}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const productUrl = `${window.location.origin}/product/${slug}`;
+                    const message = encodeURIComponent(`Hi NOBLE TEXTILE, I'm interested in "${name}" for ${formatPrice(price)}. Link: ${productUrl}`);
+                    window.open(`https://wa.me/919764313958?text=${message}`, '_blank');
+                  }}
                   style={{
                     flex: 1,
-                    backgroundColor: "#1A1918",
+                    backgroundColor: "#25D366",
                     color: "white",
                     border: "none",
                     padding: "8px 12px",
@@ -255,38 +243,14 @@ export function ProductCard({
                     cursor: "pointer",
                     transition: "background-color 0.2s",
                   }}
-                  className="hover:bg-[#9E3B2B]"
-                >
-                  <ShoppingBag size={14} />
-                  <span>Quick Add</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const productUrl = `${window.location.origin}/product/${slug}`;
-                    const message = encodeURIComponent(`Hi NOBLE TEXTILE, I'm interested in "${name}" for ${formatPrice(price)}. Link: ${productUrl}`);
-                    window.open(`https://wa.me/919764313958?text=${message}`, '_blank');
-                  }}
-                  style={{
-                    backgroundColor: "#25D366", // WhatsApp color
-                    color: "white",
-                    border: "none",
-                    width: "36px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    transition: "background-color 0.2s",
-                  }}
                   className="hover:bg-[#128C7E]"
                   title="Inquire on WhatsApp"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                  <span>Inquire</span>
                 </button>
 
+                {/* Quick View */}
                 <button
                   type="button"
                   onClick={handleQuickView}
@@ -373,9 +337,30 @@ export function ProductCard({
                 </span>
               )}
             </div>
+            {/* Delivery Charge Badge */}
+            {(showDeliveryCharge || deliveryCharge === 0) && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  marginTop: "5px",
+                }}
+              >
+                <Truck size={11} color={deliveryCharge === 0 ? "#2C6E3F" : "#8A8279"} />
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    color: deliveryCharge === 0 ? "#2C6E3F" : "#8A8279",
+                  }}
+                >
+                  {deliveryCharge === 0 ? "FREE Delivery" : `+₹${deliveryCharge} Delivery`}
+                </span>
+              </div>
+            )}
           </div>
         </Link>
-
       </div>
 
       {/* Quick View Modal */}

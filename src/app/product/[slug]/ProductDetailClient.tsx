@@ -2,25 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
-  Heart,
-  ShoppingBag,
   Share2,
   Truck,
-  RotateCcw,
   ShieldCheck,
-  Check,
-  MapPin,
-  Star,
-  Ruler,
-  Info,
   ChevronRight,
   ZoomIn,
   Download,
+  Phone,
 } from "lucide-react";
-import { useCartStore, useUIStore } from "@/lib/store";
-import { formatPrice, getDiscountPercentage, getUnitLabel } from "@/lib/utils";
+import { useUIStore } from "@/lib/store";
+import { formatPrice, getUnitLabel } from "@/lib/utils";
 import { ProductCard } from "@/components/product/ProductCard";
 import { BackButton } from "@/components/ui/BackButton";
 
@@ -46,18 +38,6 @@ interface Category {
   slug: string;
 }
 
-interface Review {
-  id: string;
-  rating: number;
-  title?: string | null;
-  comment?: string | null;
-  isVerified: boolean;
-  createdAt: string;
-  user: {
-    name: string;
-  };
-}
-
 interface Product {
   id: string;
   name: string;
@@ -76,11 +56,11 @@ interface Product {
   maxQuantity: number;
   quantityStep: number;
   stock: number;
+  deliveryCharge?: number | null;
   category: Category;
   images: ProductImage[];
   variants: ProductVariant[];
   videoUrl?: string | null;
-  reviews: Review[];
 }
 
 interface ProductDetailClientProps {
@@ -94,6 +74,7 @@ interface ProductDetailClientProps {
     unitType: string;
     stock: number;
     images: ProductImage[];
+    deliveryCharge?: number | null;
   }>;
 }
 
@@ -101,7 +82,6 @@ export function ProductDetailClient({
   product,
   relatedProducts,
 }: ProductDetailClientProps) {
-  const router = useRouter();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const colorVariants = product.variants.filter((v) => v.type === "COLOR");
   const sizeVariants = product.variants.filter((v) => v.type === "SIZE");
@@ -110,12 +90,9 @@ export function ProductDetailClient({
   const [selectedSize, setSelectedSize] = useState<ProductVariant | null>(sizeVariants[0] || null);
   const [displayImage, setDisplayImage] = useState<string | null>(selectedColor?.imageUrl || null);
   const [quantity, setQuantity] = useState<number>(product.unitType === "PER_METER" ? 1.0 : 1);
-  const [pincode, setPincode] = useState("");
-  const [pincodeStatus, setPincodeStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"desc" | "specs" | "care" | "shipping">("desc");
   const [isZoomed, setIsZoomed] = useState(false);
 
-  const addItem = useCartStore((s) => s.addItem);
   const { showNotification } = useUIStore();
 
   const currentPrice = selectedColor?.price || selectedSize?.price || product.price;
@@ -140,36 +117,8 @@ export function ProductDetailClient({
     product.images[0]?.url ||
     "/images/products/premium-cotton-fabric.jpg";
 
-  const handleAddToCart = () => {
-    if (!inStock) return;
-    const variantName = [selectedColor?.value, selectedSize?.value].filter(Boolean).join(" - ");
-    const variantId = selectedColor?.id || selectedSize?.id;
-
-    addItem({
-      productId: product.id,
-      variantId: variantId,
-      name: product.name,
-      image: primaryImage,
-      price: currentPrice,
-      quantity,
-      unitType: product.unitType,
-      sku: variantName ? `${product.sku}-${variantName}` : product.sku,
-      variantName: variantName || undefined,
-      maxStock: product.stock,
-    });
-    showNotification(
-      `${quantity} ${getUnitLabel(product.unitType, quantity)} of ${product.name} added to bag`,
-      "success"
-    );
-  };
-
-  const handleBuyNow = () => {
-    handleAddToCart();
-    router.push("/checkout");
-  };
-
   const handleDownloadMedia = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // prevent zooming
+    e.stopPropagation();
     e.preventDefault();
     try {
       const isVideo = displayImage === "video" && product.videoUrl;
@@ -182,7 +131,7 @@ export function ProductDetailClient({
       const response = await fetch(mediaUrl);
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
-      
+
       const link = document.createElement("a");
       link.href = blobUrl;
       link.download = filename;
@@ -192,23 +141,10 @@ export function ProductDetailClient({
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error("Download failed:", err);
-      // Fallback: open in new tab
       const isVideo = displayImage === "video" && product.videoUrl;
       const mediaUrl = isVideo ? product.videoUrl! : primaryImage;
       window.open(mediaUrl, "_blank");
     }
-  };
-
-
-
-  const handleCheckPincode = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!pincode || pincode.length !== 6) {
-      setPincodeStatus("Please enter a valid 6-digit Indian PIN code");
-      return;
-    }
-    // Realistic delivery time simulation for Indian PIN codes
-    setPincodeStatus("Standard Delivery: 7-10 Days");
   };
 
   const handleShare = async () => {
@@ -228,6 +164,22 @@ export function ProductDetailClient({
     }
   };
 
+  const buildWhatsAppMessage = () => {
+    const productUrl = window.location.href;
+    const qtyLine =
+      product.unitType === "PER_METER"
+        ? `Quantity: ${quantity} meter(s)`
+        : `Quantity: ${quantity}`;
+    return encodeURIComponent(
+      `Hi NOBLE TEXTILE,\nI'm interested in:\n📌 *${product.name}*\n💰 Price: ${formatPrice(currentPrice)}${product.unitType === "PER_METER" ? "/m" : ""}\n${qtyLine}\n🔗 ${productUrl}\n\nPlease let me know availability.`
+    );
+  };
+
+  // Delivery charge display
+  const deliveryCharge = product.deliveryCharge;
+  const isFreeDelivery = deliveryCharge === 0;
+  const hasPaidDelivery = deliveryCharge !== null && deliveryCharge !== undefined && deliveryCharge > 0;
+
   return (
     <div style={{ backgroundColor: "#FAF7F2", minHeight: "100vh" }}>
       {/* ─── Breadcrumb ─── */}
@@ -242,8 +194,8 @@ export function ProductDetailClient({
             flexWrap: "wrap",
           }}
         >
-          <BackButton 
-            label="Back" 
+          <BackButton
+            label="Back"
             fallbackUrl="/shop"
             className="mr-2 text-[#1A1918]"
           />
@@ -458,7 +410,7 @@ export function ProductDetailClient({
             </div>
           </div>
 
-          {/* ════ RIGHT: Product Info & Purchase ════ */}
+          {/* ════ RIGHT: Product Info ════ */}
           <div>
             {/* Header info */}
             <div style={{ borderBottom: "1px solid #E4DDD3", paddingBottom: "24px", marginBottom: "24px" }}>
@@ -492,7 +444,6 @@ export function ProductDetailClient({
                 </div>
 
                 <div style={{ display: "flex", gap: "8px" }}>
-
                   <button
                     onClick={handleShare}
                     aria-label="Share"
@@ -524,6 +475,7 @@ export function ProductDetailClient({
                   alignItems: "baseline",
                   gap: "12px",
                   marginTop: "16px",
+                  flexWrap: "wrap",
                 }}
               >
                 <span
@@ -560,6 +512,25 @@ export function ProductDetailClient({
                   </span>
                 )}
               </div>
+
+              {/* Delivery Charge Display */}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px" }}>
+                <Truck size={15} color={isFreeDelivery ? "#2C6E3F" : hasPaidDelivery ? "#8A8279" : "#8A8279"} />
+                <span
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: isFreeDelivery ? "#2C6E3F" : "#8A8279",
+                  }}
+                >
+                  {isFreeDelivery
+                    ? "FREE Delivery"
+                    : hasPaidDelivery
+                    ? `+₹${deliveryCharge} Delivery Charge`
+                    : "Delivery charge on inquiry"}
+                </span>
+              </div>
+
               <p style={{ fontSize: "12px", color: "#8A8279", marginTop: "4px" }}>
                 Inclusive of all taxes.
               </p>
@@ -658,7 +629,7 @@ export function ProductDetailClient({
               </div>
             )}
 
-            {/* ════ Unit & Quantity Selector ════ */}
+            {/* ════ Quantity Selector ════ */}
             <div
               style={{
                 backgroundColor: "#F3EFEA",
@@ -681,7 +652,7 @@ export function ProductDetailClient({
                         gap: "6px",
                       }}
                     >
-                      <Ruler size={15} /> Select Fabric Length (Meters):
+                      Select Fabric Length (Meters):
                     </label>
                     <span style={{ fontSize: "14px", fontWeight: 600, color: "#9E3B2B" }}>
                       Total: {formatPrice(totalPrice)}
@@ -796,101 +767,63 @@ export function ProductDetailClient({
               )}
             </div>
 
-            {/* ════ Action Buttons ════ */}
-            <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
+            {/* ════ Inquiry Action Buttons ════ */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "28px" }}>
+              {/* WhatsApp Inquiry */}
               <button
-                onClick={handleAddToCart}
-                disabled={!inStock}
-                className="btn btn-secondary"
-                style={{ flex: 1, padding: "16px 20px" }}
+                onClick={() => {
+                  window.open(`https://wa.me/919764313958?text=${buildWhatsAppMessage()}`, '_blank');
+                }}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                  padding: "15px 20px",
+                  backgroundColor: "#25D366",
+                  border: "none",
+                  color: "white",
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "background-color 0.15s",
+                  borderRadius: "4px",
+                  letterSpacing: "0.02em",
+                }}
+                className="hover:bg-[#128C7E]"
               >
-                <ShoppingBag size={18} />
-                {inStock ? "Add to Bag" : "Out of Stock"}
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                <span>Inquire on WhatsApp</span>
               </button>
 
-              <button
-                onClick={handleBuyNow}
-                disabled={!inStock}
-                className="btn btn-accent"
-                style={{ flex: 1, padding: "16px 20px" }}
+              {/* Call to Order */}
+              <a
+                href="tel:+919764313958"
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                  padding: "13px 20px",
+                  backgroundColor: "#1A1918",
+                  border: "2px solid #1A1918",
+                  color: "white",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                  borderRadius: "4px",
+                  textDecoration: "none",
+                  letterSpacing: "0.02em",
+                  boxSizing: "border-box",
+                }}
+                className="hover:bg-[#9E3B2B] hover:border-[#9E3B2B]"
               >
-                Buy Now
-              </button>
-            </div>
-
-            {/* Direct WhatsApp Store Chat */}
-            <button
-              onClick={() => {
-                const productUrl = window.location.href;
-                const message = encodeURIComponent(`Hi NOBLE TEXTILE, I'm interested in "${product.name}" for ${formatPrice(currentPrice)}. Link: ${productUrl}`);
-                window.open(`https://wa.me/919764313958?text=${message}`, '_blank');
-              }}
-              style={{
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                padding: "12px 16px",
-                backgroundColor: "#25D366",
-                border: "none",
-                color: "white",
-                fontSize: "13px",
-                fontWeight: 600,
-                marginBottom: "28px",
-                cursor: "pointer",
-                transition: "background-color 0.15s",
-              }}
-              className="hover:bg-[#128C7E]"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
-              <span>Inquire on WhatsApp</span>
-            </button>
-
-            {/* ════ PIN code delivery estimator ════ */}
-            <div
-              style={{
-                border: "1px solid #E4DDD3",
-                padding: "16px 20px",
-                backgroundColor: "white",
-                marginBottom: "28px",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                <MapPin size={16} color="#9E3B2B" />
-                <span style={{ fontSize: "13px", fontWeight: 600 }}>Delivery Check</span>
-              </div>
-              <form onSubmit={handleCheckPincode} style={{ display: "flex", gap: "8px" }}>
-                <input
-                  type="text"
-                  maxLength={6}
-                  placeholder="Enter 6-digit PIN code (e.g. 413512)"
-                  value={pincode}
-                  onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
-                  style={{
-                    flex: 1,
-                    padding: "8px 12px",
-                    fontSize: "13px",
-                    border: "1px solid #E4DDD3",
-                    fontFamily: "var(--font-sans)",
-                  }}
-                />
-                <button type="submit" className="btn btn-primary btn-sm">
-                  Check
-                </button>
-              </form>
-              {pincodeStatus && (
-                <p
-                  style={{
-                    fontSize: "12px",
-                    marginTop: "10px",
-                    color: pincodeStatus.includes("Please") ? "#B91C1C" : "#2C6E3F",
-                    fontWeight: 500,
-                  }}
-                >
-                  {pincodeStatus}
-                </p>
-              )}
+                <Phone size={18} />
+                <span>Call to Order</span>
+              </a>
             </div>
 
             {/* ════ Trust Badges ════ */}
@@ -1025,6 +958,16 @@ export function ProductDetailClient({
                     <p style={{ color: "#8A8279", fontSize: "13px" }}>
                       • Local pickup available at our Latur retail store.
                     </p>
+                    {isFreeDelivery && (
+                      <p style={{ color: "#2C6E3F", fontSize: "13px", fontWeight: 600, marginTop: "8px" }}>
+                        🚚 FREE Delivery on this product.
+                      </p>
+                    )}
+                    {hasPaidDelivery && (
+                      <p style={{ color: "#8A8279", fontSize: "13px", marginTop: "8px" }}>
+                        Delivery charge: ₹{deliveryCharge} for this product.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -1059,6 +1002,7 @@ export function ProductDetailClient({
                   fabric={rel.fabric}
                   unitType={rel.unitType}
                   stock={rel.stock}
+                  deliveryCharge={rel.deliveryCharge}
                 />
               ))}
             </div>

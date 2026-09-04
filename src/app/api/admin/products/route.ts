@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
       videoUrl: uploadedVideoUrl,
       sizes,
       colors,
+      deliveryCharge: deliveryChargeInput,
     } = body;
 
     if (!name || !priceInput || !categoryId || !imageFrontUrl) {
@@ -88,6 +89,10 @@ export async function POST(request: NextRequest) {
     if (parsed.comboLabel || unitType === "PER_SET") tagList.push("COMBO");
     const tags = tagList.length > 0 ? tagList.join(",") : null;
 
+    const deliveryCharge = deliveryChargeInput !== null && deliveryChargeInput !== undefined
+      ? parseFloat(deliveryChargeInput)
+      : null;
+
     const product = await prisma.product.create({
       data: {
         name: name.trim(),
@@ -103,6 +108,7 @@ export async function POST(request: NextRequest) {
         stock: 100,
         isFeatured: false,
         tags,
+        deliveryCharge: isNaN(deliveryCharge as number) ? null : deliveryCharge,
         images: {
           create: imagesToCreate,
         },

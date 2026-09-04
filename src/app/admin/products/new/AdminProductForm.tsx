@@ -20,6 +20,8 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
   const [comboOfferText, setComboOfferText] = useState("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id || "");
   const [description, setDescription] = useState("");
+  const [isFreeDelivery, setIsFreeDelivery] = useState(false);
+  const [deliveryChargeInput, setDeliveryChargeInput] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
 
   // Variants State
@@ -112,6 +114,12 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
       }
 
       // 2. Send JSON payload to API
+      const deliveryCharge = isFreeDelivery
+        ? 0
+        : deliveryChargeInput
+        ? parseFloat(deliveryChargeInput)
+        : null;
+
       const payload = {
         name: name.trim(),
         price: parsedPriceInfo.numericPrice,
@@ -127,6 +135,7 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
         videoUrl: uploadedVideoUrl,
         sizes,
         colors: uploadedColors,
+        deliveryCharge,
       };
 
       const res = await fetch("/api/admin/products", {
@@ -399,6 +408,59 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Delivery Charge */}
+            <div style={{ backgroundColor: "#F3EFEA", border: "1px solid #E4DDD3", padding: "16px", borderRadius: "4px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#1A1918", marginBottom: "12px" }}>
+                🚚 Delivery Charge
+              </label>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                <input
+                  type="checkbox"
+                  id="freeDeliveryCheck"
+                  checked={isFreeDelivery}
+                  onChange={(e) => {
+                    setIsFreeDelivery(e.target.checked);
+                    if (e.target.checked) setDeliveryChargeInput("");
+                  }}
+                  style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                />
+                <label htmlFor="freeDeliveryCheck" style={{ fontSize: "14px", fontWeight: 600, color: "#2C6E3F", cursor: "pointer" }}>
+                  Free Delivery
+                </label>
+              </div>
+              {!isFreeDelivery && (
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", color: "#8A8279", marginBottom: "6px" }}>
+                    Delivery Charge (₹) — leave empty if not applicable
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 50"
+                    value={deliveryChargeInput}
+                    onChange={(e) => setDeliveryChargeInput(e.target.value)}
+                    style={{
+                      width: "160px",
+                      padding: "8px 12px",
+                      fontSize: "14px",
+                      border: "1px solid #E4DDD3",
+                      borderRadius: "4px",
+                      outline: "none",
+                      backgroundColor: "white",
+                    }}
+                  />
+                </div>
+              )}
+              <p style={{ fontSize: "11px", color: "#8A8279", marginTop: "8px" }}>
+                {isFreeDelivery
+                  ? "✅ Will show FREE Delivery on product page"
+                  : deliveryChargeInput
+                  ? `Will show +₹${deliveryChargeInput} Delivery on product page`
+                  : "Will show 'Delivery charge on inquiry'"
+                }
+              </p>
             </div>
 
             {/* Description */}

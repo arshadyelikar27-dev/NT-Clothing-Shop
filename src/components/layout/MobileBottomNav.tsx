@@ -2,18 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, ShoppingBag, Store, User } from "lucide-react";
-import { useCartStore, useUIStore } from "@/lib/store";
+import { Home, Search, Store, Phone } from "lucide-react";
+import { useUIStore } from "@/lib/store";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const cartItemCount = useCartStore((s) => s.items.length);
   const { setSearchOpen } = useUIStore();
 
   const isHome = pathname === "/";
   const isShop = pathname.startsWith("/shop") || pathname.startsWith("/category");
-  const isCart = pathname === "/cart";
-  const isAccount = pathname.startsWith("/account");
 
   return (
     <nav aria-label="Mobile Navigation" className="mobile-bottom-nav-bar">
@@ -47,32 +44,26 @@ export function MobileBottomNav() {
         <span>Search</span>
       </button>
 
-      {/* Bag / Cart */}
-      <Link
-        href="/cart"
-        prefetch={true}
-        className={`mobile-tab ${isCart ? "active" : ""}`}
+      {/* WhatsApp */}
+      <a
+        href="https://wa.me/919764313958"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mobile-tab"
+        style={{ color: "#25D366" }}
       >
-        <div style={{ position: "relative" }}>
-          <ShoppingBag size={20} strokeWidth={isCart ? 2.5 : 2} />
-          {cartItemCount > 0 && (
-            <span className="mobile-tab-badge">
-              {cartItemCount}
-            </span>
-          )}
-        </div>
-        <span>Bag</span>
-      </Link>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <span>Inquire</span>
+      </a>
 
-      {/* Account */}
-      <Link
-        href="/account"
-        prefetch={true}
-        className={`mobile-tab ${isAccount ? "active" : ""}`}
+      {/* Call */}
+      <a
+        href="tel:+919764313958"
+        className="mobile-tab"
       >
-        <User size={20} strokeWidth={isAccount ? 2.5 : 2} />
-        <span>Account</span>
-      </Link>
+        <Phone size={20} strokeWidth={2} />
+        <span>Call</span>
+      </a>
     </nav>
   );
 }

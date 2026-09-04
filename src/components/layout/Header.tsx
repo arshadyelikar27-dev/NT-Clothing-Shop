@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Menu, Search, ShoppingBag, X, User, LogOut, ChevronDown, ChevronRight } from "lucide-react";
+import { Menu, Search, X, ChevronDown, ChevronRight } from "lucide-react";
 import { getCategoriesAction } from "@/app/actions/categories";
-import { useCartStore, useUIStore } from "@/lib/store";
+import { useUIStore } from "@/lib/store";
 
 interface CategoryItem {
   id: string;
@@ -20,39 +19,12 @@ const STATIC_NAV = [
 
 // Module-level client cache to prevent redundant fetches on route change
 let cachedCategoriesData: CategoryItem[] | null = null;
-let cachedUserData: { name: string; email: string; role: string } | null = null;
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [categories, setCategories] = useState<CategoryItem[]>(cachedCategoriesData || []);
-  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(cachedUserData);
   const { isMobileMenuOpen, setMobileMenu, setSearchOpen } = useUIStore();
-  const cartItemCount = useCartStore((s) => s.items.length);
-  const toggleCart = useCartStore((s) => s.toggleCart);
-
-  // Load user session
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const res = await fetch("/api/auth/session");
-        if (res.ok) {
-          const data = await res.json();
-          cachedUserData = data.user || null;
-          setUser(cachedUserData);
-        }
-      } catch {
-        setUser(null);
-      }
-    }
-    if (!cachedUserData) {
-      loadUser();
-    }
-
-    // Listen for auth state changes from other components (like checkout login)
-    window.addEventListener("auth-change", loadUser);
-    return () => window.removeEventListener("auth-change", loadUser);
-  }, []);
 
   // Load dynamic categories (instant from memory if already loaded)
   useEffect(() => {
@@ -312,7 +284,7 @@ export function Header() {
             )}
           </nav>
 
-          {/* ─── Right: Search & Action Buttons ─── */}
+          {/* ─── Right: Search Button Only ─── */}
           <div
             style={{
               display: "flex",
@@ -320,7 +292,7 @@ export function Header() {
               gap: "8px",
             }}
           >
-            {/* Search Button — Hidden on mobile, visible on desktop */}
+            {/* Search Button */}
             <button
               onClick={() => setSearchOpen(true)}
               aria-label="Search Catalog"
@@ -336,100 +308,37 @@ export function Header() {
                 color: "#1A1918",
                 transition: "all 0.2s ease",
               }}
-              className="hidden md:flex hover:bg-black/10 active:scale-95 sm:w-[38px] sm:h-[38px]"
+              className="flex hover:bg-black/10 active:scale-95 sm:w-[38px] sm:h-[38px]"
             >
               <Search size={18} />
             </button>
 
-            {/* User Account Icon (Desktop Only) */}
-            <Link
-              href={
-                user
-                  ? ["ADMIN", "SUPER_ADMIN", "ORDER_MANAGER", "PRODUCT_MANAGER"].includes(user.role)
-                    ? "/admin"
-                    : "/account"
-                  : "/login"
-              }
-              aria-label={user ? `Account (${user.name})` : "Sign In"}
-              className="hidden md:flex items-center justify-center transition-all relative hover:bg-black/10 hover:scale-105 active:scale-95 no-underline"
+            {/* WhatsApp Contact Button */}
+            <a
+              href="https://wa.me/919764313958"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Contact on WhatsApp"
               style={{
-                width: "38px",
-                height: "38px",
-                borderRadius: "50%",
-                backgroundColor: user ? "rgba(224, 169, 109, 0.25)" : "rgba(0,0,0,0.04)",
-                border: user ? "1px solid rgba(224, 169, 109, 0.6)" : "none",
-                color: user ? "#9E3B2B" : "#1A1918",
-              }}
-            >
-              <User size={18} />
-              {["ADMIN", "SUPER_ADMIN", "ORDER_MANAGER", "PRODUCT_MANAGER"].includes(user?.role || "") && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: "-2px",
-                    right: "-2px",
-                    backgroundColor: "#1A1918",
-                    color: "white",
-                    fontSize: "8px",
-                    fontWeight: 800,
-                    width: "14px",
-                    height: "14px",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  A
-                </span>
-              )}
-            </Link>
-
-            {/* Shopping Bag Icon Button */}
-            <button
-              onClick={toggleCart}
-              aria-label="Shopping Bag"
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "50%",
-                backgroundColor: "#1A1918",
-                border: "none",
-                cursor: "pointer",
-                color: "#FFFFFF",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                position: "relative",
-                transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-                boxShadow: "0 4px 12px rgba(26, 25, 24, 0.25)",
+                gap: "6px",
+                padding: "8px 14px",
+                backgroundColor: "#25D366",
+                color: "white",
+                borderRadius: "9999px",
+                fontFamily: "var(--font-sans)",
+                fontSize: "12px",
+                fontWeight: 600,
+                textDecoration: "none",
+                transition: "background-color 0.2s ease",
+                whiteSpace: "nowrap",
               }}
-              className="hover:bg-[#9E3B2B] active:scale-95 sm:w-[38px] sm:h-[38px]"
+              className="hidden md:flex hover:bg-[#128C7E] active:scale-95"
             >
-              <ShoppingBag size={17} />
-              {cartItemCount > 0 && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-3px",
-                    right: "-3px",
-                    backgroundColor: "#E0A96D",
-                    color: "#1A1918",
-                    fontSize: "10px",
-                    fontWeight: 800,
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-                  }}
-                >
-                  {cartItemCount}
-                </span>
-              )}
-            </button>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+              Inquiry
+            </a>
           </div>
         </div>
       </header>
@@ -607,8 +516,6 @@ export function Header() {
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {[
-                    { href: "/track", label: "Track My Order" },
-                    { href: "/account", label: "My Account & Orders" },
                     { href: "/about", label: "About Noble Textile" },
                     { href: "/contact", label: "Store Location & Contact" },
                   ].map((link) => (
@@ -631,6 +538,9 @@ export function Header() {
                 padding: "16px 20px",
                 borderTop: "1px solid #E4DDD3",
                 backgroundColor: "#FFFFFF",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
               }}
             >
               <a
@@ -651,7 +561,25 @@ export function Header() {
                   textDecoration: "none",
                 }}
               >
-                <span>💬 WhatsApp Store Assistance</span>
+                <span>💬 WhatsApp Inquiry</span>
+              </a>
+              <a
+                href="tel:+919764313958"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "10px",
+                  backgroundColor: "#1A1918",
+                  color: "#FFFFFF",
+                  borderRadius: "8px",
+                  fontWeight: 600,
+                  fontSize: "13px",
+                  textDecoration: "none",
+                }}
+              >
+                <span>📞 Call Us</span>
               </a>
             </div>
           </div>

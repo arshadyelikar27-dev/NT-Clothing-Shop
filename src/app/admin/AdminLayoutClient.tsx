@@ -5,31 +5,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  ShoppingBag,
   Package,
   Layers,
-  Users,
   Settings,
   Sliders,
   Store,
   LogOut,
-  Building2,
-  MessageSquare,
-  Truck,
   Menu,
   X,
 } from "lucide-react";
 
+
 const navItems = [
   { href: "/admin", label: "Overview", icon: <LayoutDashboard size={18} /> },
-  { href: "/admin/orders", label: "Orders", icon: <ShoppingBag size={18} /> },
   { href: "/admin/products", label: "Products", icon: <Package size={18} /> },
   { href: "/admin/categories", label: "Categories", icon: <Layers size={18} /> },
   { href: "/admin/inventory", label: "Inventory", icon: <Sliders size={18} /> },
-  { href: "/admin/customers", label: "Customers", icon: <Users size={18} /> },
-  { href: "/admin/shipping", label: "Shipping", icon: <Truck size={18} /> },
   { href: "/admin/settings", label: "Store Settings", icon: <Settings size={18} /> },
 ];
+
 
 export default function AdminLayoutClient({
   children,
