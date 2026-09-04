@@ -12,7 +12,6 @@ interface Variant {
   type: string;
   value: string;
   price: number | null;
-  inStock: boolean;
   isActive: boolean;
 }
 
@@ -29,7 +28,6 @@ interface QuickViewProduct {
   slug: string;
   price: number;
   compareAtPrice: number | null;
-  inStock: boolean;
   fabric: string | null;
   description: string;
   shortDescription?: string | null;
@@ -126,11 +124,6 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
 
   const selectedVariant = findMatchingVariant();
   const effectivePrice = selectedVariant?.price ?? product.price;
-  const effectiveInStock =
-    selectedVariant !== null && selectedVariant !== undefined
-      ? selectedVariant.inStock
-      : product.inStock;
-  const outOfStock = !effectiveInStock;
 
   const images = product.images.length > 0 ? product.images : [{ id: "0", url: "/images/placeholder.jpg", alt: product.name, sortOrder: 0 }];
   const currentImage = images[imageIndex] || images[0];
@@ -345,12 +338,10 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                     {typeVariants.map((v) => {
                       const isSelected = selectedVariants[type] === v.value;
-                      const isOos = !v.inStock;
                       return (
                         <button
                           key={v.id}
-                          onClick={() => !isOos && setSelectedVariants((prev) => ({ ...prev, [type]: v.value }))}
-                          disabled={isOos}
+                          onClick={() => setSelectedVariants((prev) => ({ ...prev, [type]: v.value }))}
                           style={{
                             padding: "6px 14px",
                             border: `1px solid ${isSelected ? "#1A1918" : "#E4DDD3"}`,
@@ -358,11 +349,8 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
                             fontSize: "13px",
                             fontWeight: isSelected ? 600 : 400,
                             background: isSelected ? "#1A1918" : "white",
-                            color: isSelected ? "white" : isOos ? "#C0B8B0" : "#1A1918",
-                            cursor: isOos ? "not-allowed" : "pointer",
-                            opacity: isOos ? 0.5 : 1,
-                            position: "relative",
-                            textDecoration: isOos ? "line-through" : "none",
+                            color: isSelected ? "white" : "#1A1918",
+                            cursor: "pointer",
                             transition: "all 0.15s",
                           }}
                         >
@@ -403,13 +391,6 @@ export function QuickViewModal({ productSlug, onClose }: QuickViewModalProps) {
                 </button>
               </div>
             </div>
-
-            {/* Stock status */}
-            <p style={{ fontSize: "13px", color: outOfStock ? "#B91C1C" : "#2C6E3F", fontWeight: 500 }}>
-              {outOfStock
-                ? "Out of Stock"
-                : "In Stock"}
-            </p>
 
             {/* Actions */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px" }}>

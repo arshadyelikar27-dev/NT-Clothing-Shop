@@ -19,7 +19,6 @@ interface ProductCardProps {
   shortDescription?: string | null;
   tags?: string | null;
   unitType: string;
-  inStock: boolean;
   isNew?: boolean;
   deliveryCharge?: number | null;
 }
@@ -36,11 +35,9 @@ export function ProductCard({
   shortDescription,
   tags,
   unitType,
-  inStock,
   isNew,
   deliveryCharge,
 }: ProductCardProps) {
-  const outOfStock = !inStock;
   const [quickViewOpen, setQuickViewOpen] = useState(false);
 
   const discount =
@@ -174,104 +171,76 @@ export function ProductCard({
               </span>
             )}
 
-            {/* Out of Stock Overlay */}
-            {outOfStock && (
-              <div
+            {/* Hover Actions Bar */}
+            <div
+              className="hidden md:flex opacity-0 group-hover:opacity-100"
+              style={{
+                position: "absolute",
+                bottom: "8px",
+                left: "8px",
+                right: "8px",
+                gap: "6px",
+                transition: "opacity 0.25s ease, transform 0.25s ease",
+                zIndex: 2,
+              }}
+            >
+              {/* WhatsApp Inquiry */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const productUrl = `${window.location.origin}/product/${slug}`;
+                  const message = encodeURIComponent(`Hi NOBLE TEXTILE, I'm interested in "${name}" for ${formatPrice(price)}. Link: ${productUrl}`);
+                  window.open(`https://wa.me/919764313958?text=${message}`, '_blank');
+                }}
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  backgroundColor: "rgba(250, 247, 242, 0.8)",
+                  flex: 1,
+                  backgroundColor: "#25D366",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 12px",
+                  fontSize: "12px",
+                  fontWeight: 500,
+                  letterSpacing: "0.04em",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  zIndex: 3,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: "#8A8279",
-                    border: "1px solid #8A8279",
-                    padding: "6px 14px",
-                  }}
-                >
-                  Sold Out
-                </span>
-              </div>
-            )}
-
-            {/* Hover Actions Bar */}
-            {!outOfStock && (
-              <div
-                className="hidden md:flex opacity-0 group-hover:opacity-100"
-                style={{
-                  position: "absolute",
-                  bottom: "8px",
-                  left: "8px",
-                  right: "8px",
                   gap: "6px",
-                  transition: "opacity 0.25s ease, transform 0.25s ease",
-                  zIndex: 2,
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
                 }}
+                className="hover:bg-[#128C7E]"
+                title="Inquire on WhatsApp"
               >
-                {/* WhatsApp Inquiry */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const productUrl = `${window.location.origin}/product/${slug}`;
-                    const message = encodeURIComponent(`Hi NOBLE TEXTILE, I'm interested in "${name}" for ${formatPrice(price)}. Link: ${productUrl}`);
-                    window.open(`https://wa.me/919764313958?text=${message}`, '_blank');
-                  }}
-                  style={{
-                    flex: 1,
-                    backgroundColor: "#25D366",
-                    color: "white",
-                    border: "none",
-                    padding: "8px 12px",
-                    fontSize: "12px",
-                    fontWeight: 500,
-                    letterSpacing: "0.04em",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                    cursor: "pointer",
-                    transition: "background-color 0.2s",
-                  }}
-                  className="hover:bg-[#128C7E]"
-                  title="Inquire on WhatsApp"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
-                  <span>Inquire</span>
-                </button>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                <span>Inquire</span>
+              </button>
 
-                {/* Quick View */}
-                <button
-                  type="button"
-                  onClick={handleQuickView}
-                  style={{
-                    backgroundColor: "#FAF7F2",
-                    color: "#1A1918",
-                    border: "1px solid #E4DDD3",
-                    width: "36px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    transition: "background-color 0.2s",
-                  }}
-                  className="hover:bg-white"
-                  title="Quick View"
-                >
-                  <Eye size={15} />
-                </button>
-              </div>
-            )}
+              {/* Quick View */}
+              <button
+                type="button"
+                onClick={handleQuickView}
+                style={{
+                  backgroundColor: "#FAF7F2",
+                  color: "#1A1918",
+                  border: "1px solid #E4DDD3",
+                  padding: "8px 12px",
+                  fontSize: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
+                }}
+                className="hover:bg-white"
+                title="Quick View"
+              >
+                <Eye size={14} />
+                <span>Quick View</span>
+              </button>
+            </div>
           </div>
 
           {/* Content */}

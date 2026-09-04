@@ -386,7 +386,6 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                       }
                       fabric={product.fabric}
                       unitType={product.unitType}
-                      inStock={product.inStock}
                       deliveryCharge={(product as any).deliveryCharge}
                     />
                   ))}

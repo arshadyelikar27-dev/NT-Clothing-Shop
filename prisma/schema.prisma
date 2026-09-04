@@ -62,7 +62,6 @@ model Product {
   minQuantity      Float          @default(1)
   maxQuantity      Float          @default(100)
   quantityStep     Float          @default(1)
-  inStock          Boolean        @default(true)
   deliveryCharge   Float?
   isPublished      Boolean        @default(true)
   isArchived       Boolean        @default(false)
@@ -102,7 +101,6 @@ model ProductVariant {
   type      String
   value     String
   price     Float?
-  inStock   Boolean @default(true)
   sku       String?
   imageUrl  String?
   isActive  Boolean @default(true)

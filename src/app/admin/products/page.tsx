@@ -48,7 +48,6 @@ export default async function AdminProductsPage() {
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Category</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Unit Type</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Fabric / Material</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Stock</th>
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Price</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Status</th>
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Actions</th>
@@ -91,16 +90,6 @@ export default async function AdminProductsPage() {
                   </span>
                 </td>
                 <td style={{ padding: "12px 16px", color: "#8A8279" }}>{product.fabric || "—"}</td>
-                <td style={{ padding: "12px 16px" }}>
-                  <span
-                    style={{
-                      fontWeight: 600,
-                      color: !product.inStock ? "#B91C1C" : "#1A1918",
-                    }}
-                  >
-                    {product.inStock ? "In Stock" : "Out of Stock"}
-                  </span>
-                </td>
                 <td style={{ padding: "12px 16px", textAlign: "right", fontWeight: 600 }}>
                   {formatPrice(product.price)}
                 </td>
