@@ -11,7 +11,7 @@ export default async function AdminLayout({
 
   // Guard: Must be authenticated and have an admin role
   if (!session || !isAdmin(session.role)) {
-    redirect("/login");
+    redirect("/admin-login");
   }
 
   return <AdminLayoutClient session={session}>{children}</AdminLayoutClient>;

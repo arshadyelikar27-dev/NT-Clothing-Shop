@@ -13,8 +13,8 @@ export async function middleware(request: NextRequest) {
 
   // Only protect /admin routes
   if (pathname.startsWith("/admin")) {
-    // Allow /admin/login to be accessed without a session
-    if (pathname === "/admin/login") {
+    // Allow /admin-login to be accessed without a session
+    if (pathname === "/admin-login") {
       // If already logged in as admin, redirect to dashboard
       const token = request.cookies.get(COOKIE_NAME)?.value;
       if (token) {
@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
 
     if (!token) {
       // Not logged in — redirect to admin login page
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(new URL("/admin-login", request.url));
     }
 
     try {
@@ -47,7 +47,7 @@ export async function middleware(request: NextRequest) {
       }
     } catch {
       // Invalid/expired token
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(new URL("/admin-login", request.url));
     }
   }
 
