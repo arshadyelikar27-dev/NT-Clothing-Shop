@@ -82,3 +82,97 @@ export async function DELETE(
     );
   }
 }
+
+import { parsePriceAndCombo, slugify } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getSession();
+    if (!session || !canManageProducts(session.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    
+    const {
+      name,
+      description,
+      shortDescription: customShortDesc,
+      price: priceInput,
+      compareAtPrice: compareAtPriceInput,
+      unitType: explicitUnitType,
+      categoryId,
+      imageFrontUrl,
+      imageRightUrl,
+      imageLeftUrl,
+      imageBackUrl,
+      videoUrl: uploadedVideoUrl,
+      sizes,
+      colors,
+      deliveryCharge: deliveryChargeInput,
+    } = body;
+
+    const parsed = parsePriceAndCombo(priceInput, explicitUnitType || "PER_PIECE");
+    const price = parsed.numericPrice;
+
+    if (!price || price <= 0) {
+      return NextResponse.json({ error: "Invalid price" }, { status: 400 });
+    }
+
+    const unitType = explicitUnitType || parsed.unitType || "PER_PIECE";
+    const shortDescription = customShortDesc || parsed.comboLabel || null;
+    const compareAtPrice = compareAtPriceInput ? parseFloat(compareAtPriceInput) : null;
+    const slug = slugify(name);
+    
+    const deliveryCharge = deliveryChargeInput !== null && deliveryChargeInput !== undefined && deliveryChargeInput !== ""
+      ? parseFloat(deliveryChargeInput)
+      : null;
+
+    // Update the basic fields
+    const product = await prisma.product.update({
+      where: { id },
+      data: {
+        name: name.trim(),
+        slug,
+        description: description || name,
+        shortDescription,
+        price,
+        compareAtPrice,
+        unitType,
+        categoryId,
+        videoUrl: uploadedVideoUrl || null,
+        deliveryCharge: isNaN(deliveryCharge) ? null : deliveryCharge,
+      }
+    });
+
+    // Handle Image updates if a new front image was uploaded
+    // To keep this robust and avoid deleting everything on minor edits,
+    // we assume existing images are kept unless overwritten.
+    // If we wanted to perfectly sync, we would delete existing and re-create.
+    
+    if (imageFrontUrl) {
+      await prisma.productImage.deleteMany({ where: { productId: id } });
+      const imagesToCreate = [];
+      if (imageFrontUrl) imagesToCreate.push({ url: imageFrontUrl, alt: `${name} Front`, sortOrder: 0, isPrimary: true, productId: id });
+      if (imageRightUrl) imagesToCreate.push({ url: imageRightUrl, alt: `${name} Right`, sortOrder: 1, isPrimary: false, productId: id });
+      if (imageLeftUrl)  imagesToCreate.push({ url: imageLeftUrl,  alt: `${name} Left`,  sortOrder: 2, isPrimary: false, productId: id });
+      if (imageBackUrl)  imagesToCreate.push({ url: imageBackUrl,  alt: `${name} Back`,  sortOrder: 3, isPrimary: false, productId: id });
+      
+      await prisma.productImage.createMany({ data: imagesToCreate });
+    }
+
+    revalidatePath("/", "layout");
+    revalidatePath("/shop");
+    revalidatePath(`/product/${slug}`);
+
+    return NextResponse.json({ success: true, product }, { status: 200 });
+  } catch (error: any) {
+    console.error("Product update error:", error);
+    return NextResponse.json({ error: error?.message || "Failed to update product" }, { status: 500 });
+  }
+}

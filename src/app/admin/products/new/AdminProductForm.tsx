@@ -10,18 +10,18 @@ interface Category {
   name: string;
 }
 
-export function AdminProductForm({ categories }: { categories: Category[] }) {
+export function AdminProductForm({ categories, initialData }: { categories: Category[], initialData?: any }) {
   const router = useRouter();
   
-  const [name, setName] = useState("");
-  const [priceInput, setPriceInput] = useState("");
-  const [compareAtPrice, setCompareAtPrice] = useState("");
-  const [unitType, setUnitType] = useState<"PER_PIECE" | "PER_SET" | "PER_METER">("PER_PIECE");
-  const [comboOfferText, setComboOfferText] = useState("");
-  const [categoryId, setCategoryId] = useState(categories[0]?.id || "");
-  const [description, setDescription] = useState("");
-  const [isFreeDelivery, setIsFreeDelivery] = useState(false);
-  const [deliveryChargeInput, setDeliveryChargeInput] = useState("");
+  const [name, setName] = useState(initialData?.name || "");
+  const [priceInput, setPriceInput] = useState(initialData?.price?.toString() || "");
+  const [compareAtPrice, setCompareAtPrice] = useState(initialData?.compareAtPrice?.toString() || "");
+  const [unitType, setUnitType] = useState<"PER_PIECE" | "PER_SET" | "PER_METER">(initialData?.unitType || "PER_PIECE");
+  const [comboOfferText, setComboOfferText] = useState(initialData?.shortDescription || "");
+  const [categoryId, setCategoryId] = useState(initialData?.categoryId || categories[0]?.id || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [isFreeDelivery, setIsFreeDelivery] = useState(initialData?.deliveryCharge === 0);
+  const [deliveryChargeInput, setDeliveryChargeInput] = useState(initialData?.deliveryCharge ? initialData.deliveryCharge.toString() : "");
   const [videoFile, setVideoFile] = useState<File | null>(null);
 
   // Variants State
@@ -45,6 +45,13 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
   const [imageRight, setImageRight] = useState<File | null>(null);
   const [imageLeft, setImageLeft] = useState<File | null>(null);
   const [imageBack, setImageBack] = useState<File | null>(null);
+
+  const getExistingImg = (sort: number) => initialData?.images?.find((i: any) => i.sortOrder === sort)?.url || null;
+  const [existingFront, setExistingFront] = useState(getExistingImg(0));
+  const [existingRight, setExistingRight] = useState(getExistingImg(1));
+  const [existingLeft, setExistingLeft] = useState(getExistingImg(2));
+  const [existingBack, setExistingBack] = useState(getExistingImg(3));
+
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -76,7 +83,7 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
       return;
     }
     
-    if (!imageFront) {
+    if (!imageFront && !existingFront) {
       setError("Front Image is required");
       return;
     }
@@ -98,10 +105,10 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
         return url;
       };
 
-      const imageFrontUrl = imageFront ? await uploadViaApi(imageFront) : null;
-      const imageRightUrl = imageRight ? await uploadViaApi(imageRight) : null;
-      const imageLeftUrl = imageLeft ? await uploadViaApi(imageLeft) : null;
-      const imageBackUrl = imageBack ? await uploadViaApi(imageBack) : null;
+      const imageFrontUrl = imageFront ? await uploadViaApi(imageFront) : existingFront;
+      const imageRightUrl = imageRight ? await uploadViaApi(imageRight) : existingRight;
+      const imageLeftUrl = imageLeft ? await uploadViaApi(imageLeft) : existingLeft;
+      const imageBackUrl = imageBack ? await uploadViaApi(imageBack) : existingBack;
       const uploadedVideoUrl = videoFile ? await uploadViaApi(videoFile) : null;
 
       const uploadedColors = [];
@@ -138,8 +145,9 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
         deliveryCharge,
       };
 
-      const res = await fetch("/api/admin/products", {
-        method: "POST",
+      const url = initialData ? `/api/admin/products/${initialData.id}` : "/api/admin/products";
+      const res = await fetch(url, {
+        method: initialData ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -599,9 +607,11 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
                 Front View *
               </span>
               <label htmlFor="imageFrontInput" style={{ cursor: "pointer", display: "block" }}>
-                <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                <div style={{ position: "relative", width: "100%", height: "260px", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
                   {imageFront ? (
                     <img src={URL.createObjectURL(imageFront)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : existingFront ? (
+                    <img src={existingFront} alt="Existing Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <span style={{ fontSize: "12px", color: "#8A8279", textAlign: "center", padding: "8px" }}>+ Add Image<br/><small>(Front View)</small></span>
                   )}
@@ -623,9 +633,11 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
                 Right Angle View
               </span>
               <label htmlFor="imageRightInput" style={{ cursor: "pointer", display: "block" }}>
-                <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                <div style={{ position: "relative", width: "100%", height: "260px", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
                   {imageRight ? (
                     <img src={URL.createObjectURL(imageRight)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : existingRight ? (
+                    <img src={existingRight} alt="Existing Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <span style={{ fontSize: "12px", color: "#8A8279", textAlign: "center", padding: "8px" }}>+ Add Image<br/><small>(Right View)</small></span>
                   )}
@@ -646,9 +658,11 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
                 Left Angle View
               </span>
               <label htmlFor="imageLeftInput" style={{ cursor: "pointer", display: "block" }}>
-                <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                <div style={{ position: "relative", width: "100%", height: "260px", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
                   {imageLeft ? (
                     <img src={URL.createObjectURL(imageLeft)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : existingLeft ? (
+                    <img src={existingLeft} alt="Existing Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <span style={{ fontSize: "12px", color: "#8A8279", textAlign: "center", padding: "8px" }}>+ Add Image<br/><small>(Left View)</small></span>
                   )}
@@ -669,9 +683,11 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
                 Back View
               </span>
               <label htmlFor="imageBackInput" style={{ cursor: "pointer", display: "block" }}>
-                <div style={{ position: "relative", width: "100%", aspectRatio: "3/4", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                <div style={{ position: "relative", width: "100%", height: "260px", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
                   {imageBack ? (
                     <img src={URL.createObjectURL(imageBack)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : existingBack ? (
+                    <img src={existingBack} alt="Existing Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <span style={{ fontSize: "12px", color: "#8A8279", textAlign: "center", padding: "8px" }}>+ Add Image<br/><small>(Back View)</small></span>
                   )}
@@ -720,7 +736,7 @@ export function AdminProductForm({ categories }: { categories: Category[] }) {
               boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             }}
           >
-            {isSubmitting ? "Uploading & Publishing..." : "Save & Publish Product"}
+            {isSubmitting ? "Saving..." : initialData ? "Update Product" : "Save & Publish Product"}
           </button>
         </div>
 
