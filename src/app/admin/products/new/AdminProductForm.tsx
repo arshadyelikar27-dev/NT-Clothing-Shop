@@ -600,14 +600,14 @@ export function AdminProductForm({ categories, initialData }: { categories: Cate
         <div>
           <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1A1918", marginBottom: "16px" }}>Product Images (Cloudinary CDN)</h3>
           
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "20px" }} className="sm:grid-cols-2 lg:grid-cols-4">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "20px" }}>
             {/* Front View */}
             <div>
               <span style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "6px", color: "#1A1918" }}>
                 Front View *
               </span>
               <label htmlFor="imageFrontInput" style={{ cursor: "pointer", display: "block" }}>
-                <div style={{ position: "relative", width: "100%", height: "260px", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
                   {imageFront ? (
                     <img src={URL.createObjectURL(imageFront)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : existingFront ? (
@@ -633,7 +633,7 @@ export function AdminProductForm({ categories, initialData }: { categories: Cate
                 Right Angle View
               </span>
               <label htmlFor="imageRightInput" style={{ cursor: "pointer", display: "block" }}>
-                <div style={{ position: "relative", width: "100%", height: "260px", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
                   {imageRight ? (
                     <img src={URL.createObjectURL(imageRight)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : existingRight ? (
@@ -658,7 +658,7 @@ export function AdminProductForm({ categories, initialData }: { categories: Cate
                 Left Angle View
               </span>
               <label htmlFor="imageLeftInput" style={{ cursor: "pointer", display: "block" }}>
-                <div style={{ position: "relative", width: "100%", height: "260px", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
                   {imageLeft ? (
                     <img src={URL.createObjectURL(imageLeft)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : existingLeft ? (
@@ -683,7 +683,7 @@ export function AdminProductForm({ categories, initialData }: { categories: Cate
                 Back View
               </span>
               <label htmlFor="imageBackInput" style={{ cursor: "pointer", display: "block" }}>
-                <div style={{ position: "relative", width: "100%", height: "260px", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", backgroundColor: "#F3EFEA", border: "1px dashed #E4DDD3", borderRadius: "4px", marginBottom: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", transition: "border-color 0.2s" }}>
                   {imageBack ? (
                     <img src={URL.createObjectURL(imageBack)} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : existingBack ? (
