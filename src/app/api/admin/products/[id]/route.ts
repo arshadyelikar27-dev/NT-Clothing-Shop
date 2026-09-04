@@ -146,7 +146,7 @@ export async function PUT(
         unitType,
         categoryId,
         videoUrl: uploadedVideoUrl || null,
-        deliveryCharge: isNaN(deliveryCharge) ? null : deliveryCharge,
+        deliveryCharge: deliveryCharge === null || isNaN(deliveryCharge) ? null : deliveryCharge,
       }
     });
 
