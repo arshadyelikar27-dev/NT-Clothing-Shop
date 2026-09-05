@@ -27,7 +27,7 @@ export default async function AdminInventoryPage() {
         </div>
       </div>
 
-      <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3" }}>
+      <div style={{ backgroundColor: "white", border: "1px solid #E4DDD3", overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
           <thead>
             <tr style={{ backgroundColor: "#F3EFEA", borderBottom: "1px solid #E4DDD3", textAlign: "left", color: "#1A1918" }}>
@@ -35,8 +35,6 @@ export default async function AdminInventoryPage() {
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>SKU</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Unit</th>
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Selling Price</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Min Qty</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Max Qty</th>
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Status</th>
             </tr>
           </thead>
@@ -67,12 +65,6 @@ export default async function AdminInventoryPage() {
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "right", fontWeight: 600, color: "#1A1918" }}>
                   {formatPrice(product.price)}
-                </td>
-                <td style={{ padding: "12px 16px", textAlign: "center", color: "#1A1918" }}>
-                  {product.minQuantity}
-                </td>
-                <td style={{ padding: "12px 16px", textAlign: "center", color: "#1A1918" }}>
-                  {product.maxQuantity}
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "center" }}>
                   <span

@@ -51,8 +51,6 @@ interface Product {
   widthInches?: string | null;
   careInstructions?: string | null;
   unitType: string;
-  minQuantity: number;
-  maxQuantity: number;
   quantityStep: number;
   deliveryCharge?: number | null;
   category: Category;
@@ -680,7 +678,7 @@ export function ProductDetailClient({
                     <span style={{ fontSize: "13px", color: "#8A8279" }}>Custom length:</span>
                     <div style={{ display: "flex", alignItems: "center", backgroundColor: "white", border: "1px solid #E4DDD3" }}>
                       <button
-                        onClick={() => setQuantity(Math.max(product.minQuantity, quantity - product.quantityStep))}
+                        onClick={() => setQuantity(Math.max(1, quantity - product.quantityStep))}
                         style={{ padding: "8px 14px", background: "none", border: "none", cursor: "pointer", fontSize: "16px" }}
                       >
                         -
@@ -688,10 +686,9 @@ export function ProductDetailClient({
                       <input
                         type="number"
                         step={product.quantityStep}
-                        min={product.minQuantity}
-                        max={product.maxQuantity}
+                        min={1}
                         value={quantity}
-                        onChange={(e) => setQuantity(Math.max(product.minQuantity, parseFloat(e.target.value) || product.minQuantity))}
+                        onChange={(e) => setQuantity(Math.max(1, parseFloat(e.target.value) || 1))}
                         style={{
                           width: "60px",
                           textAlign: "center",
@@ -702,7 +699,7 @@ export function ProductDetailClient({
                         }}
                       />
                       <button
-                        onClick={() => setQuantity(Math.min(product.maxQuantity, quantity + product.quantityStep))}
+                        onClick={() => setQuantity(quantity + product.quantityStep)}
                         style={{ padding: "8px 14px", background: "none", border: "none", cursor: "pointer", fontSize: "16px" }}
                       >
                         +
