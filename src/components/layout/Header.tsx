@@ -97,9 +97,9 @@ export function Header() {
                   whiteSpace: "nowrap",
                   transition: "color 0.2s",
                 }}
-                className="group-hover:text-[#9E3B2B] sm:text-[18px] md:text-[19px]"
+                className="group-hover:text-[#9E3B2B] sm:text-[18px] md:text-[19px] truncate max-w-[200px] sm:max-w-none inline-block align-bottom"
               >
-                NOBLE TEXTILE <span style={{ fontSize: "13px", opacity: 0.9, fontWeight: 500, fontFamily: "var(--font-sans)", textTransform: "none", letterSpacing: "normal", marginLeft: "4px" }}>(Wholesale Shopee)</span>
+                NOBLE TEXTILE <span className="hidden sm:inline" style={{ fontSize: "13px", opacity: 0.9, fontWeight: 500, fontFamily: "var(--font-sans)", textTransform: "none", letterSpacing: "normal", marginLeft: "4px" }}>(Wholesale Shopee)</span>
               </span>
             </Link>
           </div>
@@ -320,7 +320,6 @@ export function Header() {
               rel="noopener noreferrer"
               aria-label="Contact on WhatsApp"
               style={{
-                display: "flex",
                 alignItems: "center",
                 gap: "6px",
                 padding: "8px 14px",
