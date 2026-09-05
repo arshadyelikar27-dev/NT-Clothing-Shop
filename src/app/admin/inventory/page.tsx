@@ -34,7 +34,6 @@ export default async function AdminInventoryPage() {
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Product</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>SKU</th>
               <th style={{ padding: "12px 16px", fontWeight: 600 }}>Unit</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Cost Price</th>
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Selling Price</th>
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Min Qty</th>
               <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "center" }}>Max Qty</th>
@@ -65,9 +64,6 @@ export default async function AdminInventoryPage() {
                   <span style={{ fontSize: "11px", fontWeight: 600, padding: "2px 6px", backgroundColor: "#F3EFEA", color: "#1A1918", borderRadius: "4px" }}>
                     {product.unitType === "PER_METER" ? "Per Meter" : product.unitType === "PER_SET" ? "Per Set" : "Per Piece"}
                   </span>
-                </td>
-                <td style={{ padding: "12px 16px", textAlign: "right", color: "#8A8279" }}>
-                  {product.costPrice ? formatPrice(product.costPrice) : "—"}
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "right", fontWeight: 600, color: "#1A1918" }}>
                   {formatPrice(product.price)}
