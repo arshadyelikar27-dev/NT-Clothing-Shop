@@ -315,32 +315,48 @@ export function Header() {
               <Search size={18} />
             </button>
 
-            {/* WhatsApp Highlight */}
-            <a
-              href="https://wa.me/919764313958"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Contact on WhatsApp"
-              style={{
-                alignItems: "center",
-                gap: "8px",
-                padding: "8px 16px",
-                backgroundColor: "#25D366",
-                color: "white",
-                borderRadius: "9999px",
-                fontFamily: "var(--font-sans)",
-                fontSize: "13px",
-                fontWeight: 600,
-                textDecoration: "none",
-                transition: "all 0.3s ease",
-                boxShadow: "0 4px 14px rgba(37, 211, 102, 0.25)",
-                whiteSpace: "nowrap",
-              }}
-              className="hidden md:flex hover:bg-[#20bd5a] hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
-              <span>+91 97643 13958</span>
-            </a>
+            {/* WhatsApp Highlight & Badge */}
+            <div className="hidden md:flex">
+              <a
+                href="https://wa.me/919764313958"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Contact on WhatsApp"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "4px 16px",
+                  backgroundColor: "#25D366",
+                  color: "white",
+                  borderRadius: "9999px",
+                  fontFamily: "var(--font-sans)",
+                  textDecoration: "none",
+                  transition: "all 0.3s ease",
+                  boxShadow: "0 4px 14px rgba(37, 211, 102, 0.25)",
+                  whiteSpace: "nowrap",
+                }}
+                className="hover:bg-[#20bd5a] hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: 600 }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                  <span>+91 97643 13958</span>
+                </div>
+                <span
+                  style={{
+                    fontSize: "8px",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    opacity: 0.9,
+                    marginTop: "-1px"
+                  }}
+                >
+                  Contact & Whatsapp
+                </span>
+              </a>
+            </div>
           </div>
         </div>
       </header>
