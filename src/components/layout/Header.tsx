@@ -310,7 +310,7 @@ export function Header() {
                 color: "#1A1918",
                 transition: "all 0.2s ease",
               }}
-              className="flex hover:bg-black/10 active:scale-95 sm:w-[38px] sm:h-[38px]"
+              className="hidden md:flex hover:bg-black/10 active:scale-95 sm:w-[38px] sm:h-[38px]"
             >
               <Search size={18} />
             </button>
