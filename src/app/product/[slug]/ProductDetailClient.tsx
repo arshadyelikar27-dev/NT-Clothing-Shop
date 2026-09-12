@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Share2,
   Truck,
@@ -12,7 +13,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useUIStore } from "@/lib/store";
-import { formatPrice, getUnitLabel } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import { ProductCard } from "@/components/product/ProductCard";
 import { BackButton } from "@/components/ui/BackButton";
 
@@ -254,16 +255,13 @@ export function ProductDetailClient({
                     }}
                   />
                 ) : (
-                  <img
+                  <Image
                     src={primaryImage}
                     alt={product.name}
-                    loading="eager"
-                    decoding="async"
-                    fetchPriority="high"
+                    priority
+                    fill
                     style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
+                      objectFit: "contain",
                       transform: isZoomed ? "scale(1.5)" : "scale(1)",
                       transition: "transform 0.3s ease",
                     }}
@@ -356,12 +354,12 @@ export function ProductDetailClient({
                         flexShrink: 0,
                       }}
                     >
-                      <img
+                      <Image
                         src={img.url}
                         alt={img.alt || `${product.name} angle ${idx + 1}`}
-                        loading="lazy"
-                        decoding="async"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        width={70}
+                        height={85}
+                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
                       />
                     </button>
                   ))}
@@ -386,10 +384,11 @@ export function ProductDetailClient({
                         position: "relative"
                       }}
                     >
-                      <img
+                      <Image
                         src={product.images[0]?.url || "/images/products/premium-cotton-fabric.jpg"}
                         alt="Video Thumbnail"
-                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }}
+                        fill
+                        style={{ objectFit: "cover", opacity: 0.6 }}
                       />
                       <div style={{ position: "absolute", backgroundColor: "rgba(0,0,0,0.6)", borderRadius: "50%", padding: "6px" }}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -563,11 +562,12 @@ export function ProductDetailClient({
                       title={color.value}
                     >
                       {color.imageUrl ? (
-                        <img
+                        <Image
                           src={color.imageUrl}
                           alt={color.value}
-                          loading="lazy"
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          width={50}
+                          height={65}
+                          style={{ width: "100%", height: "100%", objectFit: "contain" }}
                         />
                       ) : (
                         <span style={{ fontSize: "10px", padding: "4px" }}>{color.value}</span>

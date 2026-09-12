@@ -85,9 +85,10 @@ export function Header() {
             {/* Brand Title */}
             <Link
               href="/"
-              className="group flex items-center gap-2 sm:gap-2.5 no-underline shrink-0"
+              className="group flex flex-col justify-center no-underline shrink-0"
+              style={{ padding: "4px 0" }}
             >
-              <span
+              <div
                 style={{
                   fontFamily: "var(--font-serif)",
                   fontSize: "16px",
@@ -96,11 +97,12 @@ export function Header() {
                   color: "#1A1918",
                   whiteSpace: "nowrap",
                   transition: "color 0.2s",
+                  lineHeight: "1.1"
                 }}
-                className="group-hover:text-[#9E3B2B] sm:text-[18px] md:text-[19px] truncate max-w-[200px] sm:max-w-none inline-block align-bottom"
+                className="group-hover:text-[#9E3B2B] sm:text-[18px] md:text-[19px] truncate max-w-[200px] sm:max-w-none"
               >
                 NOBLE TEXTILE <span className="hidden sm:inline" style={{ fontSize: "13px", opacity: 0.9, fontWeight: 500, fontFamily: "var(--font-sans)", textTransform: "none", letterSpacing: "normal", marginLeft: "4px" }}>(Wholesale Shopee)</span>
-              </span>
+              </div>
             </Link>
           </div>
 
@@ -313,7 +315,7 @@ export function Header() {
               <Search size={18} />
             </button>
 
-            {/* WhatsApp Contact Button */}
+            {/* WhatsApp Highlight */}
             <a
               href="https://wa.me/919764313958"
               target="_blank"
@@ -321,22 +323,23 @@ export function Header() {
               aria-label="Contact on WhatsApp"
               style={{
                 alignItems: "center",
-                gap: "6px",
-                padding: "8px 14px",
+                gap: "8px",
+                padding: "8px 16px",
                 backgroundColor: "#25D366",
                 color: "white",
                 borderRadius: "9999px",
                 fontFamily: "var(--font-sans)",
-                fontSize: "12px",
+                fontSize: "13px",
                 fontWeight: 600,
                 textDecoration: "none",
-                transition: "background-color 0.2s ease",
+                transition: "all 0.3s ease",
+                boxShadow: "0 4px 14px rgba(37, 211, 102, 0.25)",
                 whiteSpace: "nowrap",
               }}
-              className="hidden md:flex hover:bg-[#128C7E] active:scale-95"
+              className="hidden md:flex hover:bg-[#20bd5a] hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
-              Inquiry
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+              <span>+91 97643 13958</span>
             </a>
           </div>
         </div>
@@ -542,26 +545,7 @@ export function Header() {
                 gap: "8px",
               }}
             >
-              <a
-                href="https://wa.me/919764313958"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  padding: "10px",
-                  backgroundColor: "#25D366",
-                  color: "#FFFFFF",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  fontSize: "13px",
-                  textDecoration: "none",
-                }}
-              >
-                <span>💬 WhatsApp Inquiry</span>
-              </a>
+
               <a
                 href="tel:+919764313958"
                 style={{

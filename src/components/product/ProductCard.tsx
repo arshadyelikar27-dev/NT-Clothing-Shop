@@ -24,7 +24,6 @@ interface ProductCardProps {
 }
 
 export function ProductCard({
-  id,
   name,
   slug,
   price,
@@ -51,7 +50,6 @@ export function ProductCard({
     setQuickViewOpen(true);
   };
 
-  const freeDelivery = deliveryCharge === 0 || deliveryCharge === null || deliveryCharge === undefined ? false : false;
   const showFreeDelivery = deliveryCharge === 0;
   const showDeliveryCharge = deliveryCharge !== null && deliveryCharge !== undefined && deliveryCharge > 0;
 
@@ -86,7 +84,7 @@ export function ProductCard({
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               style={{
-                objectFit: "cover",
+                objectFit: "contain",
                 transition: "transform 0.5s ease",
               }}
               className="group-hover:scale-105"
@@ -99,7 +97,7 @@ export function ProductCard({
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 style={{
-                  objectFit: "cover",
+                  objectFit: "contain",
                   transition: "opacity 0.4s ease",
                 }}
                 className="opacity-0 group-hover:opacity-100"
@@ -307,7 +305,7 @@ export function ProductCard({
               )}
             </div>
             {/* Delivery Charge Badge */}
-            {(showDeliveryCharge || deliveryCharge === 0) && (
+            {(showDeliveryCharge || showFreeDelivery) && (
               <div
                 style={{
                   display: "flex",
@@ -316,15 +314,15 @@ export function ProductCard({
                   marginTop: "5px",
                 }}
               >
-                <Truck size={11} color={deliveryCharge === 0 ? "#2C6E3F" : "#8A8279"} />
+                <Truck size={11} color={showFreeDelivery ? "#2C6E3F" : "#8A8279"} />
                 <span
                   style={{
                     fontSize: "11px",
                     fontWeight: 600,
-                    color: deliveryCharge === 0 ? "#2C6E3F" : "#8A8279",
+                    color: showFreeDelivery ? "#2C6E3F" : "#8A8279",
                   }}
                 >
-                  {deliveryCharge === 0 ? "FREE Delivery" : `+₹${deliveryCharge} Delivery`}
+                  {showFreeDelivery ? "FREE Delivery" : `+₹${deliveryCharge} Delivery`}
                 </span>
               </div>
             )}
