@@ -316,7 +316,7 @@ export function Header() {
             </button>
 
             {/* WhatsApp Highlight & Badge */}
-            <div className="hidden md:flex">
+            <div className="flex scale-[0.85] origin-right md:scale-100 transition-transform">
               <a
                 href="https://wa.me/919764313958"
                 target="_blank"
